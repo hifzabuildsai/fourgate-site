@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #0a0b0d;
+  --color-surface: #111318;
+  --color-surface-2: #171a20;
+  --color-border: #22262e;
+  --color-border-soft: #1a1d24;
+  --color-text: #e9e7e2;
+  --color-muted: #7d8590;
+  --color-muted-2: #565c66;
+  --color-gold: #d9a441;
+  --color-gold-dim: #7a5f2c;
+  --color-pass: #4ade80;
+  --color-fail: #f2545b;
+  --color-warn: #f2a93b;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
+  --color-border: var(--color-border);
+  --color-border-soft: var(--color-border-soft);
+  --color-text: var(--color-text);
+  --color-muted: var(--color-muted);
+  --color-muted-2: var(--color-muted-2);
+  --color-gold: var(--color-gold);
+  --color-gold-dim: var(--color-gold-dim);
+  --color-pass: var(--color-pass);
+  --color-fail: var(--color-fail);
+  --color-warn: var(--color-warn);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+@keyframes drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, 40px) scale(1.12); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-50px, 60px) scale(0.9); }
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+.animate-drift-a { animation: drift-a 22s ease-in-out infinite; }
+.animate-drift-b { animation: drift-b 26s ease-in-out infinite; }
+.animate-drift-a-rev { animation: drift-a 30s ease-in-out infinite reverse; }
+.animate-blink { animation: blink 1s step-end infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-drift-a, .animate-drift-b, .animate-drift-a-rev, .animate-blink {
+    animation: none !important;
+  }
+}
+
