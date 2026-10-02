@@ -1,9 +1,9 @@
 import ButtonLink from "@/components/ButtonLink";
 import Callout from "@/components/Callout";
-import CodeBlock from "@/components/CodeBlock";
 import ContactCtas from "@/components/ContactCtas";
 import CtaBand from "@/components/CtaBand";
 import ReportFrame from "@/components/ReportFrame";
+import RunTerminal, { type OsCommands } from "@/components/RunTerminal";
 import Section from "@/components/Section";
 import VerdictSimulator from "@/components/VerdictSimulator";
 import { demo, demoCapture } from "@/content/demo";
@@ -18,13 +18,18 @@ export const metadata = pageMetadata({
   path: "/demo",
 });
 
-const linux = `python3 -m venv fourgate-env
-fourgate-env/bin/python -m pip install fourgate
-fourgate-env/bin/fourgate demo`;
-
-const windows = `python -m venv fourgate-env
-fourgate-env\\Scripts\\python -m pip install fourgate
-fourgate-env\\Scripts\\fourgate demo`;
+const shells: OsCommands[] = [
+  {
+    id: "linux",
+    label: "Linux (bash)",
+    lines: ["python3 -m venv fourgate-env", "fourgate-env/bin/python -m pip install fourgate", "fourgate-env/bin/fourgate demo"],
+  },
+  {
+    id: "windows",
+    label: "Windows PowerShell",
+    lines: ["python -m venv fourgate-env", "fourgate-env\\Scripts\\python -m pip install fourgate", "fourgate-env\\Scripts\\fourgate demo"],
+  },
+];
 
 function Video() {
   if (!DEMO_VIDEO_URL) return null;
@@ -95,10 +100,7 @@ export default function DemoPage() {
         title="Run it yourself."
         intro={<p>Three commands in a fresh virtual environment. Python 3.10–3.13, Linux or Windows. The demo itself needs no API keys and no network.</p>}
       >
-        <div className="grid gap-4">
-          <CodeBlock code={linux} label="Linux (bash)" prompt />
-          <CodeBlock code={windows} label="Windows PowerShell" prompt />
-        </div>
+        <RunTerminal variants={shells} />
         <p className="prose-fg mt-5 text-small text-muted">
           If the <code>fourgate</code> command is not found on PATH, <code>python -m fourgate demo</code> works the same way.
           The run writes a local summary page to <code>./fourgate-demo/fourgate-demo-summary.html</code>. Add{" "}
