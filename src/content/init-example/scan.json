@@ -1,0 +1,51 @@
+{
+  "scan_version": 1,
+  "server": {
+    "transport": "stdio",
+    "command": [
+      "python",
+      "your_server.py"
+    ],
+    "test_account": "disposable-demo",
+    "protocol_version": "2024-11-05",
+    "call_timeout_ms": 10000
+  },
+  "write_tools": [
+    "create_issue"
+  ],
+  "cases": [
+    {
+      "tool": "create_issue",
+      "arguments": {
+        "title": "FOURGATE-SCAN-TEST"
+      },
+      "outcome_contract": {
+        "record_id_field": "record_id",
+        "extract": {
+          "record_id": {
+            "source": "result",
+            "path": "result.structuredContent.id"
+          },
+          "title": {
+            "source": "arguments",
+            "path": "title"
+          }
+        }
+      },
+      "readback": {
+        "type": "http",
+        "url_template": "https://api.example.com/issues/{record_id}",
+        "expected_fields": {
+          "title": "title"
+        },
+        "token_env": "READBACK_TOKEN",
+        "missing_statuses": [
+          404
+        ],
+        "attempts": 3,
+        "interval_ms": 250,
+        "timeout_ms": 1500
+      }
+    }
+  ]
+}

@@ -3,3 +3,4 @@ public/sample-report.html -text
 src/content/fourgate-demo-output.txt -text
 src/content/fourgate-init-output.txt -text
 src/content/fourgate-doctor-output.txt -text
+src/content/init-example/*.json -text
