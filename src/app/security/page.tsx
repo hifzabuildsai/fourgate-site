@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Callout from "@/components/Callout";
 import ContactCtas from "@/components/ContactCtas";
 import CtaBand from "@/components/CtaBand";
@@ -196,36 +197,36 @@ export default function SecurityPage() {
             { title: "Credential isolation", items: [
               "The MCP server keeps its own write credential, exactly as today.",
               "The verifier uses a separate, read-only credential that you create. Both are environment variables you set; contracts, logs and the summary contain only the variable names.",
-              <>
+              <Fragment key="r1">
                 List the read credential in <code className="code-inline">verifier.secret_env</code> and fourgate guard removes
                 it from the MCP server&apos;s environment, so the server under test cannot see or use it.
-              </>,
+              </Fragment>,
               "The verifier itself inherits the full operator environment, so only trusted verifier commands belong in contracts.",
               "Fourgate never stores credentials.",
             ] },
             { title: "Read-back safety", items: [
               "GET requests only. Fourgate never writes, deletes, or automatically retries a write, because the write may already have happened.",
               "Redirects are rejected. Dynamic hosts are rejected. Non-HTTPS URLs are rejected outside loopback.",
-              <>
+              <Fragment key="r2">
                 HTTP 401/403 is <StatusBadge status="UNKNOWN" size="sm" />.
-              </>,
-              <>
+              </Fragment>,
+              <Fragment key="r3">
                 An ambiguous 404 (missing access and a missing record can look alike) is <StatusBadge status="UNKNOWN" size="sm" />{" "}
                 by default. Treating it as FAIL is an explicit opt-in.
-              </>,
+              </Fragment>,
               "Static extra headers are validated to be non-secret, so a token can only come from an environment variable.",
             ] },
             { title: "Failure semantics", items: [
               "Invalid configuration refuses to start: fourgate guard reports the problem and does not launch the server.",
-              <>
+              <Fragment key="r4">
                 Per-call faults (verifier timeout, network error, internal error) are <StatusBadge status="UNKNOWN" size="sm" /> and
                 fail open: the call goes through untouched.
-              </>,
+              </Fragment>,
               "Shadow mode, the default, is byte-identical: the agent receives exactly what it would without Fourgate.",
-              <>
+              <Fragment key="r5">
                 Enforce mode only adds one attributed verdict, before the tool&apos;s original response, on a{" "}
                 <StatusBadge status="CONFIRMED FAIL" size="sm" />. Nothing else changes.
-              </>,
+              </Fragment>,
               "No LLM makes the PASS/FAIL decision.",
             ] },
           ]}
