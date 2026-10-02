@@ -101,9 +101,16 @@ pre, code, kbd, samp, .font-mono {
   font-feature-settings: "liga" 0, "calt" 0;
 }
 
+/* Focus rings are for keyboard navigation only: a mouse or touch click leaves no box. */
+:focus:not(:focus-visible) {
+  outline: none;
+}
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+a, button, summary, [role="tab"] {
+  -webkit-tap-highlight-color: transparent;
 }
 
 ::selection {
