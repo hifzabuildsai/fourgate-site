@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useRef, useState } from "react";
+import { hangStyle, noBreak } from "./hang";
 
 /** Command/code block with a copy button. Copies exactly the code shown. */
 export default function CodeBlock({
@@ -88,13 +89,13 @@ export default function CodeBlock({
       >
         <code>
           {code.split("\n").map((line, i) => (
-            <span key={i} className="block min-h-[1lh] whitespace-pre-wrap break-words">
+            <span key={i} className="block min-h-[1lh] whitespace-pre-wrap [overflow-wrap:anywhere]" style={hangStyle(line)}>
               {prompt && line && !line.startsWith("#") && !line.startsWith(" ") && (
                 <span aria-hidden="true" className="select-none text-muted">
                   ${" "}
                 </span>
               )}
-              <span className={line.startsWith("#") ? "text-muted" : undefined}>{line}</span>
+              <span className={line.startsWith("#") ? "text-muted" : undefined}>{noBreak(line)}</span>
             </span>
           ))}
         </code>

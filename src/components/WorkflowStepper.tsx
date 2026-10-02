@@ -1,10 +1,11 @@
 "use client";
 
 import { AnimatePresence, LayoutGroup, motion, useMotionValueEvent, useReducedMotion, useScroll } from "motion/react";
-import { useId, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import type { WorkflowStep } from "@/content/workflow";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import CodeBlock from "./CodeBlock";
+import { hangStyle, noBreak } from "./hang";
 
 function colorize(line: string) {
   // Verdict words in captured output; text unchanged.
@@ -17,7 +18,7 @@ function colorize(line: string) {
     ) : p === "UNKNOWN" ? (
       <span key={i} className="text-unknown">{p}</span>
     ) : (
-      p
+      noBreak(p)
     ),
   );
 }
@@ -43,8 +44,26 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
   const uid = useId();
   const reduce = useReducedMotion();
   const wide = useMediaQuery("(min-width: 1024px)");
-  const pinned = wide && !reduce;
+  const tall = useMediaQuery("(min-height: 520px)");
+  const pinned = wide && tall && !reduce;
   const step = steps[active];
+  const panel = useRef<HTMLDivElement>(null);
+  const [fade, setFade] = useState(false);
+
+  // Pinned stage: the panel scrolls inside itself when its text is taller than the stage; fade the bottom edge while more is below.
+  const measure = useCallback(() => {
+    const el = panel.current;
+    setFade(Boolean(el) && el!.scrollHeight - el!.clientHeight - el!.scrollTop > 2);
+  }, []);
+  useEffect(() => {
+    const el = panel.current;
+    if (!el || !pinned) return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    if (el.firstElementChild) ro.observe(el.firstElementChild);
+    measure();
+    return () => ro.disconnect();
+  }, [pinned, active, measure]);
 
   const { scrollYProgress } = useScroll({ target: wrapper, offset: ["start 72px", "end end"] });
   useMotionValueEvent(scrollYProgress, "change", (v) => {
@@ -154,7 +173,10 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
         role="tabpanel"
         id={`${uid}-panel`}
         aria-labelledby={`${uid}-tab-${step.id}`}
-        className={`relative min-w-0 lg:col-span-8 ${pinned ? "min-h-[min(40rem,calc(100vh-8rem))]" : "min-h-[40rem]"}`}
+        ref={panel}
+        onScroll={pinned ? measure : undefined}
+        style={pinned && fade ? { maskImage: "linear-gradient(to bottom, #000 calc(100% - 2.5rem), transparent)" } : undefined}
+        className={`relative min-w-0 lg:col-span-8 ${pinned ? "fg-scroll max-h-[calc(100vh-6rem)] overflow-y-auto" : "min-h-[40rem]"}`}
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
@@ -178,11 +200,11 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
                   tabIndex={0}
                   aria-label={`Output of fourgate ${step.name}`}
                   className={`fg-scroll overflow-auto bg-code p-4 font-mono text-[0.75rem] leading-[1.7] text-foreground ${
-                    pinned ? "max-h-[max(14rem,calc(100vh-26rem))]" : "max-h-[26rem]"
+                    pinned ? "" : "max-h-[26rem]"
                   }`}
                 >
                   {step.output.split("\n").map((line, i) => (
-                    <span key={i} className="block min-h-[1lh] whitespace-pre-wrap break-words lg:whitespace-pre">
+                    <span key={i} className="block min-h-[1lh] whitespace-pre-wrap [overflow-wrap:anywhere]" style={hangStyle(line)}>
                       {colorize(line)}
                     </span>
                   ))}

@@ -35,7 +35,16 @@ export const workflow: WorkflowStep[] = [
     id: "init",
     name: "init",
     purpose: "Write scan, runtime and read-back configs for one write tool.",
-    command: `fourgate init --tool create_issue --test-account disposable-demo   --id-path result.structuredContent.id   --readback-url 'https://api.example.com/issues/{record_id}'   --expect title=title --arg title=FOURGATE-SCAN-TEST   --token-env READBACK_TOKEN --missing-status 404   -- python your_server.py`,
+    command: `fourgate init \\
+  --tool create_issue \\
+  --test-account disposable-demo \\
+  --id-path result.structuredContent.id \\
+  --readback-url 'https://api.example.com/issues/{record_id}' \\
+  --expect title=title \\
+  --arg title=FOURGATE-SCAN-TEST \\
+  --token-env READBACK_TOKEN \\
+  --missing-status 404 \\
+  -- python your_server.py`,
     commandNote: "The example from the README. api.example.com and your_server.py are placeholders.",
     output: read("fourgate-init-output.txt"),
     outputNote: "Captured on Windows, so paths use backslashes.",
@@ -44,8 +53,11 @@ export const workflow: WorkflowStep[] = [
     id: "doctor",
     name: "doctor",
     purpose: "Check the setup without side effects.",
-    command:
-      "fourgate doctor --contracts fourgate-config/runtime.json --server server --log outcomes.jsonl -- python -m fourgate.demo.server",
+    command: `fourgate doctor \\
+  --contracts fourgate-config/runtime.json \\
+  --server server \\
+  --log outcomes.jsonl \\
+  -- python -m fourgate.demo.server`,
     commandNote:
       "Run against the files init wrote, with the bundled demo server standing in for yours and READBACK_TOKEN set to a dummy value.",
     output: read("fourgate-doctor-output.txt"),
