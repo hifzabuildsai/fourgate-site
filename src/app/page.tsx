@@ -10,6 +10,7 @@ import FlowDiagram from "@/components/FlowDiagram";
 import HeroScene from "@/components/hero/HeroScene";
 import Section, { Container } from "@/components/Section";
 import VerdictSimulator from "@/components/VerdictSimulator";
+import WhyBento from "@/components/WhyBento";
 import WorkflowStepper from "@/components/WorkflowStepper";
 import WrapToggle from "@/components/WrapToggle";
 import { demo, demoCapture } from "@/content/demo";
@@ -257,15 +258,8 @@ export default function Home() {
       </Section>
 
       {/* Why */}
-      <Section id="why" title="Built to be checked, not trusted.">
-        <ul className="grid gap-3 sm:grid-cols-2">
-          {reasons.map((r) => (
-            <SpotlightCard as="li" key={r.title} className="rounded-[14px] border border-line bg-surface p-5">
-              <h3 className="font-medium text-foreground">{r.title}</h3>
-              <p className="mt-1.5 text-small text-muted">{r.text}</p>
-            </SpotlightCard>
-          ))}
-        </ul>
+      <Section id="why" layout="stack" title="Built to be checked, not trusted.">
+        <WhyBento reasons={reasons} />
       </Section>
 
       {/* Field evidence */}

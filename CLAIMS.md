@@ -70,6 +70,7 @@ cannot be sourced, it does not go on the site.
 | scan: bundled-fixture commands; expected FAIL / record_missing (exit 1), PASS on healthy (exit 0), UNKNOWN never PASS, invalid config exits 2 | Workflow stepper | R75–78 (commands), R89–92 (result) |
 | guard: command; enforce only after clean shadow traffic; exits 2 on invalid contracts; per-call faults UNKNOWN and fail open; stdout carries only MCP traffic | Workflow stepper | R177–183 (command), R185 (result) |
 | summary: command; what the page contains; no JavaScript, no network requests | Workflow stepper | R219 (command), R222–226 |
+| Bento visuals (decorative, aria-hidden): "tool call" timing out at "2000 ms" into "? UNKNOWN", a struck "PASS" marked "never"; laptop/server/CI with a struck cloud; the `python your_server.py` -> `fourgate guard … -- python your_server.py` diff; "verifier" "GET" and a returned record; two identical byte rows "= same bytes"; "MIT", "v0.3.0" and the wheel digest `sha256:0f5d48f9ea93…99efefd3b` | Home "Built to be checked, not trusted." | R290 (2000 ms cap), R92/R148 (never PASS); P9 (laptop, server, CI; no cloud); R177–183 (guard wraps the command); R229–234, P101–103 (GET read-back); P16–18 (same bytes); R306 (MIT); v0.3.0 release asset digest (see *Other sources*) |
 | Data-flow node details ("Holds" / "Never contains") | /security interactive diagram | P26–35 (what runs where), P43–45 (only new traffic), P49–55 (what is stored), P62–70 (credentials), P74–83 (failure behavior) |
 
 ## How it works and integrations
