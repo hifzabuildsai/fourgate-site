@@ -138,7 +138,7 @@ export default function InitExplorer({ files, command }: { files: { name: InitFi
       {/* The generated files as tabs */}
       <div className="min-w-0 overflow-hidden rounded-[14px] border border-line bg-code">
         <LayoutGroup id={`${uid}-files`}>
-          <div role="tablist" aria-label="Generated files" className="flex gap-1 overflow-x-auto border-b border-line p-1.5">
+          <div role="tablist" aria-label="Generated files" className="flex flex-wrap gap-1 border-b border-line p-1.5">
             {files.map((f, i) => {
               const on = f.name === tab;
               const n = count(f.name);
@@ -156,7 +156,7 @@ export default function InitExplorer({ files, command }: { files: { name: InitFi
                   tabIndex={on ? 0 : -1}
                   onClick={() => setTab(f.name)}
                   onKeyDown={(e) => onTabKey(e, i)}
-                  className={`relative inline-flex min-h-8 shrink-0 items-center gap-1.5 rounded-[7px] px-3 font-mono text-cap ${on ? "text-background" : "text-muted hover:text-foreground"}`}
+                  className={`relative inline-flex min-h-8 min-w-0 items-center gap-1.5 rounded-[7px] px-3 font-mono text-cap ${on ? "text-background" : "text-muted hover:text-foreground"}`}
                 >
                   {on && (
                     <motion.span
@@ -166,7 +166,7 @@ export default function InitExplorer({ files, command }: { files: { name: InitFi
                       className="absolute inset-0 rounded-[7px] bg-foreground"
                     />
                   )}
-                  <span className="relative">fourgate-config/{f.name}</span>
+                  <span className="relative whitespace-nowrap">fourgate-config/{f.name}</span>
                   {n > 0 && (
                     <span className={`relative rounded-full px-1.5 text-[0.625rem] ${on ? "bg-background/20" : "bg-foreground/10 text-foreground"}`}>
                       {n}
