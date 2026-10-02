@@ -6,6 +6,7 @@ import CtaBand from "@/components/CtaBand";
 import FlowDiagram from "@/components/FlowDiagram";
 import Section from "@/components/Section";
 import StatusBadge from "@/components/StatusBadge";
+import Reveal from "@/components/Reveal";
 import TabbedGroups from "@/components/TabbedGroups";
 import { externalProps } from "@/lib/links";
 import { pageMetadata } from "@/lib/metadata";
@@ -21,6 +22,7 @@ export const metadata = pageMetadata({
 const stored = [
   {
     item: "Runtime contract",
+    strike: true,
     file: "runtime.json",
     where: "Your machine or repo",
     contains: "Tool names, which fields to extract, the verifier command, environment variable names",
@@ -28,6 +30,7 @@ const stored = [
   },
   {
     item: "Read-back config",
+    strike: true,
     file: "readback.json",
     where: "Your machine or repo",
     contains: "The GET URL template, expected fields, status rules, the environment variable name of the read token",
@@ -35,6 +38,7 @@ const stored = [
   },
   {
     item: "Outcome log",
+    strike: true,
     file: "outcomes.jsonl",
     where: "Path you choose",
     contains:
@@ -43,6 +47,7 @@ const stored = [
   },
   {
     item: "Summary page",
+    strike: false,
     file: "fourgate-summary.html",
     where: "Path you choose",
     contains: "Counts and charts built from the outcome log",
@@ -50,6 +55,7 @@ const stored = [
   },
   {
     item: "Scan reports (optional)",
+    strike: false,
     file: "fourgate-report.json / .html",
     where: "Only if you pass --report-dir",
     contains:
@@ -154,52 +160,33 @@ export default function SecurityPage() {
           </p>
         }
       >
-        <table className="hidden w-full border-collapse text-left text-small md:table">
-          <caption className="sr-only">Files Fourgate writes</caption>
-          <thead>
-            <tr className="border-b border-foreground/60 text-foreground">
-              <th scope="col" className="py-3 pr-4 font-medium">Item</th>
-              <th scope="col" className="py-3 pr-4 font-medium">Where</th>
-              <th scope="col" className="py-3 pr-4 font-medium">Contains</th>
-              <th scope="col" className="py-3 font-medium">Never contains</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stored.map((s) => (
-              <tr key={s.item} className="border-b border-line align-top">
-                <th scope="row" className="py-4 pr-4 font-normal text-foreground">
-                  {s.item}
-                  <code className="mt-1 block font-mono text-cap text-muted">{s.file}</code>
-                </th>
-                <td className="py-4 pr-4 text-muted">{s.where}</td>
-                <td className="py-4 pr-4 text-muted">{s.contains}</td>
-                <td className="py-4 text-muted">{s.never}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="space-y-8 md:hidden">
-          {stored.map((s) => (
-            <section key={s.item} aria-label={s.item} className="border-t border-foreground/60 pt-3">
-              <h3 className="font-medium text-foreground">{s.item}</h3>
-              <code className="font-mono text-cap text-muted">{s.file}</code>
-              <dl className="mt-3 space-y-2 text-small">
-                {(
-                  [
-                    ["Where", s.where],
-                    ["Contains", s.contains],
-                    ["Never contains", s.never],
-                  ] as const
-                ).map(([k, v]) => (
-                  <div key={k}>
-                    <dt className="text-cap text-muted">{k}</dt>
-                    <dd className="text-foreground">{v}</dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
+        <ul className="space-y-3">
+          {stored.map((row, i) => (
+            <Reveal as="li" key={row.item} index={i}>
+              <article
+                aria-label={row.item}
+                className="grid gap-4 rounded-[14px] border border-line p-4 transition-colors hover:bg-surface sm:p-5 lg:grid-cols-[15rem_1fr_1fr] lg:gap-6"
+              >
+                <div>
+                  <h3 className="font-medium text-foreground">{row.item}</h3>
+                  <code className="mt-1 block font-mono text-cap text-muted">{row.file}</code>
+                  <span className="mt-2 inline-block rounded-full border border-line-strong px-2 py-0.5 font-mono text-[0.6875rem] text-muted">
+                    <span className="sr-only">Where: </span>
+                    {row.where}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-cap text-muted">Contains</p>
+                  <p className="mt-1 text-small text-foreground">{row.contains}</p>
+                </div>
+                <div className="rounded-[10px] border border-dashed border-line-strong p-3">
+                  <p className="text-cap text-muted">Never contains</p>
+                  <p className={`mt-1 text-small text-muted ${row.strike ? "line-through decoration-muted/60" : ""}`}>{row.never}</p>
+                </div>
+              </article>
+            </Reveal>
           ))}
-        </div>
+        </ul>
       </Section>
 
       <Section id="controls" layout="stack" title="Credentials, read-back safety and failure behavior.">
