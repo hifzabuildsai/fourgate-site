@@ -1,0 +1,61 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'"><title>Fourgate Outcome Summary</title><style>
+:root{--bg:#fcfcfb;--ink:#1d1d1b;--ink2:#555550;--muted:#7a7a74;--line:#e4e4df;--card:#f4f4f1;
+--pass:#0ca30c;--fail:#d03b3b;--unknown:#fab219}
+@media (prefers-color-scheme:dark){:root{--bg:#1a1a19;--ink:#f1f1ee;--ink2:#c4c4be;--muted:#9a9a93;
+--line:#34342f;--card:#242422}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:64rem;margin:0 auto;padding:2rem 1rem 3rem}
+h1{font-size:1.6rem;margin:0 0 .25rem}h2{font-size:1.1rem;margin:2.2rem 0 .75rem}
+p{margin:.25rem 0}.sub{color:var(--ink2)}.muted{color:var(--muted);font-size:.9rem}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));gap:.75rem;margin-top:1.5rem}
+.tile{background:var(--card);border-radius:10px;padding:1rem}
+.tile .k{color:var(--ink2);font-size:.85rem}.tile .v{font-size:1.9rem;font-weight:650;line-height:1.2}
+.tile .s{color:var(--muted);font-size:.85rem}
+.dot{display:inline-block;width:.7rem;height:.7rem;border-radius:3px;margin-right:.35rem;vertical-align:-.05rem}
+.dot.pass,.seg.pass{background:var(--pass)}.dot.fail,.seg.fail{background:var(--fail)}
+.dot.unknown,.seg.unknown{background:var(--unknown)}
+.legend{display:flex;gap:1.25rem;flex-wrap:wrap;color:var(--ink2);font-size:.9rem;margin:.25rem 0 .75rem}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:.55rem .5rem;border-bottom:1px solid var(--line);vertical-align:middle}
+th{color:var(--ink2);font-weight:600;font-size:.85rem}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+td.name{overflow-wrap:anywhere;max-width:16rem}
+.bar{width:100%;min-width:6rem;height:14px}
+.fill{display:flex;gap:2px;height:100%}
+.seg{height:100%;min-width:3px}.seg:first-child{border-radius:4px 0 0 4px}.seg:last-child{border-radius:0 4px 4px 0}
+.seg:only-child{border-radius:4px}
+.cnt{white-space:nowrap;margin-right:.6rem;color:var(--ink2);font-size:.88rem}
+.note{background:var(--card);border-radius:10px;padding:1rem 1.1rem;margin-top:1rem}
+.note li{margin:.2rem 0}
+code{font:.88em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.scroll{overflow-x:auto}.scroll table{min-width:40rem}td.res{white-space:nowrap}
+.tile .v{overflow-wrap:anywhere}
+@media print{body{background:#fff;color:#000}}
+</style></head><body><main>
+<h1>Fourgate outcome summary</h1>
+<p class="sub">Did the writes your agent reported as done actually land? Each protected call below was checked
+against the system of record by an independent read-back.</p>
+<p class="muted">Period: 2026-10-02 02:05 UTC to 2026-10-02 02:05 UTC &middot; Servers: demo-crm &middot; Generated 2026-10-02 02:05 UTC</p>
+<div class="tiles"><div class="tile"><div class="k">Protected calls checked</div><div class="v">4</div><div class="s">enforce, shadow mode</div></div><div class="tile"><div class="k"><span class="dot pass" aria-hidden="true"></span>✓ PASS</div><div class="v">1</div><div class="s">25% of calls</div></div><div class="tile"><div class="k"><span class="dot fail" aria-hidden="true"></span>✕ FAIL</div><div class="v">2</div><div class="s">50% of calls</div></div><div class="tile"><div class="k"><span class="dot unknown" aria-hidden="true"></span>? UNKNOWN</div><div class="v">1</div><div class="s">25% of calls</div></div><div class="tile"><div class="k">Added latency</div><div class="v">129 ms</div><div class="s">median; p95 215 ms</div></div></div>
+
+<h2>By tool</h2>
+<div class="legend"><span><span class="dot pass" aria-hidden="true"></span>✓ PASS</span><span><span class="dot fail" aria-hidden="true"></span>✕ FAIL</span><span><span class="dot unknown" aria-hidden="true"></span>? UNKNOWN</span></div>
+<div class="scroll"><table><thead><tr><th>Server / tool</th><th>Outcomes</th><th>Calls</th><th>Breakdown</th></tr></thead>
+<tbody><tr><td class="name"><code>demo-crm/create_issue</code></td><td><div class="bar"><div class="fill" style="width:100.00%"><span class="seg pass" style="flex:1" title="PASS: 1 of 4 (25%)"></span><span class="seg fail" style="flex:2" title="FAIL: 2 of 4 (50%)"></span><span class="seg unknown" style="flex:1" title="UNKNOWN: 1 of 4 (25%)"></span></div></div></td><td class="num">4</td><td><span class="cnt"><span class="dot pass" aria-hidden="true"></span>PASS 1</span> <span class="cnt"><span class="dot fail" aria-hidden="true"></span>FAIL 2</span> <span class="cnt"><span class="dot unknown" aria-hidden="true"></span>UNKNOWN 1</span></td></tr></tbody></table></div>
+<h2>By day (UTC)</h2>
+<div class="scroll"><table><thead><tr><th>Day</th><th>Outcomes</th><th>Calls</th><th>Breakdown</th></tr></thead>
+<tbody><tr><td class="num">2026-10-02</td><td><div class="bar"><div class="fill" style="width:100.00%"><span class="seg pass" style="flex:1" title="PASS: 1 of 4 (25%)"></span><span class="seg fail" style="flex:2" title="FAIL: 2 of 4 (50%)"></span><span class="seg unknown" style="flex:1" title="UNKNOWN: 1 of 4 (25%)"></span></div></div></td><td class="num">4</td><td><span class="cnt"><span class="dot pass" aria-hidden="true"></span>PASS 1</span> <span class="cnt"><span class="dot fail" aria-hidden="true"></span>FAIL 2</span> <span class="cnt"><span class="dot unknown" aria-hidden="true"></span>UNKNOWN 1</span></td></tr></tbody></table></div>
+<h2>Reasons</h2>
+<div class="scroll"><table><thead><tr><th>Result</th><th>Reason</th><th>Count</th><th>What it means</th></tr></thead>
+<tbody><tr><td class="res"><span class="dot pass" aria-hidden="true"></span>PASS</td><td><code>postcondition_satisfied</code></td><td class="num">1</td><td>Read-back confirmed the record exists with the contracted values.</td></tr><tr><td class="res"><span class="dot fail" aria-hidden="true"></span>FAIL</td><td><code>record_missing</code></td><td class="num">2</td><td>Read-back proved the record the tool reported does not exist.</td></tr><tr><td class="res"><span class="dot unknown" aria-hidden="true"></span>UNKNOWN</td><td><code>verifier_error</code></td><td class="num">1</td><td>The verifier could not confirm either way (auth, network, unconfigured status). Run the verifier dry run to see why.</td></tr></tbody></table></div>
+<div class="note"><strong>How to read this</strong><ul>
+<li><strong>FAIL</strong> means an independent read-back proved the record missing or different after the tool reported success.</li>
+<li><strong>UNKNOWN</strong> means Fourgate could not confirm either way. It is never counted as PASS.</li>
+<li>In <strong>shadow</strong> mode the agent received the tool's response unchanged; Fourgate only recorded the result.</li>
+<li>Added latency is the time Fourgate spent checking each protected call.</li>
+</ul></div>
+<p class="muted" style="margin-top:1.5rem">Generated locally from <code>outcomes.jsonl</code>. The log and this page contain
+structure only: server and tool names, result, reason and timing. No arguments, record values, response bodies or
+credentials are stored, and nothing is sent to Fourgate.</p>
+</main></body></html>

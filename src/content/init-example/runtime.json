@@ -1,0 +1,35 @@
+{
+  "contract_version": 1,
+  "tools": {
+    "create_issue": {
+      "extract": {
+        "record_id": {
+          "source": "result",
+          "path": "result.structuredContent.id"
+        },
+        "title": {
+          "source": "arguments",
+          "path": "title"
+        }
+      },
+      "verifier": {
+        "command": [
+          "{python}",
+          "-m",
+          "fourgate.verify_http",
+          "readback.json"
+        ],
+        "cwd": ".",
+        "timeout_ms": 2000,
+        "secret_env": [
+          "READBACK_TOKEN"
+        ]
+      },
+      "allowed_failure_reasons": [
+        "field_mismatch",
+        "record_missing"
+      ],
+      "recovery": "stop"
+    }
+  }
+}

@@ -1,34 +1,40 @@
-import type { Metadata } from "next";
-import { JetBrains_Mono, Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
+import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
+import { SITE_NAME, SITE_URL } from "@/site.config";
 import "./globals.css";
 
+// next/font self-hosts these at build time: no runtime requests to a font CDN.
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Fourgate — MCP connector preflight checker",
-  description:
-    "Checks whether your MCP connector actually protects identity and fails closed — before a user finds out it doesn't.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_NAME,
+  description: "Independent outcome verification for consequential AI-agent actions.",
+  applicationName: SITE_NAME,
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export const viewport: Viewport = {
+  themeColor: "#0a0c0f",
+  colorScheme: "dark",
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className={`${jetbrainsMono.variable} ${inter.variable} font-sans antialiased`}>
-        {children}
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="flex min-h-dvh flex-col font-sans antialiased">
+        <Nav />
+        <main id="main" className="flex-1 overflow-x-clip">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );

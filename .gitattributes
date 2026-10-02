@@ -1,0 +1,3 @@
+# Keep the captured demo summary byte-identical to what `fourgate demo` wrote.
+public/sample-report.html -text
+src/content/fourgate-demo-output.txt -text

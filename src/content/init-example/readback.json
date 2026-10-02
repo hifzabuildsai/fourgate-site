@@ -1,0 +1,14 @@
+{
+  "type": "http",
+  "url_template": "https://api.example.com/issues/{record_id}",
+  "expected_fields": {
+    "title": "title"
+  },
+  "token_env": "READBACK_TOKEN",
+  "missing_statuses": [
+    404
+  ],
+  "attempts": 3,
+  "interval_ms": 250,
+  "timeout_ms": 1500
+}

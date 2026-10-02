@@ -1,63 +1,109 @@
 @import "tailwindcss";
 
+/*
+  Fourgate design tokens. Dark only. Status colors are reserved for verdicts:
+  PASS green, FAIL red, UNKNOWN amber. Never use them for decoration.
+  All text/background pairs below meet WCAG AA on --bg and --surface.
+*/
 :root {
-  --color-bg: #0a0b0d;
-  --color-surface: #111318;
-  --color-surface-2: #171a20;
-  --color-border: #22262e;
-  --color-border-soft: #1a1d24;
-  --color-text: #e9e7e2;
-  --color-muted: #7d8590;
-  --color-muted-2: #565c66;
-  --color-gold: #d9a441;
-  --color-gold-dim: #7a5f2c;
-  --color-pass: #4ade80;
-  --color-fail: #f2545b;
-  --color-warn: #f2a93b;
+  --bg: #0a0c0f;
+  --surface: #11151a;
+  --surface-2: #171c23;
+  --border: #242b35;
+  --border-strong: #343d4a;
+  --text: #e6e8eb;
+  --muted: #a2abb7;
+  --subtle: #848e9b;
+  --accent: #8ab8ff;
+  --pass: #44c15a;
+  --fail: #ff6b6b;
+  --unknown: #e8b84a;
 }
 
 @theme inline {
-  --color-bg: var(--color-bg);
-  --color-surface: var(--color-surface);
-  --color-surface-2: var(--color-surface-2);
-  --color-border: var(--color-border);
-  --color-border-soft: var(--color-border-soft);
-  --color-text: var(--color-text);
-  --color-muted: var(--color-muted);
-  --color-muted-2: var(--color-muted-2);
-  --color-gold: var(--color-gold);
-  --color-gold-dim: var(--color-gold-dim);
-  --color-pass: var(--color-pass);
-  --color-fail: var(--color-fail);
-  --color-warn: var(--color-warn);
-  --font-mono: var(--font-jetbrains-mono);
-  --font-sans: var(--font-inter);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-pass: var(--pass);
+  --color-fail: var(--fail);
+  --color-unknown: var(--unknown);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+html {
+  color-scheme: dark;
+  scroll-padding-top: 5rem;
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-text);
+  background: var(--bg);
+  color: var(--text);
 }
 
-@keyframes drift-a {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(60px, 40px) scale(1.12); }
-}
-@keyframes drift-b {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-50px, 60px) scale(0.9); }
-}
-@keyframes blink {
-  50% { opacity: 0; }
-}
-.animate-drift-a { animation: drift-a 22s ease-in-out infinite; }
-.animate-drift-b { animation: drift-b 26s ease-in-out infinite; }
-.animate-drift-a-rev { animation: drift-a 30s ease-in-out infinite reverse; }
-.animate-blink { animation: blink 1s step-end infinite; }
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-drift-a, .animate-drift-b, .animate-drift-a-rev, .animate-blink {
-    animation: none !important;
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
 }
 
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+/* Subtle grid backdrop for hero areas. Static: no motion. */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, black 30%, transparent 75%);
+}
+
+/* Fade-in for terminal panels; disabled for reduced motion. */
+@keyframes fg-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fg-fade-in { animation: fg-fade-in 220ms ease-out both; }
+}
+
+/* Native <details> FAQ: rotate the chevron when open. */
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+details[open] .fg-chevron { transform: rotate(180deg); }
+@media (prefers-reduced-motion: no-preference) {
+  .fg-chevron { transition: transform 150ms ease; }
+}
+
+/* Long prose */
+.prose-fg p + p { margin-top: 0.875rem; }
+.prose-fg a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.prose-fg code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+/* Show terminal output and code exactly as typed: no "->" to arrow ligatures. */
+pre, code, kbd, samp, .font-mono {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}

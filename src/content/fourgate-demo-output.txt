@@ -1,0 +1,53 @@
+FOURGATE DEMO - local only: no API keys, no network, nothing leaves this machine
+Simulated connector; a local file stands in for the system of record.
+
+An agent asks the demo-crm connector to create_issue "Q3 renewal follow-up".
+Each scene is a real MCP session; scenes S2-S5 run through a real `fourgate guard` process,
+which reads the system of record back after the connector reports success.
+
+[1/5] S1  Without Fourgate: broken connector, called directly
+  The connector reports success but never saves the issue. No Fourgate in the path.
+  Agent receives:  "Created ISSUE-001"  (isError=false)
+  System of record: 0 issues saved
+  Outcome log:      no record (Fourgate is not in the path)
+  -> The agent believes the issue exists. It does not.
+
+[2/5] S2  Fourgate enforce: broken connector
+  Same broken connector, now behind `fourgate guard --mode enforce`.
+  Agent receives, first:  [FOURGATE] outcome_failed (reason: record_missing, recovery: stop)
+  then the original:      "Created ISSUE-001"
+  isError=false
+  System of record: 0 issues saved
+  Outcome log:      FAIL record_missing  (mode: enforce)
+  -> The agent is told the write did not land, before it can report success.
+
+[3/5] S3  Fourgate enforce: healthy connector
+  A healthy connector that really saves the issue, behind `fourgate guard --mode enforce`.
+  Agent receives:  "Created ISSUE-001"  (isError=false)
+  The response is identical to scene S1: no [FOURGATE] verdict
+  System of record: 1 issue saved
+  Outcome log:      PASS postcondition_satisfied  (mode: enforce)
+  -> A real success passes through untouched.
+
+[4/5] S4  Fourgate shadow: broken connector
+  The broken connector behind `fourgate guard --mode shadow` (the default mode).
+  Agent receives:  "Created ISSUE-001"  (isError=false)
+  The response is identical to scene S1: no [FOURGATE] verdict
+  System of record: 0 issues saved
+  Outcome log:      FAIL record_missing  (mode: shadow)
+  -> The agent is unaffected; you still learn the write did not land.
+
+[5/5] S5  Fourgate enforce: broken connector, system of record unreachable
+  The broken connector in enforce mode, but the read-back cannot reach the system of record.
+  Agent receives:  "Created ISSUE-001"  (isError=false)
+  The response is identical to scene S1: no [FOURGATE] verdict
+  System of record: 0 issues saved
+  Outcome log:      UNKNOWN verifier_error  (mode: enforce)
+  -> Fourgate could not confirm either way: recorded UNKNOWN, never PASS, and the call is not blocked.
+
+Summary
+  Totals (from fourgate summary): PASS 1 / FAIL 2 / UNKNOWN 1
+  Outcome log:  C:\hifzazafar\fourgate\site-demo-run\fourgate-demo\demo-outcomes.jsonl
+  Summary page: file:///C:/hifzazafar/fourgate/site-demo-run/fourgate-demo/fourgate-demo-summary.html
+
+Self-check: every scene behaved as narrated.
