@@ -154,7 +154,7 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
         role="tabpanel"
         id={`${uid}-panel`}
         aria-labelledby={`${uid}-tab-${step.id}`}
-        className={`relative min-w-0 lg:col-span-8 ${pinned ? "" : "min-h-[40rem]"}`}
+        className={`relative min-w-0 lg:col-span-8 ${pinned ? "min-h-[min(40rem,calc(100vh-8rem))]" : "min-h-[40rem]"}`}
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
