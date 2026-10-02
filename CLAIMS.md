@@ -126,6 +126,7 @@ cannot be sourced, it does not go on the site.
 | Hosted authoritative read-back exercised: PASS, with FAIL and UNKNOWN controls behaving as specified | Home | R16, R256–264 |
 | Real-agent shadow calls exercised: 2 protected send calls through the runtime wrap in shadow mode, both PASS; a smoke test | Home | R17, R266–273 |
 | 0 naturally occurring read-back-proven silent-success incidents observed so far | Home | R18, R263, R282–284 |
+| "not observed yet" tag on the 0 row; 3-of-4 pips (3 filled, 1 empty); check chips on the "Exercised" rows | Home field evidence (presentation only) | R18 (0 observed so far); R15 (3 of 4); R16–17 (exercised) |
 | One integration does not establish production reliability | Home | R263–264 |
 
 `specs/field-observations.md` (F) was read and is consistent with the above (24 real

@@ -1,6 +1,6 @@
 import ButtonLink from "@/components/ButtonLink";
 import CodeBlock from "@/components/CodeBlock";
-import CountUp from "@/components/CountUp";
+import EvidenceList from "@/components/EvidenceList";
 import SpotlightCard from "@/components/SpotlightCard";
 import { VerdictRow, type VerdictKind } from "@/components/VerdictRows";
 import ContactCtas from "@/components/ContactCtas";
@@ -268,16 +268,7 @@ export default function Home() {
         title="What we have tested, and what we have not seen yet."
         intro={<p>Operator-run tests against official vendor MCP servers, as of 2026-10-01. Vendors are not named. Small numbers, stated as they are.</p>}
       >
-        <dl>
-          {evidence.map((e) => (
-            <div key={e.text} className="grid gap-1 border-t border-line py-5 last:border-b sm:grid-cols-[8.5rem_1fr] sm:gap-8">
-              <dt className="font-display text-h3 text-foreground">
-                <CountUp value={e.value} />
-              </dt>
-              <dd className="max-w-[62ch] text-small text-muted">{e.text}</dd>
-            </div>
-          ))}
-        </dl>
+        <EvidenceList items={evidence} />
         <p className="mt-6 max-w-[68ch] text-small text-muted">
           The failures found so far are error-reporting bugs, which Fourgate reports as{" "}
           <code className="code-inline">UNKNOWN / success_without_record_id</code> rather than PASS. One hosted integration does
