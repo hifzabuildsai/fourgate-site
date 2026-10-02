@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import ButtonLink from "@/components/ButtonLink";
 import Callout from "@/components/Callout";
 import CodeBlock from "@/components/CodeBlock";
@@ -7,6 +6,7 @@ import CtaBand from "@/components/CtaBand";
 import FlowDiagram from "@/components/FlowDiagram";
 import Section from "@/components/Section";
 import StatusBadge from "@/components/StatusBadge";
+import TabbedGroups from "@/components/TabbedGroups";
 import { externalProps } from "@/lib/links";
 import { pageMetadata } from "@/lib/metadata";
 import { GITHUB_URL, PILOT_MD_URL, RELEASE_URL, SECURITY_MD_URL } from "@/site.config";
@@ -81,21 +81,6 @@ const verifyHashes = `# Linux
 sha256sum fourgate-0.3.0-py3-none-any.whl
 # Windows PowerShell
 Get-FileHash fourgate-0.3.0-py3-none-any.whl -Algorithm SHA256`;
-
-function Column({ title, items }: { title: string; items: ReactNode[] }) {
-  return (
-    <div className="border-t border-foreground/60 pt-4">
-      <h3 className="font-medium text-foreground">{title}</h3>
-      <ul className="mt-3">
-        {items.map((it, i) => (
-          <li key={i} className="border-t border-line py-3 text-small text-muted first:border-t-0">
-            {it}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
 
 const link = "link";
 
@@ -218,10 +203,10 @@ export default function SecurityPage() {
       </Section>
 
       <Section id="controls" layout="stack" title="Credentials, read-back safety and failure behavior.">
-        <div className="grid gap-10 lg:grid-cols-3 lg:gap-8">
-          <Column
-            title="Credential isolation"
-            items={[
+        <TabbedGroups
+          label="Security controls"
+          groups={[
+            { title: "Credential isolation", items: [
               "The MCP server keeps its own write credential, exactly as today.",
               "The verifier uses a separate, read-only credential that you create. Both are environment variables you set; contracts, logs and the summary contain only the variable names.",
               <>
@@ -230,11 +215,8 @@ export default function SecurityPage() {
               </>,
               "The verifier itself inherits the full operator environment, so only trusted verifier commands belong in contracts.",
               "Fourgate never stores credentials.",
-            ]}
-          />
-          <Column
-            title="Read-back safety"
-            items={[
+            ] },
+            { title: "Read-back safety", items: [
               "GET requests only. Fourgate never writes, deletes, or automatically retries a write, because the write may already have happened.",
               "Redirects are rejected. Dynamic hosts are rejected. Non-HTTPS URLs are rejected outside loopback.",
               <>
@@ -245,11 +227,8 @@ export default function SecurityPage() {
                 by default. Treating it as FAIL is an explicit opt-in.
               </>,
               "Static extra headers are validated to be non-secret, so a token can only come from an environment variable.",
-            ]}
-          />
-          <Column
-            title="Failure semantics"
-            items={[
+            ] },
+            { title: "Failure semantics", items: [
               "Invalid configuration refuses to start: fourgate guard reports the problem and does not launch the server.",
               <>
                 Per-call faults (verifier timeout, network error, internal error) are <StatusBadge status="UNKNOWN" size="sm" /> and
@@ -261,9 +240,9 @@ export default function SecurityPage() {
                 <StatusBadge status="CONFIRMED FAIL" size="sm" />. Nothing else changes.
               </>,
               "No LLM makes the PASS/FAIL decision.",
-            ]}
-          />
-        </div>
+            ] },
+          ]}
+        />
         <div className="mt-10 max-w-3xl">
           <Callout tone="caution" title="fourgate scan performs real writes">
             <p>
