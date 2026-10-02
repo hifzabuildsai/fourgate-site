@@ -3,8 +3,8 @@ import path from "node:path";
 import ButtonLink from "@/components/ButtonLink";
 import Callout from "@/components/Callout";
 import InitExplorer from "@/components/InitExplorer";
+import IntegrationsFlow, { type Integration } from "@/components/IntegrationsFlow";
 import ContactCtas from "@/components/ContactCtas";
-import SpotlightCard from "@/components/SpotlightCard";
 import CtaBand from "@/components/CtaBand";
 import Section from "@/components/Section";
 import WrapToggle from "@/components/WrapToggle";
@@ -36,25 +36,35 @@ const initCommand = `fourgate init --tool create_issue --test-account disposable
   --token-env READBACK_TOKEN --missing-status 404 \\
   -- python your_server.py`;
 
-const today = [
+const today: Integration[] = [
   {
     title: "Local stdio MCP servers",
+    chips: ["Runtime"],
+    segment: { nodes: ["agent", "guard", "server"], edges: ["call", "forward"] },
     text: "Any MCP server launched as a local stdio process with a command. fourgate guard wraps that command at runtime; fourgate scan exercises contracted writes against a disposable test account.",
   },
   {
     title: "HTTP GET read-back",
+    chips: ["Read-back"],
+    segment: { nodes: ["guard", "sor"], edges: ["readback"] },
     text: "A bounded GET to an API that can return the written record. The read credential is sent as a Bearer token by default, or as a custom header (for example X-Api-Key) or Basic auth, or with no auth. Fixed, non-secret headers such as an API version can be added; credential-looking header names are rejected there, so a token can only come from an environment variable.",
   },
   {
     title: "GitHub Issues read-back",
+    chips: ["Read-back", "Template"],
+    segment: { nodes: ["guard", "sor"], edges: ["readback"] },
     text: "A built-in read-back type for GitHub Issues. The bundled GitHub contract is a template: it still needs a disposable repository, tokens and real end-to-end acceptance.",
   },
   {
     title: "Local command verifier",
+    chips: ["Verifier"],
+    segment: { nodes: ["guard"], edges: ["readback"] },
     text: "A trusted local command that receives only the contract-selected fields. The bundled one, fourgate.verify_http, is the generic HTTP read-back above.",
   },
   {
     title: "CI template",
+    chips: ["CI", "Template"],
+    segment: { nodes: ["guard", "server", "sor"], edges: ["forward", "write", "readback"] },
     text: "A copy-paste GitHub Actions workflow that runs fourgate scan on manual dispatch and fails the job on any FAIL or UNKNOWN. Fourgate's own CI runs its steps against the bundled demo fixture; it has not yet been run against a hosted connector.",
   },
 ];
@@ -81,14 +91,7 @@ export default function IntegrationsPage() {
           </p>
         }
       >
-        <ul className="grid gap-3 md:grid-cols-2">
-          {today.map((t, i) => (
-            <SpotlightCard as="li" key={t.title} className={`rounded-[14px] border border-line bg-surface p-5 ${i === 0 ? "md:col-span-2" : ""}`}>
-              <h2 className="font-medium text-foreground">{t.title}</h2>
-              <p className="mt-1.5 text-small text-muted">{t.text}</p>
-            </SpotlightCard>
-          ))}
-        </ul>
+        <IntegrationsFlow items={today} />
       </Section>
 
       <Section
