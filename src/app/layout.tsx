@@ -28,6 +28,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     // next-themes sets the theme class before paint; suppress the expected attribute mismatch.
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Marks the page as scripted before first paint; entrance states in globals.css apply only under .js. */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+      </head>
       <body className="flex min-h-dvh flex-col font-sans text-body antialiased">
         <ThemeProvider>
           <Nav />

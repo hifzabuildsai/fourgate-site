@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
 import CountUp from "./CountUp";
+import { revealStyle, useReveal } from "./Reveal";
 
 export type Evidence = { value: string; text: string };
 
@@ -32,39 +32,40 @@ function CheckChip() {
  * "Exercised", and an outlined, hatched "not observed yet" treatment for the 0
  * (which never animates).
  */
+function Row({ e, i }: { e: Evidence; i: number }) {
+  const ref = useReveal<HTMLDivElement>();
+  const none = e.value === "0";
+  return (
+    <div
+      ref={ref}
+      style={revealStyle(i, 0.06)}
+      className={`fg-reveal grid gap-1 rounded-[12px] px-4 py-4 sm:grid-cols-[10rem_1fr] sm:gap-8 ${
+        none
+          ? "border border-dashed border-line-strong bg-[repeating-linear-gradient(135deg,transparent_0_7px,color-mix(in_srgb,var(--foreground)_5%,transparent)_7px_8px)]"
+          : "border border-transparent hover:border-line hover:bg-surface"
+      }`}
+    >
+      <dt className="font-display text-h3 text-foreground">
+        {none ? e.value : <CountUp value={e.value} />}
+        {e.value === "Exercised" && <CheckChip />}
+        {e.value === "3 of 4" && <Pips />}
+        {none && (
+          <span className="ml-2 inline-block rounded-full border border-dashed border-line-strong px-2 py-0.5 align-middle font-mono text-[0.6875rem] font-normal tracking-normal text-muted">
+            not observed yet
+          </span>
+        )}
+      </dt>
+      <dd className="max-w-[62ch] text-small text-muted">{e.text}</dd>
+    </div>
+  );
+}
+
 export default function EvidenceList({ items }: { items: Evidence[] }) {
-  const reduce = useReducedMotion();
   return (
     <dl className="space-y-1.5">
-      {items.map((e, i) => {
-        const none = e.value === "0";
-        return (
-          <motion.div
-            key={e.text}
-            initial={reduce ? false : { opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "0px 0px -8% 0px" }}
-            transition={{ duration: reduce ? 0 : 0.35, delay: reduce ? 0 : i * 0.06 }}
-            className={`grid gap-1 rounded-[12px] px-4 py-4 transition-colors sm:grid-cols-[10rem_1fr] sm:gap-8 ${
-              none
-                ? "border border-dashed border-line-strong bg-[repeating-linear-gradient(135deg,transparent_0_7px,color-mix(in_srgb,var(--foreground)_5%,transparent)_7px_8px)]"
-                : "border border-transparent hover:border-line hover:bg-surface"
-            }`}
-          >
-            <dt className="font-display text-h3 text-foreground">
-              {none ? e.value : <CountUp value={e.value} />}
-              {e.value === "Exercised" && <CheckChip />}
-              {e.value === "3 of 4" && <Pips />}
-              {none && (
-                <span className="ml-2 inline-block rounded-full border border-dashed border-line-strong px-2 py-0.5 align-middle font-mono text-[0.6875rem] font-normal tracking-normal text-muted">
-                  not observed yet
-                </span>
-              )}
-            </dt>
-            <dd className="max-w-[62ch] text-small text-muted">{e.text}</dd>
-          </motion.div>
-        );
-      })}
+      {items.map((e, i) => (
+        <Row key={e.text} e={e} i={i} />
+      ))}
     </dl>
   );
 }

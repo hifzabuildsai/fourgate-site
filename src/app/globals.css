@@ -261,3 +261,21 @@ a, button, summary, [role="tab"] {
 @keyframes fg-dot-pass { to { transform: translateX(34px); } }
 @keyframes fg-dot-fail { 60% { transform: translate(21px, 0); } to { transform: translate(21px, 8px); opacity: 0.9; } }
 @keyframes fg-dot-unknown { 70% { transform: translateX(21px); } to { transform: translateX(21px); opacity: 0.45; } }
+
+/* Entrance (Reveal, evidence rows): hidden only once the head script has marked <html class="js">. */
+.js .fg-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) var(--rv-delay, 0s), transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) var(--rv-delay, 0s);
+}
+.js .fg-reveal[data-in] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .js .fg-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

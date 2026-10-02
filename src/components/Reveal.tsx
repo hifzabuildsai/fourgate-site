@@ -1,7 +1,40 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
+
+/**
+ * Entrance state is CSS-only and applies under `.js` (set on <html> by an inline
+ * head script), so the static HTML is fully visible without JavaScript and for
+ * crawlers. Once hydrated, an observer marks each element `data-in` the first
+ * time it nears the viewport. Reduced motion shows everything immediately.
+ */
+export function useReveal<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      el.setAttribute("data-in", "");
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          el.setAttribute("data-in", "");
+          io.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -8% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return ref;
+}
+
+export function revealStyle(index: number, step = 0.07): CSSProperties {
+  return { "--rv-delay": `${index * step}s` } as CSSProperties;
+}
 
 /** One-time staggered entrance when first scrolled into view. None with reduced motion. */
 export default function Reveal({
@@ -15,16 +48,10 @@ export default function Reveal({
   className?: string;
   as?: "div" | "li";
 }) {
-  const reduce = useReducedMotion();
-  const Tag = as === "li" ? motion.li : motion.div;
+  const ref = useReveal<HTMLElement>();
+  const Tag = as;
   return (
-    <Tag
-      className={className}
-      initial={reduce ? false : { opacity: 0, y: 14 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "0px 0px -8% 0px" }}
-      transition={{ duration: reduce ? 0 : 0.4, delay: reduce ? 0 : index * 0.07, ease: [0.2, 0.7, 0.2, 1] }}
-    >
+    <Tag ref={ref as never} className={`fg-reveal ${className}`} style={revealStyle(index)}>
       {children}
     </Tag>
   );
