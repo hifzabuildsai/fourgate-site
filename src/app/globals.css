@@ -78,7 +78,8 @@
 }
 
 html {
-  scroll-padding-top: 4.5rem;
+  /* Equals the sticky header (3.5rem). Any larger and Next treats a page whose first section sits just below the header as off-screen, and scrolls past it after navigating to it. */
+  scroll-padding-top: 3.5rem;
   -webkit-text-size-adjust: 100%;
 }
 

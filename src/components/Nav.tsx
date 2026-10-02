@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent as ReactMouseEvent, type ReactNode } from "react";
 import ThemeToggle from "./ThemeToggle";
 import Wordmark from "./Wordmark";
 import { externalProps, isExternal } from "@/lib/links";
@@ -206,6 +206,15 @@ export default function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const reduce = useReducedMotion();
+  const pathname = usePathname();
+
+  // Already home: scroll to the hero (instant under reduced motion) and drop any #hash.
+  function onLogo(e: ReactMouseEvent<HTMLAnchorElement>) {
+    if (pathname !== "/" || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: reduce ? "instant" : "smooth" });
+    if (window.location.hash) window.history.replaceState(null, "", window.location.pathname + window.location.search);
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-background/80 backdrop-blur-md">
@@ -216,7 +225,7 @@ export default function Nav() {
         Skip to content
       </a>
       <nav aria-label="Main" className="mx-auto flex h-14 max-w-[76rem] items-center gap-4 px-4 sm:px-8">
-        <Link href="/" aria-label="Fourgate home" className="mr-1 rounded-[4px]">
+        <Link href="/" aria-label="Fourgate home" onClick={onLogo} className="mr-1 rounded-[4px]">
           <Wordmark />
         </Link>
         <span className="hidden rounded-full border border-line px-2 py-px font-mono text-[0.6875rem] text-muted md:inline">
