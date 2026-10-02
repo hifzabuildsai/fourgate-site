@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { externalProps, isExternal } from "@/lib/links";
 
 type Variant = "primary" | "secondary" | "text";
 
@@ -27,8 +28,9 @@ export default function ButtonLink({
   const cls = `${base} ${variants[variant]} ${className}`;
   if (/^(https?:|mailto:)/.test(href) || href.endsWith(".html")) {
     return (
-      <a href={href} className={cls}>
+      <a href={href} className={cls} {...externalProps(href)}>
         {children}
+        {isExternal(href) && <span className="sr-only"> (opens in a new tab)</span>}
       </a>
     );
   }

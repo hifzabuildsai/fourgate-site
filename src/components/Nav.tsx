@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import Wordmark from "./Wordmark";
-import { GITHUB_URL, README_URL, VERSION } from "@/site.config";
+import { externalProps, isExternal } from "@/lib/links";
+import { GITHUB_URL, PRIMARY_CTA, README_URL, VERSION } from "@/site.config";
 
 type Item = { href: string; label: string; description?: string; external?: boolean };
 
@@ -32,8 +33,9 @@ function NavLink({ item, className, onNavigate }: { item: Item; className: strin
   );
   if (item.external) {
     return (
-      <a href={item.href} className={className} onClick={onNavigate}>
+      <a href={item.href} className={className} onClick={onNavigate} {...externalProps(item.href)}>
         {body}
+        {isExternal(item.href) && <span className="sr-only"> (opens in a new tab)</span>}
       </a>
     );
   }
@@ -126,6 +128,23 @@ function ProductMenu() {
   );
 }
 
+/** Primary call to action: the scope-call booking page (new tab), or the design-partner page if unset. */
+function CtaLink({ className, onClick }: { className: string; onClick?: () => void }) {
+  if (isExternal(PRIMARY_CTA.href)) {
+    return (
+      <a href={PRIMARY_CTA.href} className={className} onClick={onClick} {...externalProps(PRIMARY_CTA.href)}>
+        {PRIMARY_CTA.label}
+        <span className="sr-only"> (opens in a new tab)</span>
+      </a>
+    );
+  }
+  return (
+    <Link href={PRIMARY_CTA.href} className={className} onClick={onClick}>
+      {PRIMARY_CTA.label}
+    </Link>
+  );
+}
+
 export default function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -157,12 +176,7 @@ export default function Nav() {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <Link
-            href="/design-partner"
-            className="hidden min-h-9 items-center rounded-[6px] bg-bone px-3.5 text-small font-medium text-night hover:bg-white sm:inline-flex"
-          >
-            Become a design partner
-          </Link>
+          <CtaLink className="hidden min-h-9 items-center rounded-[6px] bg-bone px-3.5 text-small font-medium text-night hover:bg-white sm:inline-flex" />
           <button
             type="button"
             className="inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-line text-bone lg:hidden"
@@ -204,13 +218,10 @@ export default function Nav() {
               </li>
             ))}
           </ul>
-          <Link
-            href="/design-partner"
+          <CtaLink
             onClick={() => setMobileOpen(false)}
             className="my-3 flex min-h-11 items-center justify-center rounded-[6px] bg-bone px-4 text-small font-medium text-night"
-          >
-            Become a design partner
-          </Link>
+          />
         </div>
       </div>
     </header>

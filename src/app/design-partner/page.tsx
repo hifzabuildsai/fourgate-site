@@ -1,10 +1,11 @@
 import Link from "next/link";
-import ButtonLink from "@/components/ButtonLink";
+import ContactCtas from "@/components/ContactCtas";
 import CtaBand from "@/components/CtaBand";
 import Section from "@/components/Section";
 import StatusBadge from "@/components/StatusBadge";
+import { externalProps } from "@/lib/links";
 import { pageMetadata } from "@/lib/metadata";
-import { BOOKING_URL, CONTACT_EMAIL, GITHUB_URL, ISSUES_URL, PAYMENT_URL, PILOT_MD_URL } from "@/site.config";
+import { CONTACT_EMAIL, EMAIL_HREF, PILOT_MD_URL } from "@/site.config";
 
 export const metadata = pageMetadata({
   title: "Become a design partner",
@@ -41,7 +42,7 @@ const youGet = [
   "Shadow-mode rollout",
   "PASS / FAIL / UNKNOWN reports",
   "Direct support and a weekly review",
-  "$199 a month, cancel anytime",
+  "$199 a month, invoiced after the scope call, cancel anytime",
 ];
 
 const requirements = [
@@ -53,17 +54,9 @@ const requirements = [
 ];
 
 function Ctas() {
-  const hasDirect = Boolean(BOOKING_URL || PAYMENT_URL || CONTACT_EMAIL);
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-      <ButtonLink href={BOOKING_URL}>Book a 30-minute scope call</ButtonLink>
-      <ButtonLink href={PAYMENT_URL} variant={BOOKING_URL ? "secondary" : "primary"}>
-        Start the $199 a month plan
-      </ButtonLink>
-      <ButtonLink href={CONTACT_EMAIL ? `mailto:${CONTACT_EMAIL}?subject=Fourgate%20design%20partner` : ""} variant="secondary">
-        Email {CONTACT_EMAIL}
-      </ButtonLink>
-      {!hasDirect && GITHUB_URL && <ButtonLink href={ISSUES_URL}>Reach the maintainer on GitHub</ButtonLink>}
+      <ContactCtas />
     </div>
   );
 }
@@ -85,6 +78,15 @@ export default function DesignPartnerPage() {
         }
       >
         <Ctas />
+        {CONTACT_EMAIL && (
+          <p className="mt-4 text-small text-muted">
+            Prefer email? Write to{" "}
+            <a href={EMAIL_HREF} className="text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone">
+              {CONTACT_EMAIL}
+            </a>
+            .
+          </p>
+        )}
       </Section>
 
       <Section id="process" layout="stack" title="Five steps, from scope call to review.">
@@ -128,7 +130,9 @@ export default function DesignPartnerPage() {
           <p>
             <span className="text-bone">Where your data goes during a pilot.</span> Nowhere near us unless you choose. There is no
             Fourgate cloud, account, database or telemetry, and Fourgate never stores your credentials. The summary page is built
-            to be shareable, and sharing it is your decision. Full detail: <a href={PILOT_MD_URL}>PILOT.md</a> and the{" "}
+            to be shareable, and sharing it is your decision. Full detail: <a href={PILOT_MD_URL} {...externalProps(PILOT_MD_URL)}>
+              PILOT.md
+            </a> and the{" "}
             <Link href="/security">security page</Link>.
           </p>
         </div>

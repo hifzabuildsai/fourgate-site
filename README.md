@@ -28,8 +28,11 @@ npm run lint
 All links and contact details live in [`src/site.config.ts`](src/site.config.ts):
 `CONTACT_EMAIL`, `BOOKING_URL`, `PAYMENT_URL`, `GITHUB_URL`, `PYPI_URL`,
 `DEMO_VIDEO_URL`, `LINKEDIN_URL`, `X_URL`. Leave a value empty and the CTA or link that
-uses it is hidden; the design-partner page falls back to GitHub issues when no direct
-contact is set. `DEMO_VIDEO_URL` renders inline for a self-hosted `.mp4`/`.webm`, and as
+uses it is hidden. The primary call to action everywhere is "Book a 30-minute scope call"
+(`BOOKING_URL`, opens in a new tab); the secondary is email (`CONTACT_EMAIL`).
+`PAYMENT_URL` is empty on purpose: the Founding Design Partner plan is invoiced after the
+scope call. External links open in a new tab with `rel="noopener noreferrer"`
+(`src/lib/links.ts`). `DEMO_VIDEO_URL` renders inline for a self-hosted `.mp4`/`.webm`, and as
 a plain link otherwise (no third-party embeds).
 
 ## Pages

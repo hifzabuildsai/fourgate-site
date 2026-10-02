@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Wordmark from "./Wordmark";
+import { externalProps, isExternal } from "@/lib/links";
 import {
   CONTACT_EMAIL,
   GITHUB_URL,
@@ -56,8 +57,9 @@ function FooterAnchor({ href, label }: FooterLink) {
     );
   }
   return (
-    <a href={href} className={cls}>
+    <a href={href} className={cls} {...externalProps(href)}>
       {label}
+      {isExternal(href) && <span className="sr-only"> (opens in a new tab)</span>}
     </a>
   );
 }

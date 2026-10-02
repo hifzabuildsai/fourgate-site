@@ -1,11 +1,13 @@
 import ButtonLink from "@/components/ButtonLink";
 import Callout from "@/components/Callout";
 import CodeBlock from "@/components/CodeBlock";
+import ContactCtas from "@/components/ContactCtas";
 import CtaBand from "@/components/CtaBand";
 import ReportFrame from "@/components/ReportFrame";
 import Section from "@/components/Section";
 import VerdictSimulator from "@/components/VerdictSimulator";
 import { demo, demoCapture } from "@/content/demo";
+import { externalProps } from "@/lib/links";
 import { pageMetadata } from "@/lib/metadata";
 import { DEMO_VIDEO_URL, GITHUB_URL, PYPI_URL } from "@/site.config";
 
@@ -31,7 +33,7 @@ function Video() {
     <Section id="video" layout="stack" title="Watch the demo">
       {selfHosted ? (
         <video controls preload="metadata" className="w-full rounded-[14px] border border-line bg-black" src={DEMO_VIDEO_URL}>
-          <a href={DEMO_VIDEO_URL}>Download the demo video</a>
+          <a href={DEMO_VIDEO_URL} {...externalProps(DEMO_VIDEO_URL)}>Download the demo video</a>
         </video>
       ) : (
         <ButtonLink href={DEMO_VIDEO_URL} variant="secondary">
@@ -130,10 +132,7 @@ export default function DemoPage() {
       </Section>
 
       <CtaBand title="Ready to try it on a real workflow?" text={<p>Start in shadow mode on a disposable account. Your agent sees nothing different.</p>}>
-        <ButtonLink href="/design-partner">Become a design partner</ButtonLink>
-        <ButtonLink href="/integrations" variant="secondary">
-          See integrations
-        </ButtonLink>
+        <ContactCtas />
       </CtaBand>
     </>
   );

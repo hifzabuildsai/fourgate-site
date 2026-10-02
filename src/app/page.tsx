@@ -1,5 +1,6 @@
 import ButtonLink from "@/components/ButtonLink";
 import CodeBlock from "@/components/CodeBlock";
+import ContactCtas from "@/components/ContactCtas";
 import CtaBand from "@/components/CtaBand";
 import FAQ, { type FaqItem } from "@/components/FAQ";
 import FlowDiagram from "@/components/FlowDiagram";
@@ -11,7 +12,8 @@ import WrapToggle from "@/components/WrapToggle";
 import { demo, demoCapture } from "@/content/demo";
 import { workflow } from "@/content/workflow";
 import { pageMetadata } from "@/lib/metadata";
-import { GITHUB_URL, PYPI_URL, VERSION } from "@/site.config";
+import { externalProps } from "@/lib/links";
+import { GITHUB_URL, PRIMARY_CTA, PYPI_URL, VERSION } from "@/site.config";
 
 export const metadata = pageMetadata({
   title: "Fourgate: did your agent's action actually happen?",
@@ -135,7 +137,7 @@ export default function Home() {
           <div className="max-w-[40rem]">
             <p className="text-small text-muted">
               Open source. Runs on your machine.{" "}
-              <a href={PYPI_URL} className="text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone">
+              <a href={PYPI_URL} {...externalProps(PYPI_URL)} className="text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone">
                 Version {VERSION} on PyPI.
               </a>
             </p>
@@ -153,7 +155,7 @@ export default function Home() {
               <ButtonLink href="/demo" variant="secondary">
                 See it in the browser
               </ButtonLink>
-              <ButtonLink href="/design-partner">Become a design partner</ButtonLink>
+              <ButtonLink href={PRIMARY_CTA.href}>{PRIMARY_CTA.label}</ButtonLink>
             </div>
 
             <dl className="mt-10 max-w-[34rem] space-y-2.5 border-t border-line pt-5 text-small">
@@ -283,7 +285,7 @@ export default function Home() {
           <code className="code-inline">UNKNOWN / success_without_record_id</code> rather than PASS. One hosted integration does
           not establish production reliability, and two shadow calls are a smoke test, not production traffic.{" "}
           {GITHUB_URL && (
-            <a href={`${GITHUB_URL}#field-evidence`} className="text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone">
+            <a href={`${GITHUB_URL}#field-evidence`} {...externalProps(GITHUB_URL)} className="text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone">
               The full field record is in the README.
             </a>
           )}
@@ -320,10 +322,7 @@ export default function Home() {
         title="Check one workflow, in shadow mode, with us."
         text={<p>Pick 1–3 state-changing tools that matter. We write the contracts with you; your agent sees nothing different.</p>}
       >
-        <ButtonLink href="/design-partner">Become a design partner</ButtonLink>
-        <ButtonLink href="/demo" variant="secondary">
-          Run the demo
-        </ButtonLink>
+        <ContactCtas />
       </CtaBand>
     </>
   );

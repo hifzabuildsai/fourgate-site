@@ -1,10 +1,12 @@
 import ButtonLink from "@/components/ButtonLink";
+import ContactCtas from "@/components/ContactCtas";
 import ComparisonTable from "@/components/ComparisonTable";
 import CtaBand from "@/components/CtaBand";
 import FAQ, { type FaqItem } from "@/components/FAQ";
 import Section from "@/components/Section";
+import { externalProps } from "@/lib/links";
 import { pageMetadata } from "@/lib/metadata";
-import { BOOKING_URL, CONTACT_EMAIL, GITHUB_URL, ISSUES_URL, PAYMENT_URL } from "@/site.config";
+import { EMAIL_HREF, GITHUB_URL, ISSUES_URL, PRIMARY_CTA } from "@/site.config";
 
 export const metadata = pageMetadata({
   title: "Pricing",
@@ -12,8 +14,6 @@ export const metadata = pageMetadata({
     "Fourgate is free and open source (MIT). The Founding Design Partner plan is $199/month for one workflow with founder-assisted setup, contract review and a shadow-mode rollout.",
   path: "/pricing",
 });
-
-const contactHref = BOOKING_URL || (CONTACT_EMAIL ? `mailto:${CONTACT_EMAIL}` : "/design-partner");
 
 type Plan = {
   name: string;
@@ -43,7 +43,7 @@ const plans: Plan[] = [
     name: "Founding Design Partner",
     price: "$199",
     unit: "a month",
-    blurb: "We set it up with you on one workflow that matters.",
+    blurb: "We set it up with you on one workflow that matters. Invoiced after the scope call.",
     features: [
       "One workflow, up to three consequential state-changing tools",
       "Founder-assisted setup",
@@ -54,7 +54,7 @@ const plans: Plan[] = [
       "Weekly review",
       "Cancel anytime",
     ],
-    cta: { href: PAYMENT_URL || "/design-partner", label: "Become a design partner", variant: "primary" },
+    cta: { href: PRIMARY_CTA.href, label: PRIMARY_CTA.label, variant: "primary" },
     featured: true,
   },
   {
@@ -62,7 +62,7 @@ const plans: Plan[] = [
     price: "Contact us",
     blurb: "More workflows or tools than the design-partner scope.",
     features: ["Same open-source software, on your infrastructure", "Scope and terms by agreement"],
-    cta: { href: contactHref, label: "Contact us", variant: "secondary" },
+    cta: { href: EMAIL_HREF || PRIMARY_CTA.href, label: "Email us", variant: "secondary" },
   },
 ];
 
@@ -82,6 +82,14 @@ const faq: FaqItem[] = [
       <p>
         A consequential, state-changing MCP tool that you protect with an outcome contract, for example a tool that creates an
         issue or sends an email. Tools without a contract are not checked and do not count.
+      </p>
+    ),
+  },
+  {
+    q: "How do I pay?",
+    a: (
+      <p>
+        The Founding Design Partner plan is invoiced after the scope call. There is no online checkout.
       </p>
     ),
   },
@@ -169,13 +177,14 @@ export default function PricingPage() {
             { label: "PASS / FAIL / UNKNOWN reports", values: ["fourgate summary", "Reviewed with you", "By agreement"] },
             { label: "Weekly review", values: [false, true, "By agreement"] },
             { label: "Support", values: ["GitHub issues", "Direct", "By agreement"] },
+            { label: "Billing", values: ["None", "Invoiced after the scope call", "By agreement"] },
             { label: "Commitment", values: ["None", "Monthly, cancel anytime", "By agreement"] },
           ]}
         />
         {GITHUB_URL && (
           <p className="mt-5 text-small text-muted">
             Community support happens in{" "}
-            <a href={ISSUES_URL} className="text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone">
+            <a href={ISSUES_URL} {...externalProps(ISSUES_URL)} className="text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone">
               GitHub issues
             </a>
             .
@@ -188,10 +197,7 @@ export default function PricingPage() {
       </Section>
 
       <CtaBand title="Start with one workflow." text={<p>Shadow mode first. Your agent sees nothing different while we prove the contracts.</p>}>
-        <ButtonLink href="/design-partner">Become a design partner</ButtonLink>
-        <ButtonLink href="/demo" variant="secondary">
-          Run the demo
-        </ButtonLink>
+        <ContactCtas />
       </CtaBand>
     </>
   );

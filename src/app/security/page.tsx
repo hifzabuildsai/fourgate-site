@@ -2,10 +2,12 @@ import type { ReactNode } from "react";
 import ButtonLink from "@/components/ButtonLink";
 import Callout from "@/components/Callout";
 import CodeBlock from "@/components/CodeBlock";
+import ContactCtas from "@/components/ContactCtas";
 import CtaBand from "@/components/CtaBand";
 import FlowDiagram from "@/components/FlowDiagram";
 import Section from "@/components/Section";
 import StatusBadge from "@/components/StatusBadge";
+import { externalProps } from "@/lib/links";
 import { pageMetadata } from "@/lib/metadata";
 import { GITHUB_URL, PILOT_MD_URL, RELEASE_URL, SECURITY_MD_URL } from "@/site.config";
 
@@ -111,11 +113,11 @@ export default function SecurityPage() {
             So there are no sub-processors and nothing for us to leak. Fourgate runs entirely on your machines (a laptop, a
             server, or your CI) and nothing is sent to Fourgate. This page is written for whoever reviews Fourgate for security.
             It follows{" "}
-            <a href={PILOT_MD_URL} className={link}>
+            <a href={PILOT_MD_URL} {...externalProps(PILOT_MD_URL)} className={link}>
               PILOT.md
             </a>{" "}
             and{" "}
-            <a href={SECURITY_MD_URL} className={link}>
+            <a href={SECURITY_MD_URL} {...externalProps(SECURITY_MD_URL)} className={link}>
               SECURITY.md
             </a>
             .
@@ -308,7 +310,7 @@ export default function SecurityPage() {
       </Section>
 
       <CtaBand title="Reviewing Fourgate for your team?" text={<p>We can walk your security reviewer through the data flow on the scope call.</p>}>
-        <ButtonLink href="/design-partner">Become a design partner</ButtonLink>
+        <ContactCtas subject="Fourgate security review" />
       </CtaBand>
     </>
   );

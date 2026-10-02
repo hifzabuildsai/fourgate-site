@@ -3,6 +3,7 @@ import path from "node:path";
 import ButtonLink from "@/components/ButtonLink";
 import Callout from "@/components/Callout";
 import CodeBlock from "@/components/CodeBlock";
+import ContactCtas from "@/components/ContactCtas";
 import CtaBand from "@/components/CtaBand";
 import Section from "@/components/Section";
 import WrapToggle from "@/components/WrapToggle";
@@ -154,7 +155,7 @@ export default function IntegrationsPage() {
       </Section>
 
       <CtaBand title="Not sure your API has the right GET endpoint?" text={<p>Finding the read-back endpoint for each write is part of the scope call.</p>}>
-        <ButtonLink href="/design-partner">Become a design partner</ButtonLink>
+        <ContactCtas />
       </CtaBand>
     </>
   );

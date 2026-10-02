@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Section from "@/components/Section";
 import { pageMetadata } from "@/lib/metadata";
-import { CONTACT_EMAIL, GITHUB_URL, ISSUES_URL } from "@/site.config";
+import { CONTACT_EMAIL } from "@/site.config";
 
 export const metadata = pageMetadata({
   title: "Privacy",
@@ -21,21 +21,18 @@ export default function PrivacyPage() {
           The hosting provider that serves these files may keep standard server logs (such as IP address and requested URL) to
           operate and secure the service. We do not use them for analytics.
         </p>
-        <p>Links to GitHub, PyPI and other sites take you to services with their own privacy policies.</p>
+        <p>
+          Links to GitHub, PyPI, Cal.com (where scope calls are booked) and other sites take you to services with their own
+          privacy policies.
+        </p>
         <p>
           The Fourgate software itself is separate from this website. It runs on your machines and sends no telemetry; see the{" "}
           <Link href="/security">security page</Link>.
         </p>
-        {CONTACT_EMAIL ? (
+        {CONTACT_EMAIL && (
           <p>
-            Questions: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+            Questions about this website or Fourgate: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
           </p>
-        ) : (
-          GITHUB_URL && (
-            <p>
-              Questions: open an issue on <a href={ISSUES_URL}>GitHub</a>.
-            </p>
-          )
         )}
       </div>
     </Section>
