@@ -1,5 +1,6 @@
 import ButtonLink from "@/components/ButtonLink";
 import ContactCtas from "@/components/ContactCtas";
+import SpotlightCard from "@/components/SpotlightCard";
 import ComparisonTable from "@/components/ComparisonTable";
 import CtaBand from "@/components/CtaBand";
 import FAQ, { type FaqItem } from "@/components/FAQ";
@@ -127,15 +128,14 @@ export default function PricingPage() {
         title="Free to run. Paid help to get it right."
         intro={<p>Every plan runs the same open-source software on your infrastructure. What you pay for is our time.</p>}
       >
-        <div className="grid lg:grid-cols-3">
-          {plans.map((p, i) => (
-            <div
+        <div className="grid gap-4 lg:grid-cols-3">
+          {plans.map((p) => (
+            <SpotlightCard
               key={p.name}
-              className={`flex flex-col border-t py-8 lg:px-8 ${i === 0 ? "lg:pl-0" : ""} ${i === plans.length - 1 ? "lg:pr-0" : ""} ${
-                p.featured ? "border-t-2 border-bone lg:bg-surface lg:px-8" : "border-line"
-              } ${i > 0 ? "lg:border-l lg:border-l-line" : ""}`}
+              trail={p.featured}
+              className={`flex flex-col rounded-[16px] border p-6 sm:p-8 ${p.featured ? "border-foreground/50 bg-surface" : "border-line bg-background"}`}
             >
-              <h2 className="text-bone">{p.name}</h2>
+              <h2 className="text-foreground">{p.name}</h2>
               <p className="mt-3 flex items-baseline gap-2">
                 <span className="font-display text-h2">{p.price}</span>
                 {p.unit && <span className="text-small text-muted">{p.unit}</span>}
@@ -153,7 +153,7 @@ export default function PricingPage() {
                   {p.cta.label}
                 </ButtonLink>
               </div>
-            </div>
+            </SpotlightCard>
           ))}
         </div>
         <p className="mt-8 max-w-[68ch] text-muted">
@@ -184,7 +184,7 @@ export default function PricingPage() {
         {GITHUB_URL && (
           <p className="mt-5 text-small text-muted">
             Community support happens in{" "}
-            <a href={ISSUES_URL} {...externalProps(ISSUES_URL)} className="text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone">
+            <a href={ISSUES_URL} {...externalProps(ISSUES_URL)} className="link">
               GitHub issues
             </a>
             .

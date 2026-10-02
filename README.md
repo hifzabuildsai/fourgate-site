@@ -3,8 +3,9 @@
 The public site for [Fourgate](https://github.com/hifzabuildsai/fourgate): independent
 outcome verification for consequential AI-agent actions.
 
-Next.js 16 (App Router, static export) + TypeScript + Tailwind CSS v4. The hero uses
-three.js through React Three Fiber; UI state changes use `motion`. MDX is configured for
+Next.js 16 (App Router, static export) + TypeScript + Tailwind CSS v4, Geist Sans and
+Geist Mono, light and dark themes (`next-themes`, default: system). The hero uses three.js
+through React Three Fiber; user-triggered interactions use `motion`. MDX is configured for
 future docs and posts. No backend, no API routes, no forms that submit, no analytics, no
 cookies, and no third-party fonts or scripts at runtime (fonts are self-hosted by
 `next/font` at build time).
@@ -19,8 +20,9 @@ npm run dev
 Open http://localhost:3000.
 
 ```bash
-npm run build   # static export to ./out
+npm run build       # static export to ./out
 npm run lint
+npm run check:hero  # headless check of the hero's packet rules
 ```
 
 ## Configure
@@ -76,9 +78,15 @@ a plain link otherwise (no third-party embeds).
   the exact `fourgate guard` flags from the README; the file name and shape depend on
   the client.
 - **Hero scene (four gates)**: an illustration of the verdict rules, not data. Packets
-  are tool calls; most pass, some turn FAIL at the read-back gate and drop, some turn
-  UNKNOWN there and fade out; an UNKNOWN never continues and never turns green. The
-  pass/fail/unknown ratio is a fixed pattern, not measured.
+  are tool calls. UNKNOWN (amber) happens at gate 1 (the tool returned an error,
+  `not_success_result`) and gate 2 (a contracted field or record ID is missing), where the
+  call drops, and at gate 3 (read-back unreachable), where it stops and fades. FAIL (red)
+  happens only at gate 3 (record missing or different). Only PASS (green) ever crosses
+  gate 4; `src/components/hero/simulation.ts` enforces this on every step (it throws in
+  development). The mix (60% PASS, 20% FAIL, 20% UNKNOWN) is a fixed illustrative
+  sequence, not measured. `npm run check:hero` runs the real simulation for 10 simulated
+  minutes and asserts the gate rules, the mix, and that all three outcomes (with 2 to 3
+  red packets) are on screen in every frame.
 - **Field evidence (home)**: copied from the product README's results table and field
   evidence section (as of 2026-10-01), with its caveats. Vendors are not named.
 - **Diagrams**: drawn from the data-flow diagram in the product's `PILOT.md`; the
@@ -113,21 +121,30 @@ public/
 
 ## Design rules
 
-- Tokens (in `src/app/globals.css`): night `#0E1218`, surface `#161C24`, line `#26303B`,
-  bone `#E9E4D8`, muted `#9AA3AD`. Verdict colors carry verdict meaning only: PASS
-  `#5FD3A0`, FAIL `#F0645A`, UNKNOWN `#F2B84B`. No other accent, no gradient washes.
-- Type: Archivo (variable, width axis expanded for headings); JetBrains Mono only for
-  terminals and code, ligatures off so output reads exactly as printed.
-- Hairline borders, radii by hierarchy (14px panels, 8px controls, 4px chips), no soft
-  shadows, no all-caps eyebrows, no arrows appended to link text.
-- Motion only depicts verdict semantics or a state change after a user action. With
-  `prefers-reduced-motion`, the hero is a static SVG and UI changes are instant.
-- Hero performance: three.js loads via `next/dynamic` with `ssr: false`, only after the
+- Themes: light and dark, Geist-style grayscale (`src/app/globals.css`). Default follows
+  the system; the nav toggle remembers the visitor's choice (`fourgate-theme` in
+  localStorage) and next-themes applies it before first paint.
+  Dark: background `#000`, surface `#0a0a0a`, text `#ededed`, muted `#a1a1a1`, lines
+  `#262626`/`#3d3d3d`. Light: background `#fff`, surface `#fafafa`, text `#171717`, muted
+  `#666`, lines `#eaeaea`/`#d4d4d4`. Blue (`#0062d1` / `#52a8ff`) is for links and focus only.
+- Verdict colors carry verdict meaning only, with a per-theme shade checked for WCAG AA
+  (at least 4.9:1 on background and surface): PASS `#0f7a3d` / `#3fcf7f`, FAIL `#cb2a2f` /
+  `#ff6166`, UNKNOWN `#9a5700` / `#f5a524` (light / dark).
+- Type: Geist Sans everywhere, Geist Mono for terminals and code (ligatures off, so output
+  reads exactly as printed). Both self-hosted by `next/font`.
+- Interactions are user-triggered (hover, focus, click) and keyboard focus triggers the
+  same states as hover: sliding nav highlight, animated dropdown, magnetic buttons with a
+  light sweep, copy button morph, verdict rows with a gate icon whose dot runs on hover,
+  diagram nodes that light their edges and show what they store, cursor spotlight cards
+  (max 3° tilt), a border trail on the featured plan, the simulator's sliding pill, the
+  stepper's progress rail, a height-animated FAQ and one-time count-ups. The only idle
+  animation is the hero scene. Everything respects `prefers-reduced-motion`.
+- Hero performance: three.js loads via `next/dynamic` with `ssr: false`, only once the
   scene is on screen and the browser is idle; device pixel ratio is capped at 1.5 (1 on
-  phones), phones get fewer packets, and rendering pauses when the hero is off screen or
-  the tab is hidden. No WebGL: the static SVG is used.
+  phones, no antialiasing), and rendering pauses when the hero is off screen or the tab is
+  hidden. Reduced motion or no WebGL: a static SVG with the same rules.
 - Must work at 375px without horizontal page scroll, with keyboard-accessible menus,
-  tabs, radio groups and diagram nodes, and AA contrast.
+  tabs, radio groups, toggles and diagram nodes, and AA contrast in both themes.
 
 ## Note for Windows builds
 

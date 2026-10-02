@@ -17,7 +17,7 @@ export function GateMark({ className = "h-5 w-5" }: { className?: string }) {
 
 export default function Wordmark() {
   return (
-    <span className="inline-flex items-center gap-2 text-bone">
+    <span className="inline-flex items-center gap-2 text-foreground">
       <GateMark />
       <span className="font-display text-[1.0625rem] leading-none">Fourgate</span>
     </span>

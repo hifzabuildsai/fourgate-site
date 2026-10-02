@@ -84,8 +84,8 @@ Get-FileHash fourgate-0.3.0-py3-none-any.whl -Algorithm SHA256`;
 
 function Column({ title, items }: { title: string; items: ReactNode[] }) {
   return (
-    <div className="border-t border-bone/60 pt-4">
-      <h3 className="font-medium text-bone">{title}</h3>
+    <div className="border-t border-foreground/60 pt-4">
+      <h3 className="font-medium text-foreground">{title}</h3>
       <ul className="mt-3">
         {items.map((it, i) => (
           <li key={i} className="border-t border-line py-3 text-small text-muted first:border-t-0">
@@ -97,7 +97,7 @@ function Column({ title, items }: { title: string; items: ReactNode[] }) {
   );
 }
 
-const link = "text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone";
+const link = "link";
 
 export default function SecurityPage() {
   return (
@@ -126,7 +126,7 @@ export default function SecurityPage() {
       >
         <FlowDiagram
           id="security-flow"
-          interactive
+          variant="panel"
           labels={{
             call: "tools/call",
             forward: "unchanged",
@@ -138,7 +138,7 @@ export default function SecurityPage() {
           }}
         />
         <details className="mt-4 rounded-[10px] border border-line">
-          <summary className="flex cursor-pointer items-center gap-2 px-4 py-3 text-small text-muted hover:text-bone">
+          <summary className="flex cursor-pointer items-center gap-2 px-4 py-3 text-small text-muted hover:text-foreground">
             <svg aria-hidden="true" viewBox="0 0 16 16" className="fg-chevron h-3.5 w-3.5">
               <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="1.4" />
             </svg>
@@ -172,7 +172,7 @@ export default function SecurityPage() {
         <table className="hidden w-full border-collapse text-left text-small md:table">
           <caption className="sr-only">Files Fourgate writes</caption>
           <thead>
-            <tr className="border-b border-bone/60 text-bone">
+            <tr className="border-b border-foreground/60 text-foreground">
               <th scope="col" className="py-3 pr-4 font-medium">Item</th>
               <th scope="col" className="py-3 pr-4 font-medium">Where</th>
               <th scope="col" className="py-3 pr-4 font-medium">Contains</th>
@@ -182,7 +182,7 @@ export default function SecurityPage() {
           <tbody>
             {stored.map((s) => (
               <tr key={s.item} className="border-b border-line align-top">
-                <th scope="row" className="py-4 pr-4 font-normal text-bone">
+                <th scope="row" className="py-4 pr-4 font-normal text-foreground">
                   {s.item}
                   <code className="mt-1 block font-mono text-cap text-muted">{s.file}</code>
                 </th>
@@ -195,8 +195,8 @@ export default function SecurityPage() {
         </table>
         <div className="space-y-8 md:hidden">
           {stored.map((s) => (
-            <section key={s.item} aria-label={s.item} className="border-t border-bone/60 pt-3">
-              <h3 className="font-medium text-bone">{s.item}</h3>
+            <section key={s.item} aria-label={s.item} className="border-t border-foreground/60 pt-3">
+              <h3 className="font-medium text-foreground">{s.item}</h3>
               <code className="font-mono text-cap text-muted">{s.file}</code>
               <dl className="mt-3 space-y-2 text-small">
                 {(
@@ -208,7 +208,7 @@ export default function SecurityPage() {
                 ).map(([k, v]) => (
                   <div key={k}>
                     <dt className="text-cap text-muted">{k}</dt>
-                    <dd className="text-bone">{v}</dd>
+                    <dd className="text-foreground">{v}</dd>
                   </div>
                 ))}
               </dl>

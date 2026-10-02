@@ -48,13 +48,13 @@ cannot be sourced, it does not go on the site.
 
 | Claim | Where | Source |
 |---|---|---|
-| Gate 1 "Tool says done": the check starts after a connector reports success | Hero labels | R126 ("After a connector reports success") |
-| Gate 2 "Extract contracted fields" | Hero labels | R126 ("extracts only the minimum contract-approved fields"), P32 |
-| Gate 3 "Independent read-back" | Hero labels | R126 ("deterministic authoritative verifier"), P34–35 |
-| Gate 4 "Verdict": PASS / FAIL / UNKNOWN | Hero labels | R128–132 |
-| FAIL packets turn red at the read-back and drop; UNKNOWN packets turn amber there, stop, and never continue or turn green | Hero scene | R92 and R148 (UNKNOWN is never PASS); R132, P81–82 (fails open; the call is not blocked) |
+| Gate 1 "Tool says done": only results the tool reported as success are checked; an error result is UNKNOWN (`not_success_result`) | Hero labels, tooltip, scene | R126 ("After a connector reports success"); `fourgate/readback.py` `evaluate()` at `1d7b900` (returns `unknown / not_success_result` when `result.isError`) |
+| Gate 2 "Extract contracted fields": only contract-approved fields; a missing field or record ID is UNKNOWN | Hero labels, tooltip, scene | R126, P32; R132 ("missing selector"), R21 (`success_without_record_id`); `readback.py` `evaluate()` (extraction error -> unknown) |
+| Gate 3 "Independent read-back": separate read-only GET; missing or different is FAIL, unreachable is UNKNOWN | Hero labels, tooltip, scene | R126, P34–35; R144–147 (`record_missing`), R261 (`field_mismatch`); R148, S38 (unreachable / 401 / 403 -> UNKNOWN) |
+| Gate 4 "Verdict": only a confirmed match is PASS; UNKNOWN is never PASS and fails open | Hero labels, tooltip, scene | R92, R128–132, P81–82 |
+| Only PASS packets cross gate 4 (enforced in code) | Hero scene | Illustration of R92; `src/components/hero/simulation.ts` `assertVerdictGate`, checked by `npm run check:hero` |
 | Legend: PASS = read-back found the record with the contracted values; FAIL = proved missing or different; UNKNOWN = could not confirm, never reported as success | Hero legend | R16, R128–132, R92; reason texts in the demo summary page |
-| Packet ratio and motion are illustrative, not measured | Hero | Stated in README "What's real vs. illustrative" |
+| Mix (60% PASS, 20% FAIL, 20% UNKNOWN) and motion are illustrative, not measured | Hero | Stated in README "What's real vs. illustrative" |
 
 ## Interactive components
 

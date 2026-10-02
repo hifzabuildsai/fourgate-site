@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import type { WorkflowStep } from "@/content/workflow";
 import CodeBlock from "./CodeBlock";
@@ -26,6 +27,9 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const uid = useId();
   const step = steps[active];
+  const reduce = useReducedMotion();
+  const progress = `${(active / (steps.length - 1)) * 100}%`;
+  const ease = reduce ? { duration: 0 } : { duration: 0.35, ease: [0.2, 0.7, 0.2, 1] as const };
 
   function onKey(e: KeyboardEvent<HTMLButtonElement>) {
     const keys: Record<string, number> = {
@@ -45,10 +49,18 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-12">
+      <div className="relative min-w-0 lg:col-span-4">
+      {/* Progress rail: fills up to the selected step (vertical on wide screens, horizontal on phones). */}
+      <span aria-hidden="true" className="absolute bottom-5 left-[1.375rem] top-5 hidden w-px bg-line lg:block">
+        <motion.span className="absolute inset-x-0 top-0 bg-foreground" initial={false} animate={{ height: progress }} transition={ease} />
+      </span>
+      <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-px bg-line lg:hidden">
+        <motion.span className="absolute inset-y-0 left-0 bg-foreground" initial={false} animate={{ width: progress }} transition={ease} />
+      </span>
       <div
         role="tablist"
         aria-label="Fourgate workflow"
-        className="fg-scroll -mx-4 flex gap-1 overflow-x-auto px-4 pb-1 lg:col-span-4 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0"
+        className="fg-scroll -mx-4 flex gap-1 overflow-x-auto px-4 pb-2 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0"
       >
         {steps.map((s, i) => (
           <button
@@ -64,13 +76,19 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
             tabIndex={i === active ? 0 : -1}
             onClick={() => setActive(i)}
             onKeyDown={onKey}
-            className={`group flex shrink-0 items-baseline gap-3 rounded-[8px] border px-3 py-2.5 text-left lg:shrink ${
-              i === active ? "border-bone/70 bg-surface" : "border-transparent hover:border-line"
+            className={`group relative flex shrink-0 items-baseline gap-3 rounded-[10px] border px-3 py-2.5 text-left transition-colors lg:shrink ${
+              i === active ? "border-line-strong bg-surface" : "border-transparent hover:bg-surface"
             }`}
           >
-            <span className="font-mono text-cap text-muted">{i + 1}</span>
+            <span
+              className={`relative z-[1] inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border font-mono text-[0.6875rem] transition-colors ${
+                i <= active ? "border-foreground bg-foreground text-background" : "border-line-strong bg-background text-muted"
+              }`}
+            >
+              {i + 1}
+            </span>
             <span>
-              <span className={`font-mono text-small ${i === active ? "text-bone" : "text-muted group-hover:text-bone"}`}>
+              <span className={`font-mono text-small ${i === active ? "text-foreground" : "text-muted group-hover:text-foreground"}`}>
                 fourgate {s.name}
               </span>
               <span className="hidden text-cap text-muted lg:block">{s.purpose}</span>
@@ -78,14 +96,18 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
           </button>
         ))}
       </div>
+      </div>
 
-      <div
-        role="tabpanel"
-        id={`${uid}-panel`}
-        aria-labelledby={`${uid}-tab-${step.id}`}
-        className="min-w-0 space-y-4 lg:col-span-8"
-      >
-        <p className="text-bone lg:hidden">{step.purpose}</p>
+      <div role="tabpanel" id={`${uid}-panel`} aria-labelledby={`${uid}-tab-${step.id}`} className="min-w-0 lg:col-span-8">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={step.id}
+            initial={reduce ? false : { opacity: 0 }}
+            animate={{ opacity: 1, transition: { duration: reduce ? 0 : 0.2 } }}
+            exit={reduce ? undefined : { opacity: 0, transition: { duration: 0.12 } }}
+            className="space-y-4"
+          >
+        <p className="text-foreground lg:hidden">{step.purpose}</p>
         <CodeBlock code={step.command} label="Command" prompt />
         {step.commandNote && <p className="text-cap text-muted">{step.commandNote}</p>}
 
@@ -98,7 +120,7 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
             <pre
               tabIndex={0}
               aria-label={`Output of fourgate ${step.name}`}
-              className="fg-scroll max-h-[26rem] overflow-auto bg-[#0a0d12] p-4 font-mono text-[0.75rem] leading-[1.7] text-bone"
+              className="fg-scroll max-h-[26rem] overflow-auto bg-code p-4 font-mono text-[0.75rem] leading-[1.7] text-foreground"
             >
               {step.output.split("\n").map((line, i) => (
                 <span key={i} className="block min-h-[1lh] whitespace-pre-wrap break-words lg:whitespace-pre">
@@ -112,15 +134,17 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
         {step.readme && (
           <figure className="rounded-[10px] border border-line p-4 sm:p-5">
             <figcaption className="mb-2 text-cap text-muted">From the README (no captured output on this site)</figcaption>
-            <blockquote className="max-w-[68ch] text-small text-bone">{step.readme}</blockquote>
+            <blockquote className="max-w-[68ch] text-small text-foreground">{step.readme}</blockquote>
           </figure>
         )}
 
         {step.link && (
-          <a href={step.link.href} className="inline-block text-small text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone">
+          <a href={step.link.href} className="inline-block text-small link">
             {step.link.label}
           </a>
         )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

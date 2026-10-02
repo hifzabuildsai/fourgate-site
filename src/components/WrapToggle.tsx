@@ -57,7 +57,7 @@ export default function WrapToggle() {
               type="button"
               aria-pressed={wrapped === w}
               onClick={() => setWrapped(w)}
-              className="min-h-9 rounded-[6px] px-3 text-small text-muted aria-pressed:bg-bone aria-pressed:text-night"
+              className="min-h-9 rounded-[6px] px-3 text-small text-muted aria-pressed:bg-foreground aria-pressed:text-background"
             >
               {w ? "After: wrapped" : "Before"}
             </button>
@@ -66,7 +66,7 @@ export default function WrapToggle() {
         <span className="text-cap text-muted">Illustrative client config</span>
       </div>
 
-      <pre className="fg-scroll overflow-x-auto bg-[#0a0d12] py-4 font-mono text-[0.8125rem] leading-[1.75]" aria-live="polite">
+      <pre className="fg-scroll overflow-x-auto bg-code py-4 font-mono text-[0.8125rem] leading-[1.75]" aria-live="polite">
         <code className="block min-w-max">
           <AnimatePresence initial={false} mode="popLayout">
             {lines.map((l, i) => {
@@ -80,7 +80,7 @@ export default function WrapToggle() {
                   animate={{ opacity: 1, x: 0, transition: { duration: 0.2, delay: l.change ? 0.03 * (i - 3) : 0 } }}
                   exit={reduce ? undefined : { opacity: 0, transition: { duration: 0.08 } }}
                   className={`block px-4 sm:px-5 ${
-                    mark === "add" ? "bg-bone/[0.07] text-bone" : l.change ? "text-bone" : "text-muted"
+                    mark === "add" ? "bg-foreground/[0.07] text-foreground" : l.change ? "text-foreground" : "text-muted"
                   }`}
                 >
                   <span aria-hidden="true" className="mr-3 inline-block w-3 select-none text-muted">
@@ -96,7 +96,7 @@ export default function WrapToggle() {
 
       <div className="border-t border-line px-4 py-3 sm:px-5">
         <p className="text-cap text-muted">Same thing as a shell command</p>
-        <p className="mt-1 break-words font-mono text-[0.8125rem] text-bone">{wrapped ? shell.after : shell.before}</p>
+        <p className="mt-1 break-words font-mono text-[0.8125rem] text-foreground">{wrapped ? shell.after : shell.before}</p>
         <p className="mt-3 max-w-[68ch] text-cap text-muted">
           The file name and shape depend on your MCP client; only the command changes. runtime.json is the contract file
           fourgate init writes.

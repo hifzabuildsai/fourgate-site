@@ -1,173 +1,138 @@
 "use client";
 
 /*
-  Four gates in depth; each packet is one agent tool call.
-  Gate 1 "Tool says done" -> 2 "Extract contracted fields" -> 3 "Independent read-back" -> 4 "Verdict".
-  - pass:    crosses all four gates, then turns PASS green.
-  - fail:    turns FAIL red at gate 3 and drops.
-  - unknown: turns UNKNOWN amber at gate 3, stops, fades out. It never continues and never turns green.
+  Four gates in depth; each packet is one agent tool call. The rules live in
+  ./simulation.ts (checked headlessly by scripts/check-gate-simulation.ts):
+  UNKNOWN at gates 1/2/3, FAIL only at gate 3, and only PASS crosses gate 4.
   Ported from the earlier landing page scene (four portals, flying packets, mouse parallax).
 */
 
 import { useEffect, useMemo, useRef, type RefObject } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { GATE_Z, GateSimulation, tint } from "./simulation";
 
-const C = {
-  night: "#0e1218",
-  bone: "#e9e4d8",
-  line: "#26303b",
-  pass: "#5fd3a0",
-  fail: "#f0645a",
-  unknown: "#f2b84b",
-} as const;
+export type ScenePalette = {
+  bg: string;
+  metal: string;
+  neutral: string;
+  grid: string;
+  gridMinor: string;
+  pass: string;
+  fail: string;
+  unknown: string;
+  glow: string;
+};
 
-/** Gate planes along z, nearest first. Packets travel toward -z. */
-export const GATE_Z = [1.2, -1.6, -4.4, -7.2] as const;
+export const PALETTES: Record<"dark" | "light", ScenePalette> = {
+  dark: {
+    bg: "#000000",
+    metal: "#d4d4d4",
+    neutral: "#ededed",
+    grid: "#262626",
+    gridMinor: "#141414",
+    pass: "#3fcf7f",
+    fail: "#ff6166",
+    unknown: "#f5a524",
+    glow: "#ffffff",
+  },
+  light: {
+    bg: "#ffffff",
+    metal: "#3f3f46",
+    neutral: "#52525b",
+    grid: "#e5e5e5",
+    gridMinor: "#f2f2f2",
+    pass: "#0f7a3d",
+    fail: "#cb2a2f",
+    unknown: "#9a5700",
+    glow: "#000000",
+  },
+};
+
 const GATE_TOP = 2.42;
-const PASS_END = -10.2;
 /** Labels alternate above (top) and below (floor) the gates so neighbors never collide. */
 const LABEL_SIDE = ["top", "bottom", "top", "bottom"] as const;
 
-type Kind = "pass" | "fail" | "unknown";
-type Phase = "travel" | "drop" | "halt" | "passed";
-// Per seven calls: five pass, one fail, one unknown.
-const PATTERN: Kind[] = ["pass", "pass", "fail", "pass", "pass", "unknown", "pass"];
+type GateMats = { metal: THREE.MeshStandardMaterial[]; pane: THREE.MeshBasicMaterial | null };
 
-type Packet = {
-  kind: Kind;
-  phase: Phase;
-  x: number;
-  y: number;
-  z: number;
-  vy: number;
-  t: number;
-  speed: number;
-  opacity: number;
-};
+type Register = (part: "metal" | "pane", m: THREE.Material | null) => void;
 
-function Portal({ z }: { z: number }) {
+function Portal({ z, palette, register }: { z: number; palette: ScenePalette; register: Register }) {
+  const metalRef = (m: THREE.MeshStandardMaterial | null) => register("metal", m);
   return (
     <group position={[0, 0, z]}>
       {[-1.15, 1.15].map((x) => (
         <mesh key={x} position={[x, 1.15, 0]}>
           <boxGeometry args={[0.12, 2.3, 0.12]} />
-          <meshStandardMaterial color={C.bone} metalness={0.25} roughness={0.42} />
+          <meshStandardMaterial ref={metalRef} color={palette.metal} metalness={0.25} roughness={0.45} />
         </mesh>
       ))}
       <mesh position={[0, 2.36, 0]}>
         <boxGeometry args={[2.42, 0.12, 0.12]} />
-        <meshStandardMaterial color={C.bone} metalness={0.25} roughness={0.42} />
+        <meshStandardMaterial ref={metalRef} color={palette.metal} metalness={0.25} roughness={0.45} />
       </mesh>
       <mesh position={[0, 1.15, 0]}>
         <planeGeometry args={[2.18, 2.18]} />
-        <meshBasicMaterial color={C.bone} transparent opacity={0.035} side={THREE.DoubleSide} depthWrite={false} />
+        <meshBasicMaterial
+          ref={(m) => register("pane", m)}
+          color={palette.metal}
+          transparent
+          opacity={0.03}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
       </mesh>
       <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[2.3, 0.05]} />
-        <meshBasicMaterial color={C.bone} transparent opacity={0.35} />
+        <meshBasicMaterial color={palette.metal} transparent opacity={0.4} />
       </mesh>
     </group>
   );
 }
 
-function Packets({ count, spawnZ }: { count: number; spawnZ: number }) {
+function Packets({ palette, sim }: { palette: ScenePalette; sim: GateSimulation }) {
   const group = useRef<THREE.Group>(null);
   const colors = useMemo(
     () => ({
-      bone: new THREE.Color(C.bone),
-      pass: new THREE.Color(C.pass),
-      fail: new THREE.Color(C.fail),
-      unknown: new THREE.Color(C.unknown),
+      neutral: new THREE.Color(palette.neutral),
+      pass: new THREE.Color(palette.pass),
+      fail: new THREE.Color(palette.fail),
+      unknown: new THREE.Color(palette.unknown),
     }),
-    [],
+    [palette],
   );
-
-  const packets = useMemo<Packet[]>(() => {
-    const span = spawnZ - PASS_END;
-    return Array.from({ length: count }, (_, i) => ({
-      kind: PATTERN[i % PATTERN.length],
-      phase: "travel" as Phase,
-      x: Math.sin(i * 1.7) * 0.5,
-      y: 0.5 + ((i * 0.37) % 1.3),
-      z: spawnZ - (i * span) / count,
-      vy: 0,
-      t: 0,
-      speed: 1.25 + (i % 4) * 0.12,
-      opacity: 1,
-    }));
-  }, [count, spawnZ]);
 
   useFrame((_, delta) => {
     const root = group.current;
     if (!root) return;
-    const d = Math.min(delta, 0.05);
-    packets.forEach((p, i) => {
-      if (p.phase === "travel") {
-        p.z -= p.speed * d;
-        p.opacity = Math.min(1, (spawnZ - p.z) / 1.5);
-        if (p.z <= GATE_Z[2] && p.kind === "fail") {
-          p.phase = "drop";
-          p.t = 0;
-        } else if (p.z <= GATE_Z[2] && p.kind === "unknown") {
-          p.phase = "halt";
-          p.z = GATE_Z[2];
-          p.t = 0;
-        } else if (p.z <= GATE_Z[3]) {
-          p.phase = "passed";
-          p.t = 0;
-        }
-      } else if (p.phase === "drop") {
-        p.t += d;
-        p.vy -= 5.5 * d;
-        p.y += p.vy * d;
-        p.z -= p.speed * 0.2 * d;
-        p.opacity = Math.max(0, 1 - p.t / 1.3);
-      } else if (p.phase === "halt") {
-        p.t += d;
-        p.opacity = Math.max(0, 1 - Math.max(0, p.t - 0.5) / 1.2);
-      } else {
-        p.t += d;
-        p.z -= p.speed * d;
-        p.opacity = Math.max(0, Math.min(1, (p.z - PASS_END) / 1.5));
-      }
-
-      const done = p.opacity <= 0 || p.y < -0.6 || p.z < PASS_END;
-      if (done) {
-        p.phase = "travel";
-        p.z = spawnZ;
-        p.y = 0.5 + ((i * 0.37) % 1.3);
-        p.vy = 0;
-        p.t = 0;
-        p.opacity = 0;
-      }
-
+    sim.step(delta);
+    sim.packets.forEach((p, i) => {
       const mesh = root.children[i] as THREE.Mesh | undefined;
       if (!mesh) return;
+      mesh.visible = p.phase !== "idle" && p.opacity > 0.01;
+      if (!mesh.visible) return;
       mesh.position.set(p.x, p.y, p.z);
       mesh.rotation.y = p.z * 0.4;
-      // Unlit, so verdict colors render exactly as the tokens.
+      // Unlit and not tone-mapped, so verdict colors render exactly as the tokens.
       const mat = mesh.material as THREE.MeshBasicMaterial;
-      mat.color.copy(
-        p.phase === "drop" ? colors.fail : p.phase === "halt" ? colors.unknown : p.phase === "passed" ? colors.pass : colors.bone,
-      );
+      mat.color.copy(colors[tint(p)]);
       mat.opacity = p.opacity;
     });
   });
 
   return (
     <group ref={group}>
-      {packets.map((_, i) => (
-        <mesh key={i}>
+      {sim.packets.map((_, i) => (
+        <mesh key={i} visible={false}>
           <boxGeometry args={[0.17, 0.17, 0.3]} />
-          <meshBasicMaterial color={C.bone} transparent fog={false} toneMapped={false} />
+          <meshBasicMaterial color={palette.neutral} transparent fog={false} toneMapped={false} />
         </mesh>
       ))}
     </group>
   );
 }
 
-/** Projects each gate's top onto the canvas and moves the matching DOM label there. */
+/** Projects each gate's anchor onto the canvas and moves the matching DOM label there. */
 function LabelProjector({ anchors, labels }: { anchors: RefObject<(THREE.Object3D | null)[]>; labels: RefObject<(HTMLElement | null)[]> }) {
   const v = useMemo(() => new THREE.Vector3(), []);
   useFrame(({ camera, size }) => {
@@ -200,13 +165,36 @@ function framing(overlay: boolean, aspect: number): Framing {
   return { fov: 34, pos, look: [-1.2, 1, -3] };
 }
 
-function Rig({ labels, count, overlay }: { labels: RefObject<(HTMLElement | null)[]>; count: number; overlay: boolean }) {
+function Rig({
+  labels,
+  highlight,
+  overlay,
+  palette,
+}: {
+  labels: RefObject<(HTMLElement | null)[]>;
+  highlight: RefObject<number | null>;
+  overlay: boolean;
+  palette: ScenePalette;
+}) {
   const group = useRef<THREE.Group>(null);
   const anchors = useRef<(THREE.Object3D | null)[]>([]);
+  const gateMats = useRef<GateMats[]>(GATE_Z.map(() => ({ metal: [], pane: null })));
+  const registers = useMemo<Register[]>(
+    () =>
+      GATE_Z.map((_, i) => (part, m) => {
+        const g = gateMats.current[i];
+        if (!m) return;
+        if (part === "pane") g.pane = m as THREE.MeshBasicMaterial;
+        else if (!g.metal.includes(m as THREE.MeshStandardMaterial)) g.metal.push(m as THREE.MeshStandardMaterial);
+      }),
+    [],
+  );
   const mouse = useRef({ x: 0, y: 0 });
   const size = useThree((s) => s.size);
   const f = framing(overlay, size.width / Math.max(1, size.height));
   const applied = useRef("");
+  const sim = useMemo(() => new GateSimulation(0.75, process.env.NODE_ENV !== "production"), []);
+  const glow = useMemo(() => new THREE.Color(palette.glow), [palette]);
 
   // Apply framing in the frame loop, only when it changes.
   useFrame(({ camera }) => {
@@ -235,13 +223,22 @@ function Rig({ labels, count, overlay }: { labels: RefObject<(HTMLElement | null
     const d = Math.min(delta, 0.05);
     g.rotation.y = THREE.MathUtils.damp(g.rotation.y, mouse.current.x * 0.22, 2.4, d);
     g.rotation.x = THREE.MathUtils.damp(g.rotation.x, 0.08 + mouse.current.y * -0.1, 2.4, d);
+    // Gate highlight from the hovered/focused label: a soft glow on that gate only.
+    gateMats.current.forEach((m, i) => {
+      const on = highlight.current === i;
+      m.metal.forEach((mat) => {
+        mat.emissive.copy(glow);
+        mat.emissiveIntensity = THREE.MathUtils.damp(mat.emissiveIntensity, on ? 0.45 : 0, 10, d);
+      });
+      if (m.pane) m.pane.opacity = THREE.MathUtils.damp(m.pane.opacity, on ? 0.14 : 0.03, 10, d);
+    });
   });
 
   return (
     <group ref={group} position={[0, -0.15, 0]}>
       {GATE_Z.map((z, i) => (
         <group key={z}>
-          <Portal z={z} />
+          <Portal z={z} palette={palette} register={registers[i]} />
           <object3D
             position={[0, LABEL_SIDE[i] === "top" ? GATE_TOP : 0, z]}
             ref={(el) => {
@@ -250,8 +247,8 @@ function Rig({ labels, count, overlay }: { labels: RefObject<(HTMLElement | null
           />
         </group>
       ))}
-      <Packets count={count} spawnZ={GATE_Z[0] + 3.2} />
-      <gridHelper args={[30, 44, C.line, "#19202a"]} />
+      <Packets palette={palette} sim={sim} />
+      <gridHelper args={[30, 44, palette.grid, palette.gridMinor]} />
       <LabelProjector anchors={anchors} labels={labels} />
     </group>
   );
@@ -259,15 +256,20 @@ function Rig({ labels, count, overlay }: { labels: RefObject<(HTMLElement | null
 
 export default function GateScene({
   labels,
+  highlight,
   active,
   small,
   overlay,
+  theme,
 }: {
   labels: RefObject<(HTMLElement | null)[]>;
+  highlight: RefObject<number | null>;
   active: boolean;
   small: boolean;
   overlay: boolean;
+  theme: "dark" | "light";
 }) {
+  const palette = PALETTES[theme];
   return (
     <Canvas
       frameloop={active ? "always" : "never"}
@@ -277,12 +279,13 @@ export default function GateScene({
       style={{ pointerEvents: "none", display: "block" }}
       aria-hidden="true"
     >
-      <color attach="background" args={[C.night]} />
-      <fog attach="fog" args={[C.night, 14, 32]} />
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[4, 7, 5]} intensity={1.5} color={C.bone} />
-      <directionalLight position={[-5, 3, -6]} intensity={0.35} color={C.bone} />
-      <Rig labels={labels} count={small ? 7 : 14} overlay={overlay} />
+      <color attach="background" args={[palette.bg]} />
+      {/* Fog matches the page background in both themes. */}
+      <fog attach="fog" args={[palette.bg, 14, 32]} />
+      <ambientLight intensity={theme === "dark" ? 0.55 : 0.9} />
+      <directionalLight position={[4, 7, 5]} intensity={theme === "dark" ? 1.5 : 1.1} />
+      <directionalLight position={[-5, 3, -6]} intensity={0.35} />
+      <Rig labels={labels} highlight={highlight} overlay={overlay} palette={palette} />
     </Canvas>
   );
 }

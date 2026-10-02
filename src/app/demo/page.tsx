@@ -64,8 +64,8 @@ export default function DemoPage() {
         <div className="mb-8 max-w-3xl">
           <Callout title="What this demo is, and is not">
             <p>
-              The demo uses a <strong className="text-bone">simulated connector</strong>, and a{" "}
-              <strong className="text-bone">local file stands in for the system of record</strong>. It needs no API keys and
+              The demo uses a <strong className="text-foreground">simulated connector</strong>, and a{" "}
+              <strong className="text-foreground">local file stands in for the system of record</strong>. It needs no API keys and
               makes no network requests. Each scene is a real MCP session, and scenes S2–S5 run through a real{" "}
               <code>fourgate guard</code> process.
             </p>
@@ -74,13 +74,13 @@ export default function DemoPage() {
         <VerdictSimulator scenes={demo.scenes} preamble={demo.preamble} />
 
         <details className="mt-6 rounded-[10px] border border-line">
-          <summary className="flex cursor-pointer items-center gap-2 px-4 py-3 text-small text-muted hover:text-bone">
+          <summary className="flex cursor-pointer items-center gap-2 px-4 py-3 text-small text-muted hover:text-foreground">
             <svg aria-hidden="true" viewBox="0 0 16 16" className="fg-chevron h-3.5 w-3.5">
               <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="1.4" />
             </svg>
             The complete output, start to finish
           </summary>
-          <pre className="fg-scroll max-h-[32rem] overflow-auto border-t border-line bg-[#0a0d12] p-4 font-mono text-[0.75rem] leading-[1.7] text-bone">
+          <pre className="fg-scroll max-h-[32rem] overflow-auto border-t border-line bg-code p-4 font-mono text-[0.75rem] leading-[1.7] text-foreground">
             <code className="block whitespace-pre-wrap break-words lg:whitespace-pre">{demo.raw}</code>
           </pre>
         </details>

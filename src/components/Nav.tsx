@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import ThemeToggle from "./ThemeToggle";
 import Wordmark from "./Wordmark";
 import { externalProps, isExternal } from "@/lib/links";
 import { GITHUB_URL, PRIMARY_CTA, README_URL, VERSION } from "@/site.config";
@@ -23,33 +25,72 @@ const mainItems: Item[] = [
   ...(GITHUB_URL ? [{ href: GITHUB_URL, label: "GitHub", external: true }] : []),
 ];
 
-function NavLink({ item, className, onNavigate }: { item: Item; className: string; onNavigate?: () => void }) {
+function NavLink({
+  item,
+  className,
+  onNavigate,
+  onFocus,
+  onMouseEnter,
+  children,
+}: {
+  item: Item;
+  className: string;
+  onNavigate?: () => void;
+  onFocus?: () => void;
+  onMouseEnter?: () => void;
+  children?: ReactNode;
+}) {
   const pathname = usePathname();
   const body = (
     <>
-      {item.label}
-      {item.description && <span className="mt-0.5 block text-cap font-normal text-muted">{item.description}</span>}
+      {children}
+      <span className="relative">{item.label}</span>
+      {item.description && <span className="relative mt-0.5 block text-cap font-normal text-muted">{item.description}</span>}
     </>
   );
+  const shared = { className, onClick: onNavigate, onFocus, onMouseEnter };
   if (item.external) {
     return (
-      <a href={item.href} className={className} onClick={onNavigate} {...externalProps(item.href)}>
+      <a href={item.href} {...shared} {...externalProps(item.href)}>
         {body}
         {isExternal(item.href) && <span className="sr-only"> (opens in a new tab)</span>}
       </a>
     );
   }
   return (
-    <Link href={item.href} className={className} aria-current={pathname === item.href ? "page" : undefined} onClick={onNavigate}>
+    <Link href={item.href} {...shared} aria-current={pathname === item.href ? "page" : undefined}>
       {body}
     </Link>
   );
 }
 
-function ProductMenu() {
+/** The pill that slides between hovered or focused nav items. */
+function Highlight({ show }: { show: boolean }) {
+  const reduce = useReducedMotion();
+  if (!show) return null;
+  return (
+    <motion.span
+      layoutId="nav-highlight"
+      transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 500, damping: 40 }}
+      className="absolute inset-0 rounded-[8px] bg-raised"
+      aria-hidden="true"
+    />
+  );
+}
+
+function ProductMenu({ hovered, setHovered }: { hovered: string | null; setHovered: (k: string | null) => void }) {
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
+  const focusFirstOnOpen = useRef(false);
+  const reduce = useReducedMotion();
+
+  // Opening with ArrowDown moves focus to the first item once the menu has rendered.
+  useEffect(() => {
+    if (!open || !focusFirstOnOpen.current) return;
+    focusFirstOnOpen.current = false;
+    wrap.current?.querySelector<HTMLAnchorElement>("[data-menu-item] a")?.focus();
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -73,11 +114,11 @@ function ProductMenu() {
       button.current?.focus();
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
-      if (open) {
+      if (open && links().length) {
         focusItem(i + 1);
       } else {
+        focusFirstOnOpen.current = true;
         setOpen(true);
-        requestAnimationFrame(() => focusItem(0));
       }
     } else if (e.key === "ArrowUp" && open) {
       e.preventDefault();
@@ -100,30 +141,46 @@ function ProductMenu() {
         aria-expanded={open}
         aria-controls="product-menu"
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex min-h-9 items-center gap-1.5 rounded-[6px] px-2.5 text-small text-muted hover:text-bone aria-expanded:text-bone"
+        onMouseEnter={() => setHovered("product")}
+        onFocus={() => setHovered("product")}
+        className="relative inline-flex min-h-9 items-center gap-1.5 rounded-[8px] px-3 text-small text-muted hover:text-foreground aria-expanded:text-foreground"
       >
-        Product
-        <svg aria-hidden="true" viewBox="0 0 10 10" className={`h-2.5 w-2.5 ${open ? "rotate-180" : ""}`}>
+        <Highlight show={hovered === "product"} />
+        <span className="relative">Product</span>
+        <motion.svg
+          aria-hidden="true"
+          viewBox="0 0 10 10"
+          className="relative h-2.5 w-2.5"
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={reduce ? { duration: 0 } : { duration: 0.2 }}
+        >
           <path d="M1.5 3.5 5 7l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.3" />
-        </svg>
+        </motion.svg>
       </button>
-      <div
-        id="product-menu"
-        hidden={!open}
-        className="absolute left-0 top-full z-50 mt-2 w-72 rounded-[10px] border border-line bg-surface p-1.5"
-      >
-        <ul>
-          {productItems.map((item) => (
-            <li key={item.href} data-menu-item>
-              <NavLink
-                item={item}
-                onNavigate={() => setOpen(false)}
-                className="block rounded-[6px] px-3 py-2 text-small text-bone hover:bg-night focus-visible:bg-night"
-              />
-            </li>
-          ))}
-        </ul>
-      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            id="product-menu"
+            initial={reduce ? false : { opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { duration: reduce ? 0 : 0.16, ease: "easeOut" } }}
+            exit={reduce ? undefined : { opacity: 0, y: -4, scale: 0.98, transition: { duration: 0.1 } }}
+            style={{ transformOrigin: "top left" }}
+            className="absolute left-0 top-full z-50 mt-2 w-72 rounded-[12px] border border-line bg-background p-1.5 shadow-[0_8px_30px_rgb(0_0_0/0.08)] dark:shadow-none"
+          >
+            <ul>
+              {productItems.map((item) => (
+                <li key={item.href} data-menu-item>
+                  <NavLink
+                    item={item}
+                    onNavigate={() => setOpen(false)}
+                    className="block rounded-[8px] px-3 py-2 text-small text-foreground hover:bg-raised focus-visible:bg-raised"
+                  />
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -147,39 +204,54 @@ function CtaLink({ className, onClick }: { className: string; onClick?: () => vo
 
 export default function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hovered, setHovered] = useState<string | null>(null);
+  const reduce = useReducedMotion();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-night/90 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-line bg-background/80 backdrop-blur-md">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-50 focus:rounded-[6px] focus:bg-bone focus:px-3 focus:py-2 focus:text-night"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-50 focus:rounded-[6px] focus:bg-foreground focus:px-3 focus:py-2 focus:text-background"
       >
         Skip to content
       </a>
       <nav aria-label="Main" className="mx-auto flex h-14 max-w-[76rem] items-center gap-4 px-4 sm:px-8">
-        <Link href="/" aria-label="Fourgate home" className="mr-2 rounded-[4px]">
+        <Link href="/" aria-label="Fourgate home" className="mr-1 rounded-[4px]">
           <Wordmark />
         </Link>
-        <span className="hidden rounded-[4px] border border-line px-1.5 py-px font-mono text-[0.6875rem] text-muted md:inline">
+        <span className="hidden rounded-full border border-line px-2 py-px font-mono text-[0.6875rem] text-muted md:inline">
           v{VERSION}
         </span>
 
-        <div className="ml-4 hidden items-center gap-0.5 lg:flex">
-          <ProductMenu />
-          {mainItems.map((item) => (
-            <NavLink
-              key={item.href}
-              item={item}
-              className="inline-flex min-h-9 items-center rounded-[6px] px-2.5 text-small text-muted hover:text-bone aria-[current=page]:text-bone"
-            />
-          ))}
-        </div>
+        <LayoutGroup id="nav">
+          <div
+            className="ml-3 hidden items-center lg:flex"
+            onMouseLeave={() => setHovered(null)}
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) setHovered(null);
+            }}
+          >
+            <ProductMenu hovered={hovered} setHovered={setHovered} />
+            {mainItems.map((item) => (
+              <NavLink
+                key={item.href}
+                item={item}
+                onMouseEnter={() => setHovered(item.href)}
+                onFocus={() => setHovered(item.href)}
+                className="relative inline-flex min-h-9 items-center rounded-[8px] px-3 text-small text-muted hover:text-foreground aria-[current=page]:text-foreground"
+              >
+                <Highlight show={hovered === item.href} />
+              </NavLink>
+            ))}
+          </div>
+        </LayoutGroup>
 
         <div className="ml-auto flex items-center gap-2">
-          <CtaLink className="hidden min-h-9 items-center rounded-[6px] bg-bone px-3.5 text-small font-medium text-night hover:bg-white sm:inline-flex" />
+          <ThemeToggle />
+          <CtaLink className="fg-sweep hidden min-h-9 items-center rounded-[8px] bg-foreground px-3.5 text-small font-medium text-background hover:bg-foreground/85 sm:inline-flex" />
           <button
             type="button"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-[6px] border border-line text-bone lg:hidden"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-line text-foreground lg:hidden"
             aria-expanded={mobileOpen}
             aria-controls="mobile-menu"
             onClick={() => setMobileOpen((o) => !o)}
@@ -196,34 +268,40 @@ export default function Nav() {
         </div>
       </nav>
 
-      <div
-        id="mobile-menu"
-        hidden={!mobileOpen}
-        className="max-h-[calc(100dvh-3.5rem)] overflow-y-auto border-t border-line bg-night lg:hidden"
-        onKeyDown={(e) => e.key === "Escape" && setMobileOpen(false)}
-      >
-        <div className="mx-auto max-w-[76rem] px-4 py-3 sm:px-8">
-          <p className="px-3 pb-1 pt-2 text-cap text-muted">Product</p>
-          <ul>
-            {productItems.map((item) => (
-              <li key={item.href}>
-                <NavLink item={item} onNavigate={() => setMobileOpen(false)} className="block rounded-[6px] px-3 py-2.5 text-bone hover:bg-surface" />
-              </li>
-            ))}
-          </ul>
-          <ul className="mt-2 border-t border-line pt-2">
-            {mainItems.map((item) => (
-              <li key={item.href}>
-                <NavLink item={item} onNavigate={() => setMobileOpen(false)} className="block rounded-[6px] px-3 py-2.5 text-bone hover:bg-surface" />
-              </li>
-            ))}
-          </ul>
-          <CtaLink
-            onClick={() => setMobileOpen(false)}
-            className="my-3 flex min-h-11 items-center justify-center rounded-[6px] bg-bone px-4 text-small font-medium text-night"
-          />
-        </div>
-      </div>
+      <AnimatePresence initial={false}>
+        {mobileOpen && (
+          <motion.div
+            id="mobile-menu"
+            initial={reduce ? false : { height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1, transition: { duration: reduce ? 0 : 0.22 } }}
+            exit={reduce ? undefined : { height: 0, opacity: 0, transition: { duration: 0.16 } }}
+            className="overflow-hidden border-t border-line bg-background lg:hidden"
+            onKeyDown={(e) => e.key === "Escape" && setMobileOpen(false)}
+          >
+            <div className="mx-auto max-h-[calc(100dvh-3.5rem)] max-w-[76rem] overflow-y-auto px-4 py-3 sm:px-8">
+              <p className="px-3 pb-1 pt-2 text-cap text-muted">Product</p>
+              <ul>
+                {productItems.map((item) => (
+                  <li key={item.href}>
+                    <NavLink item={item} onNavigate={() => setMobileOpen(false)} className="block rounded-[8px] px-3 py-2.5 text-foreground hover:bg-raised" />
+                  </li>
+                ))}
+              </ul>
+              <ul className="mt-2 border-t border-line pt-2">
+                {mainItems.map((item) => (
+                  <li key={item.href}>
+                    <NavLink item={item} onNavigate={() => setMobileOpen(false)} className="block rounded-[8px] px-3 py-2.5 text-foreground hover:bg-raised" />
+                  </li>
+                ))}
+              </ul>
+              <CtaLink
+                onClick={() => setMobileOpen(false)}
+                className="my-3 flex min-h-11 items-center justify-center rounded-[8px] bg-foreground px-4 text-small font-medium text-background"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

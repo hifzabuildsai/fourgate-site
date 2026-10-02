@@ -48,7 +48,7 @@ export default function Section({
     <section
       id={id}
       aria-labelledby={headingId}
-      className={`${rule ? "border-t border-line" : ""} py-16 sm:py-24 ${className}`}
+      className={`${rule ? "border-t border-line" : ""} py-20 sm:py-28 ${className}`}
     >
       <Container>
         {layout === "split" ? (

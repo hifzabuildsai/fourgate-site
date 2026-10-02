@@ -1,5 +1,8 @@
 import ButtonLink from "@/components/ButtonLink";
 import CodeBlock from "@/components/CodeBlock";
+import CountUp from "@/components/CountUp";
+import SpotlightCard from "@/components/SpotlightCard";
+import { VerdictRow, type VerdictKind } from "@/components/VerdictRows";
 import ContactCtas from "@/components/ContactCtas";
 import CtaBand from "@/components/CtaBand";
 import FAQ, { type FaqItem } from "@/components/FAQ";
@@ -22,26 +25,26 @@ export const metadata = pageMetadata({
   path: "/",
 });
 
-const legend = [
-  { word: "PASS", cls: "text-pass", dot: "bg-pass", text: "The read-back found the record the tool reported, with the contracted values." },
-  { word: "FAIL", cls: "text-fail", dot: "bg-fail", text: "The read-back proved the record is missing or different." },
-  { word: "UNKNOWN", cls: "text-unknown", dot: "bg-unknown", text: "Fourgate could not confirm either way. It never reports this as success." },
+const legend: { kind: VerdictKind; word: string; text: string }[] = [
+  { kind: "pass", word: "PASS", text: "The read-back found the record the tool reported, with the contracted values." },
+  { kind: "fail", word: "FAIL", text: "The read-back proved the record is missing or different." },
+  { kind: "unknown", word: "UNKNOWN", text: "Fourgate could not confirm either way. It never reports this as success." },
 ];
 
-const outcomes = [
+const outcomes: { kind: VerdictKind; word: string; text: string }[] = [
   {
+    kind: "pass",
     word: "PASS",
-    cls: "text-pass",
     text: "An independent read-back confirmed the record exists with the contracted values. The tool's response passes through unchanged.",
   },
   {
+    kind: "fail",
     word: "CONFIRMED FAIL",
-    cls: "text-fail",
     text: "The read-back proved the record is missing or different. In enforce mode the agent is told before it can report success.",
   },
   {
+    kind: "unknown",
     word: "UNKNOWN",
-    cls: "text-unknown",
     text: "A timeout, an auth error, an unreachable API: Fourgate could not confirm either way. Recorded as UNKNOWN, never counted as PASS, and the call is not blocked.",
   },
 ];
@@ -131,17 +134,17 @@ export default function Home() {
       <section className="relative flex flex-col overflow-hidden xl:min-h-[calc(100svh-3.5rem)] xl:justify-center">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-[1] hidden bg-[linear-gradient(90deg,var(--night)_0%,var(--night)_34%,color-mix(in_srgb,var(--night)_78%,transparent)_48%,transparent_66%)] xl:block"
+          className="pointer-events-none absolute inset-0 z-[1] hidden bg-[linear-gradient(90deg,var(--background)_0%,var(--background)_34%,color-mix(in_srgb,var(--background)_78%,transparent)_48%,transparent_66%)] xl:block"
         />
-        <Container className="relative z-10 pb-8 pt-12 sm:pt-16 xl:py-20">
-          <div className="max-w-[40rem]">
+        <Container className="pointer-events-none relative z-10 pb-8 pt-12 sm:pt-16 xl:py-20">
+          <div className="pointer-events-auto max-w-[44rem]">
             <p className="text-small text-muted">
               Open source. Runs on your machine.{" "}
-              <a href={PYPI_URL} {...externalProps(PYPI_URL)} className="text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone">
+              <a href={PYPI_URL} {...externalProps(PYPI_URL)} className="link">
                 Version {VERSION} on PyPI.
               </a>
             </p>
-            <h1 className="font-display mt-6 text-[2.5rem] leading-[1.02] text-balance sm:text-[3.5rem] lg:text-[4rem]">
+            <h1 className="font-display mt-6 text-[2.375rem] leading-[1.05] text-balance sm:text-[3rem] lg:text-[3.5rem]">
               Your agent said &lsquo;done.&rsquo; Fourgate checks whether it actually happened.
             </h1>
             <p className="mt-6 max-w-[34rem] text-lead text-muted sm:text-[1.3125rem] sm:leading-[1.5]">
@@ -158,21 +161,19 @@ export default function Home() {
               <ButtonLink href={PRIMARY_CTA.href}>{PRIMARY_CTA.label}</ButtonLink>
             </div>
 
-            <dl className="mt-10 max-w-[34rem] space-y-2.5 border-t border-line pt-5 text-small">
+            <div className="mt-10 max-w-[36rem] space-y-1 border-t border-line pt-4" aria-label="What each verdict means" role="list">
               {legend.map((l) => (
-                <div key={l.word} className="grid grid-cols-[6.5rem_1fr] gap-3">
-                  <dt className={`flex items-center gap-2 font-mono ${l.cls}`}>
-                    <span aria-hidden="true" className={`h-2 w-3 rounded-[2px] ${l.dot}`} />
-                    {l.word}
-                  </dt>
-                  <dd className="text-muted">{l.text}</dd>
+                <div role="listitem" key={l.word}>
+                  <VerdictRow kind={l.kind} word={l.word} size="legend">
+                    {l.text}
+                  </VerdictRow>
                 </div>
               ))}
-            </dl>
+            </div>
           </div>
         </Container>
         <div className="relative h-[58svh] min-h-[22rem] max-h-[40rem] xl:absolute xl:inset-0 xl:h-auto xl:max-h-none">
-          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-16 bg-[linear-gradient(180deg,var(--night),transparent)] xl:hidden" />
+          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-16 bg-[linear-gradient(180deg,var(--background),transparent)] xl:hidden" />
           <HeroScene />
         </div>
       </section>
@@ -189,14 +190,15 @@ export default function Home() {
           </p>
         }
       >
-        <dl>
+        <div role="list" className="space-y-1">
           {outcomes.map((o) => (
-            <div key={o.word} className="grid gap-2 border-t border-line py-6 last:border-b sm:grid-cols-[13rem_1fr] sm:gap-8">
-              <dt className={`font-display text-h4 ${o.cls}`}>{o.word}</dt>
-              <dd className="max-w-[60ch] text-muted">{o.text}</dd>
+            <div role="listitem" key={o.word} className="border-t border-line pt-1 last:border-b last:pb-1">
+              <VerdictRow kind={o.kind} word={o.word}>
+                {o.text}
+              </VerdictRow>
             </div>
           ))}
-        </dl>
+        </div>
       </Section>
 
       {/* Simulator */}
@@ -256,14 +258,14 @@ export default function Home() {
 
       {/* Why */}
       <Section id="why" title="Built to be checked, not trusted.">
-        <dl className="grid sm:grid-cols-2 sm:gap-x-10">
+        <ul className="grid gap-3 sm:grid-cols-2">
           {reasons.map((r) => (
-            <div key={r.title} className="border-t border-line py-5">
-              <dt className="font-medium text-bone">{r.title}</dt>
-              <dd className="mt-1.5 text-small text-muted">{r.text}</dd>
-            </div>
+            <SpotlightCard as="li" key={r.title} className="rounded-[14px] border border-line bg-surface p-5">
+              <h3 className="font-medium text-foreground">{r.title}</h3>
+              <p className="mt-1.5 text-small text-muted">{r.text}</p>
+            </SpotlightCard>
           ))}
-        </dl>
+        </ul>
       </Section>
 
       {/* Field evidence */}
@@ -275,7 +277,9 @@ export default function Home() {
         <dl>
           {evidence.map((e) => (
             <div key={e.text} className="grid gap-1 border-t border-line py-5 last:border-b sm:grid-cols-[8.5rem_1fr] sm:gap-8">
-              <dt className="font-display text-h3 text-bone">{e.value}</dt>
+              <dt className="font-display text-h3 text-foreground">
+                <CountUp value={e.value} />
+              </dt>
               <dd className="max-w-[62ch] text-small text-muted">{e.text}</dd>
             </div>
           ))}
@@ -285,7 +289,7 @@ export default function Home() {
           <code className="code-inline">UNKNOWN / success_without_record_id</code> rather than PASS. One hosted integration does
           not establish production reliability, and two shadow calls are a smoke test, not production traffic.{" "}
           {GITHUB_URL && (
-            <a href={`${GITHUB_URL}#field-evidence`} {...externalProps(GITHUB_URL)} className="text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone">
+            <a href={`${GITHUB_URL}#field-evidence`} {...externalProps(GITHUB_URL)} className="link">
               The full field record is in the README.
             </a>
           )}
@@ -294,17 +298,17 @@ export default function Home() {
 
       {/* Pricing teaser */}
       <Section id="pricing" title="Free to run. Paid help to get it right.">
-        <div className="grid border-y border-line md:grid-cols-3 md:divide-x md:divide-line">
+        <div className="grid gap-3 md:grid-cols-3">
           {[
             { name: "Open Source", price: "Free", text: "MIT licensed. All six commands. Community support on GitHub." },
             { name: "Founding Design Partner", price: "$199 a month", text: "One workflow, founder-assisted setup, shadow-mode rollout, weekly review." },
             { name: "Enterprise", price: "Contact us", text: "More workflows or tools than the design-partner scope." },
           ].map((p, i) => (
-            <div key={p.name} className={`py-6 md:px-6 ${i === 0 ? "md:pl-0" : ""} ${i > 0 ? "border-t border-line md:border-t-0" : ""}`}>
+            <SpotlightCard key={p.name} trail={i === 1} className="rounded-[14px] border border-line bg-surface p-6">
               <p className="text-small text-muted">{p.name}</p>
               <p className="font-display mt-1 text-h3">{p.price}</p>
               <p className="mt-3 text-small text-muted">{p.text}</p>
-            </div>
+            </SpotlightCard>
           ))}
         </div>
         <div className="mt-6">

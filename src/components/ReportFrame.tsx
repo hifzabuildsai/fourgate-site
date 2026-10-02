@@ -13,7 +13,7 @@ export default function ReportFrame() {
       <iframe
         src="/sample-report.html"
         title="Fourgate demo outcome summary (sample report)"
-        className="block h-[34rem] w-full bg-night sm:h-[40rem]"
+        className="block h-[34rem] w-full bg-background sm:h-[40rem]"
       />
     </div>
   );

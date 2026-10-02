@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { useId, useState, type ReactNode } from "react";
 import type { Connector, DemoScene, Mode } from "@/content/demo";
 
@@ -41,7 +41,7 @@ function Tokens({ text }: { text: string }) {
         ) : p === "UNKNOWN" ? (
           <span key={i} className="text-unknown">{p}</span>
         ) : p === "[FOURGATE]" ? (
-          <span key={i} className="font-medium text-bone underline decoration-bone/40 underline-offset-2">{p}</span>
+          <span key={i} className="font-medium text-foreground underline decoration-foreground/40 underline-offset-2">{p}</span>
         ) : (
           p
         ),
@@ -66,23 +66,25 @@ function Segmented<T extends string>({
   onChange: (v: T) => void;
 }) {
   const reasonId = useId();
+  const reduce = useReducedMotion();
   return (
     <fieldset className="min-w-0">
       <legend className="mb-2 text-small text-muted">{legend}</legend>
-      <div className="flex flex-wrap gap-1.5">
+      <LayoutGroup id={`seg-${name}`}>
+      <div className="flex flex-wrap gap-1 rounded-[10px] border border-line bg-background p-1">
         {options.map((o) => {
           const enabled = isEnabled(o.value);
           const checked = value === o.value;
           return (
             <label
               key={o.value}
-              className={`relative inline-flex min-h-10 items-center rounded-[6px] border px-3 text-small ${
+              className={`relative inline-flex min-h-9 items-center rounded-[7px] border px-3 text-small transition-colors ${
                 checked
-                  ? "border-bone bg-bone text-night"
+                  ? "border-transparent text-background"
                   : enabled
-                    ? "cursor-pointer border-line text-bone hover:border-muted"
-                    : "cursor-not-allowed border-dashed border-line text-muted/60"
-              } has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-bone`}
+                    ? "cursor-pointer border-transparent text-foreground hover:bg-raised"
+                    : "cursor-not-allowed border-dashed border-line-strong text-muted"
+              } has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent`}
               title={enabled ? undefined : `${o.label}: ${NOT_RECORDED}`}
             >
               <input
@@ -95,12 +97,21 @@ function Segmented<T extends string>({
                 onChange={() => onChange(o.value)}
                 className="sr-only"
               />
-              {o.label}
+              {checked && (
+                <motion.span
+                  layoutId="pill"
+                  aria-hidden="true"
+                  transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 520, damping: 38 }}
+                  className="absolute inset-0 rounded-[7px] bg-foreground"
+                />
+              )}
+              <span className="relative">{o.label}</span>
               {!enabled && <span className="sr-only"> (unavailable)</span>}
             </label>
           );
         })}
       </div>
+      </LayoutGroup>
       <p id={reasonId} className="mt-2 min-h-[1.25rem] text-cap text-muted">
         {options.some((o) => !isEnabled(o.value))
           ? `Dashed options: ${NOT_RECORDED} with the selected ${name === "connector" ? "mode" : "connector"}.`
@@ -167,7 +178,7 @@ export default function VerdictSimulator({ scenes, preamble }: { scenes: DemoSce
                 type="button"
                 onClick={() => setSceneId(s.id)}
                 aria-pressed={s.id === sceneId}
-                className="min-h-9 rounded-[4px] border border-line px-2.5 font-mono text-cap text-muted hover:border-muted hover:text-bone aria-pressed:border-bone aria-pressed:text-bone"
+                className="min-h-9 rounded-[6px] border border-line px-2.5 font-mono text-cap text-muted hover:border-line-strong hover:text-foreground aria-pressed:border-foreground aria-pressed:text-foreground"
               >
                 {s.code}
               </button>
@@ -184,10 +195,13 @@ export default function VerdictSimulator({ scenes, preamble }: { scenes: DemoSce
         <motion.div key={scene.id} initial={enter} animate={shown} exit={exit} className="grid gap-6 p-5 sm:p-6 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <p className="font-mono text-cap text-muted">{scene.code}</p>
-            <p className="mt-1 text-bone">{scene.title}</p>
-            <div
-              className={`mt-5 flex min-h-32 flex-col justify-center rounded-[10px] border px-5 py-4 ${
-                v ? v.cls : "border-dashed border-line text-muted"
+            <p className="mt-1 text-foreground">{scene.title}</p>
+            <motion.div
+              initial={reduce ? false : { scale: 0.94, opacity: 0.4 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 22 }}
+              className={`mt-5 flex min-h-32 flex-col justify-center rounded-[12px] border bg-background px-5 py-4 ${
+                v ? v.cls : "border-dashed border-line-strong text-muted"
               }`}
             >
               <span className="font-display text-[2.5rem] leading-none sm:text-[3rem]">
@@ -201,8 +215,8 @@ export default function VerdictSimulator({ scenes, preamble }: { scenes: DemoSce
               <span className="mt-2 font-mono text-small text-muted">
                 {scene.reason ?? "Fourgate is not in the path"}
               </span>
-            </div>
-            <p className="mt-4 text-small text-bone">{scene.conclusion}</p>
+            </motion.div>
+            <p className="mt-4 text-small text-foreground">{scene.conclusion}</p>
           </div>
 
           <div className="grid content-start gap-5 lg:col-span-8">
@@ -211,7 +225,7 @@ export default function VerdictSimulator({ scenes, preamble }: { scenes: DemoSce
                 {scene.agent.map((line) => {
                   const [label, value] = splitLabel(line);
                   return (
-                    <li key={line} className="break-words text-bone">
+                    <li key={line} className="break-words text-foreground">
                       {label && <span className="mr-2 text-muted">{label}:</span>}
                       <Tokens text={value} />
                     </li>
@@ -221,22 +235,22 @@ export default function VerdictSimulator({ scenes, preamble }: { scenes: DemoSce
             </Panel>
             <div className="grid gap-5 sm:grid-cols-2">
               <Panel title="System of record">
-                <p className="font-mono text-[0.8125rem] text-bone">{scene.systemOfRecord}</p>
+                <p className="font-mono text-[0.8125rem] text-foreground">{scene.systemOfRecord}</p>
               </Panel>
               <Panel title="Outcome log">
-                <p className="font-mono text-[0.8125rem] text-bone">
+                <p className="font-mono text-[0.8125rem] text-foreground">
                   <Tokens text={scene.outcomeLog} />
                 </p>
               </Panel>
             </div>
             <details className="group border-t border-line pt-3">
-              <summary className="flex cursor-pointer items-center gap-2 text-small text-muted hover:text-bone">
+              <summary className="flex cursor-pointer items-center gap-2 text-small text-muted hover:text-foreground">
                 <svg aria-hidden="true" viewBox="0 0 16 16" className="fg-chevron h-3.5 w-3.5">
                   <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="1.4" />
                 </svg>
                 Raw terminal output for {scene.code}
               </summary>
-              <pre className="fg-scroll mt-3 overflow-x-auto rounded-[8px] border border-line bg-[#0a0d12] p-4 font-mono text-[0.75rem] leading-[1.7] text-bone">
+              <pre className="fg-scroll mt-3 overflow-x-auto rounded-[8px] border border-line bg-code p-4 font-mono text-[0.75rem] leading-[1.7] text-foreground">
                 {preamble && (
                   <span className="block whitespace-pre-wrap text-muted lg:whitespace-pre">{`${preamble}\n\n`}</span>
                 )}

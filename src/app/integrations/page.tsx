@@ -4,6 +4,7 @@ import ButtonLink from "@/components/ButtonLink";
 import Callout from "@/components/Callout";
 import CodeBlock from "@/components/CodeBlock";
 import ContactCtas from "@/components/ContactCtas";
+import SpotlightCard from "@/components/SpotlightCard";
 import CtaBand from "@/components/CtaBand";
 import Section from "@/components/Section";
 import WrapToggle from "@/components/WrapToggle";
@@ -72,14 +73,14 @@ export default function IntegrationsPage() {
           </p>
         }
       >
-        <dl>
-          {today.map((t) => (
-            <div key={t.title} className="grid gap-2 border-t border-line py-5 last:border-b sm:grid-cols-[13rem_1fr] sm:gap-8">
-              <dt className="font-medium text-bone">{t.title}</dt>
-              <dd className="max-w-[62ch] text-small text-muted">{t.text}</dd>
-            </div>
+        <ul className="grid gap-3 md:grid-cols-2">
+          {today.map((t, i) => (
+            <SpotlightCard as="li" key={t.title} className={`rounded-[14px] border border-line bg-surface p-5 ${i === 0 ? "md:col-span-2" : ""}`}>
+              <h2 className="font-medium text-foreground">{t.title}</h2>
+              <p className="mt-1.5 text-small text-muted">{t.text}</p>
+            </SpotlightCard>
           ))}
-        </dl>
+        </ul>
       </Section>
 
       <Section

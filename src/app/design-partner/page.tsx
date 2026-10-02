@@ -81,7 +81,7 @@ export default function DesignPartnerPage() {
         {CONTACT_EMAIL && (
           <p className="mt-4 text-small text-muted">
             Prefer email? Write to{" "}
-            <a href={EMAIL_HREF} className="text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone">
+            <a href={EMAIL_HREF} className="link">
               {CONTACT_EMAIL}
             </a>
             .
@@ -94,7 +94,7 @@ export default function DesignPartnerPage() {
           {steps.map((s, i) => (
             <li key={s.title} className="relative border-t border-line py-5 md:border-l md:border-t-0 md:py-0 md:pl-5 md:pr-3 md:first:border-l-0 md:first:pl-0">
               <span className="font-mono text-cap text-muted">{i + 1}</span>
-              <h3 className="mt-2 font-medium text-bone">{s.title}</h3>
+              <h3 className="mt-2 font-medium text-foreground">{s.title}</h3>
               <p className="font-mono text-cap text-muted">{s.meta}</p>
               <p className="mt-3 text-small text-muted">{s.text}</p>
             </li>
@@ -108,7 +108,7 @@ export default function DesignPartnerPage() {
             <h2 className="font-display text-h3">What you get</h2>
             <ul className="mt-6">
               {youGet.map((y) => (
-                <li key={y} className="border-t border-line py-3 text-bone">
+                <li key={y} className="border-t border-line py-3 text-foreground">
                   {y}
                 </li>
               ))}
@@ -128,7 +128,7 @@ export default function DesignPartnerPage() {
         </div>
         <div className="prose-fg mt-12 border-t border-line pt-6 text-muted">
           <p>
-            <span className="text-bone">Where your data goes during a pilot.</span> Nowhere near us unless you choose. There is no
+            <span className="text-foreground">Where your data goes during a pilot.</span> Nowhere near us unless you choose. There is no
             Fourgate cloud, account, database or telemetry, and Fourgate never stores your credentials. The summary page is built
             to be shareable, and sharing it is your decision. Full detail: <a href={PILOT_MD_URL} {...externalProps(PILOT_MD_URL)}>
               PILOT.md

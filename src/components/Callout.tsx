@@ -13,10 +13,10 @@ export default function Callout({
   return (
     <aside
       className={`rounded-[10px] border p-5 sm:p-6 ${
-        tone === "caution" ? "border-bone/40 bg-surface" : "border-line"
+        tone === "caution" ? "border-foreground/40 bg-surface" : "border-line"
       }`}
     >
-      <p className="font-medium text-bone">{title}</p>
+      <p className="font-medium text-foreground">{title}</p>
       <div className="prose-fg mt-2 text-small text-muted">{children}</div>
     </aside>
   );

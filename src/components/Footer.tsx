@@ -48,7 +48,7 @@ const columns: { title: string; links: FooterLink[] }[] = [
 ];
 
 function FooterAnchor({ href, label }: FooterLink) {
-  const cls = "text-small text-muted hover:text-bone break-all";
+  const cls = "text-small text-muted hover:text-foreground break-all";
   if (href.startsWith("/") && !href.endsWith(".html")) {
     return (
       <Link href={href} className={cls}>
@@ -77,7 +77,7 @@ export default function Footer() {
         </div>
         {columns.map((col) => (
           <div key={col.title} className="md:col-span-2 md:last:col-span-3">
-            <h2 className="mb-3 text-small font-medium text-bone">{col.title}</h2>
+            <h2 className="mb-3 text-small font-medium text-foreground">{col.title}</h2>
             <ul className="space-y-2">
               {col.links
                 .filter((l) => l.href && l.label)
@@ -93,7 +93,7 @@ export default function Footer() {
       <div className="border-t border-line">
         <p className="mx-auto max-w-[76rem] px-4 py-5 text-cap text-muted sm:px-8">
           This website sets no cookies and runs no analytics.{" "}
-          <Link href="/privacy" className="underline underline-offset-2 hover:text-bone">
+          <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground">
             Privacy
           </Link>
         </p>

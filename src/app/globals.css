@@ -1,46 +1,68 @@
 @import "tailwindcss";
 
+/* next-themes toggles the `dark` class on <html>; default follows the system. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
-  Fourgate tokens (W1.1). Use exactly these. Verdict colors carry verdict
-  meaning only: PASS, FAIL, UNKNOWN. There is no other accent color.
+  Fourgate tokens (W1.2). Geist-style grayscale in two themes.
+  Verdict colors carry verdict meaning only: PASS, FAIL, UNKNOWN. Each has a
+  per-theme shade, checked for WCAG AA (>= 4.9:1) on background and surface.
+  The blue accent is for links and focus only.
 */
 :root {
-  --night: #0e1218;
-  --surface: #161c24;
-  --line: #26303b;
-  --bone: #e9e4d8;
-  --muted: #9aa3ad;
-  --pass: #5fd3a0;
-  --fail: #f0645a;
-  --unknown: #f2b84b;
+  --background: #ffffff;
+  --surface: #fafafa;
+  --raised: #f2f2f2;
+  --code: #f7f7f7;
+  --line: #eaeaea;
+  --line-strong: #d4d4d4;
+  --foreground: #171717;
+  --muted: #666666;
+  --accent: #0062d1;
+  --pass: #0f7a3d;
+  --fail: #cb2a2f;
+  --unknown: #9a5700;
+  color-scheme: light;
+}
+
+.dark {
+  --background: #000000;
+  --surface: #0a0a0a;
+  --raised: #161616;
+  --code: #0a0a0a;
+  --line: #262626;
+  --line-strong: #3d3d3d;
+  --foreground: #ededed;
+  --muted: #a1a1a1;
+  --accent: #52a8ff;
+  --pass: #3fcf7f;
+  --fail: #ff6166;
+  --unknown: #f5a524;
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-night: var(--night);
+  --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-code: var(--code);
   --color-line: var(--line);
-  --color-bone: var(--bone);
+  --color-line-strong: var(--line-strong);
+  --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-accent: var(--accent);
   --color-pass: var(--pass);
   --color-fail: var(--fail);
   --color-unknown: var(--unknown);
 
-  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Radii by hierarchy: panel > control > chip. */
-  --radius-panel: 14px;
-  --radius-control: 8px;
-  --radius-chip: 4px;
-
-  /*
-    Type scale after the classic sequence in The Elements of Typographic Style:
-    12 14 16 18 21 24 36 48 60 72.
-  */
+  /* Type scale after the classic sequence in The Elements of Typographic Style. */
   --text-cap: 0.75rem;
   --text-cap--line-height: 1.4;
   --text-small: 0.875rem;
-  --text-small--line-height: 1.55;
+  --text-small--line-height: 1.6;
   --text-body: 1rem;
   --text-body--line-height: 1.65;
   --text-lead: 1.125rem;
@@ -49,33 +71,27 @@
   --text-h4--line-height: 1.3;
   --text-h3: 1.5rem;
   --text-h3--line-height: 1.25;
-  --text-h2: 2.25rem;
-  --text-h2--line-height: 1.1;
-  --text-h1: 3rem;
-  --text-h1--line-height: 1.04;
-  --text-display: 4.5rem;
-  --text-display--line-height: 1;
+  --text-h2: 2rem;
+  --text-h2--line-height: 1.15;
+  --text-h1: 2.75rem;
+  --text-h1--line-height: 1.08;
 }
 
 html {
-  color-scheme: dark;
   scroll-padding-top: 4.5rem;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--night);
-  color: var(--bone);
-  font-variation-settings: "wdth" 100;
+  background: var(--background);
+  color: var(--foreground);
 }
 
-/* Expanded display face for headings: Archivo width axis. */
+/* Headings: Geist, tight tracking. */
 .font-display {
   font-family: var(--font-sans);
-  font-stretch: 120%;
-  font-variation-settings: "wdth" 120;
-  letter-spacing: -0.022em;
-  font-weight: 650;
+  font-weight: 600;
+  letter-spacing: -0.035em;
 }
 
 /* Terminal output and code read exactly as printed: no ligatures. */
@@ -85,57 +101,155 @@ pre, code, kbd, samp, .font-mono {
 }
 
 :focus-visible {
-  outline: 2px solid var(--bone);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--bone) 28%, transparent);
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
 }
 
-/* Native <details>: custom marker. */
-details > summary { list-style: none; }
-details > summary::-webkit-details-marker { display: none; }
-details[open] > summary .fg-chevron { transform: rotate(45deg); }
-@media (prefers-reduced-motion: no-preference) {
-  .fg-chevron { transition: transform 160ms ease; }
+/* Text links */
+.link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  text-underline-offset: 4px;
 }
+.link:hover { text-decoration-color: var(--accent); }
 
 /* Long-form text */
 .prose-fg { max-width: 68ch; }
 .prose-fg p + p { margin-top: 0.875rem; }
 .prose-fg a {
-  color: var(--bone);
+  color: var(--accent);
   text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, var(--bone) 45%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
   text-underline-offset: 3px;
 }
-.prose-fg a:hover { text-decoration-color: var(--bone); }
+.prose-fg a:hover { text-decoration-color: var(--accent); }
 
 /* Inline code */
-.code-inline {
-  font-family: var(--font-mono);
-  font-size: 0.875em;
-  color: var(--bone);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-chip);
-  padding: 0.05em 0.35em;
-  overflow-wrap: anywhere;
-}
+.code-inline,
 .prose-fg code {
   font-family: var(--font-mono);
   font-size: 0.875em;
+  color: var(--foreground);
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius-chip);
+  border-radius: 4px;
   padding: 0.05em 0.35em;
   overflow-wrap: anywhere;
 }
 
 /* Thin scrollbars inside panels */
-.fg-scroll { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.fg-scroll { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+
+/* ---------- Interaction primitives (all user-triggered) ---------- */
+
+/* Button light sweep on hover/focus */
+.fg-sweep { position: relative; overflow: hidden; isolation: isolate; }
+.fg-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--background) 22%, transparent) 50%, transparent 70%);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fg-sweep:hover::after,
+  .fg-sweep:focus-visible::after {
+    transform: translateX(120%);
+    transition: transform 650ms ease;
+  }
+}
+
+/* Cursor-following spotlight on a card border (vars set by SpotlightCard) */
+.fg-spot { position: relative; }
+.fg-spot::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--foreground) 55%, transparent), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+.fg-spot:hover::before,
+.fg-spot:focus-within::before { opacity: 1; }
+
+/* Featured plan: a slow border trail, only while hovered */
+@property --fg-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.fg-trail { position: relative; }
+.fg-trail::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--fg-angle), transparent 0deg, var(--foreground) 40deg, transparent 90deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+}
+.fg-trail:hover::after,
+.fg-trail:focus-within::after { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .fg-trail:hover::after,
+  .fg-trail:focus-within::after { animation: fg-spin 4s linear infinite; }
+}
+@keyframes fg-spin { to { --fg-angle: 360deg; } }
+
+/* Flowing dashes on highlighted diagram edges (hover/focus only) */
+.fg-flow { stroke-dasharray: 6 6; }
+@media (prefers-reduced-motion: no-preference) {
+  .fg-flow { animation: fg-dash 700ms linear infinite; }
+}
+@keyframes fg-dash { to { stroke-dashoffset: -12; } }
+
+/* Theme toggle sun/moon morph */
+.fg-theme-icon .sun-core { transition: r 300ms ease; }
+.fg-theme-icon .sun-rays { transition: opacity 250ms ease, transform 300ms ease; transform-origin: 12px 12px; }
+.fg-theme-icon .moon-cut { transition: cx 300ms ease, cy 300ms ease; }
+.dark .fg-theme-icon .sun-core { r: 8px; }
+.dark .fg-theme-icon .sun-rays { opacity: 0; transform: rotate(45deg) scale(0.6); }
+.dark .fg-theme-icon .moon-cut { cx: 17px; cy: 7px; }
+@media (prefers-reduced-motion: reduce) {
+  .fg-theme-icon * { transition: none !important; }
+}
+
+/* Gate icon: a dot travels on hover/focus of the row (VerdictRow) */
+.fg-gate-dot { transform: translateX(0); }
+@media (prefers-reduced-motion: no-preference) {
+  .group:hover .fg-gate-dot[data-kind="pass"],
+  .group:focus-visible .fg-gate-dot[data-kind="pass"] { animation: fg-dot-pass 900ms ease forwards; }
+  .group:hover .fg-gate-dot[data-kind="fail"],
+  .group:focus-visible .fg-gate-dot[data-kind="fail"] { animation: fg-dot-fail 900ms ease forwards; }
+  .group:hover .fg-gate-dot[data-kind="unknown"],
+  .group:focus-visible .fg-gate-dot[data-kind="unknown"] { animation: fg-dot-unknown 900ms ease forwards; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .group:hover .fg-gate-dot[data-kind="pass"], .group:focus-visible .fg-gate-dot[data-kind="pass"] { transform: translateX(34px); }
+  .group:hover .fg-gate-dot[data-kind="fail"], .group:focus-visible .fg-gate-dot[data-kind="fail"] { transform: translate(21px, 8px); }
+  .group:hover .fg-gate-dot[data-kind="unknown"], .group:focus-visible .fg-gate-dot[data-kind="unknown"] { transform: translateX(21px); }
+}
+@keyframes fg-dot-pass { to { transform: translateX(34px); } }
+@keyframes fg-dot-fail { 60% { transform: translate(21px, 0); } to { transform: translate(21px, 8px); opacity: 0.9; } }
+@keyframes fg-dot-unknown { 70% { transform: translateX(21px); } to { transform: translateX(21px); opacity: 0.45; } }
