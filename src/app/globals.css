@@ -1,109 +1,141 @@
 @import "tailwindcss";
 
 /*
-  Fourgate design tokens. Dark only. Status colors are reserved for verdicts:
-  PASS green, FAIL red, UNKNOWN amber. Never use them for decoration.
-  All text/background pairs below meet WCAG AA on --bg and --surface.
+  Fourgate tokens (W1.1). Use exactly these. Verdict colors carry verdict
+  meaning only: PASS, FAIL, UNKNOWN. There is no other accent color.
 */
 :root {
-  --bg: #0a0c0f;
-  --surface: #11151a;
-  --surface-2: #171c23;
-  --border: #242b35;
-  --border-strong: #343d4a;
-  --text: #e6e8eb;
-  --muted: #a2abb7;
-  --subtle: #848e9b;
-  --accent: #8ab8ff;
-  --pass: #44c15a;
-  --fail: #ff6b6b;
-  --unknown: #e8b84a;
+  --night: #0e1218;
+  --surface: #161c24;
+  --line: #26303b;
+  --bone: #e9e4d8;
+  --muted: #9aa3ad;
+  --pass: #5fd3a0;
+  --fail: #f0645a;
+  --unknown: #f2b84b;
 }
 
 @theme inline {
-  --color-bg: var(--bg);
+  --color-night: var(--night);
   --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-border: var(--border);
-  --color-border-strong: var(--border-strong);
-  --color-text: var(--text);
+  --color-line: var(--line);
+  --color-bone: var(--bone);
   --color-muted: var(--muted);
-  --color-subtle: var(--subtle);
-  --color-accent: var(--accent);
   --color-pass: var(--pass);
   --color-fail: var(--fail);
   --color-unknown: var(--unknown);
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Radii by hierarchy: panel > control > chip. */
+  --radius-panel: 14px;
+  --radius-control: 8px;
+  --radius-chip: 4px;
+
+  /*
+    Type scale after the classic sequence in The Elements of Typographic Style:
+    12 14 16 18 21 24 36 48 60 72.
+  */
+  --text-cap: 0.75rem;
+  --text-cap--line-height: 1.4;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.55;
+  --text-body: 1rem;
+  --text-body--line-height: 1.65;
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.6;
+  --text-h4: 1.3125rem;
+  --text-h4--line-height: 1.3;
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.25;
+  --text-h2: 2.25rem;
+  --text-h2--line-height: 1.1;
+  --text-h1: 3rem;
+  --text-h1--line-height: 1.04;
+  --text-display: 4.5rem;
+  --text-display--line-height: 1;
 }
 
 html {
   color-scheme: dark;
-  scroll-padding-top: 5rem;
+  scroll-padding-top: 4.5rem;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--night);
+  color: var(--bone);
+  font-variation-settings: "wdth" 100;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
+/* Expanded display face for headings: Archivo width axis. */
+.font-display {
+  font-family: var(--font-sans);
+  font-stretch: 120%;
+  font-variation-settings: "wdth" 120;
+  letter-spacing: -0.022em;
+  font-weight: 650;
 }
 
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-::selection {
-  background: color-mix(in srgb, var(--accent) 35%, transparent);
-}
-
-/* Subtle grid backdrop for hero areas. Static: no motion. */
-.bg-grid {
-  background-image:
-    linear-gradient(to right, color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, black 30%, transparent 75%);
-}
-
-/* Fade-in for terminal panels; disabled for reduced motion. */
-@keyframes fg-fade-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: none; }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .fg-fade-in { animation: fg-fade-in 220ms ease-out both; }
-}
-
-/* Native <details> FAQ: rotate the chevron when open. */
-details > summary { list-style: none; }
-details > summary::-webkit-details-marker { display: none; }
-details[open] .fg-chevron { transform: rotate(180deg); }
-@media (prefers-reduced-motion: no-preference) {
-  .fg-chevron { transition: transform 150ms ease; }
-}
-
-/* Long prose */
-.prose-fg p + p { margin-top: 0.875rem; }
-.prose-fg a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
-.prose-fg code {
-  font-family: var(--font-mono);
-  font-size: 0.875em;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0.05em 0.35em;
-  overflow-wrap: anywhere;
-}
-
-/* Show terminal output and code exactly as typed: no "->" to arrow ligatures. */
+/* Terminal output and code read exactly as printed: no ligatures. */
 pre, code, kbd, samp, .font-mono {
   font-variant-ligatures: none;
   font-feature-settings: "liga" 0, "calt" 0;
 }
+
+:focus-visible {
+  outline: 2px solid var(--bone);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--bone) 28%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+/* Native <details>: custom marker. */
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+details[open] > summary .fg-chevron { transform: rotate(45deg); }
+@media (prefers-reduced-motion: no-preference) {
+  .fg-chevron { transition: transform 160ms ease; }
+}
+
+/* Long-form text */
+.prose-fg { max-width: 68ch; }
+.prose-fg p + p { margin-top: 0.875rem; }
+.prose-fg a {
+  color: var(--bone);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--bone) 45%, transparent);
+  text-underline-offset: 3px;
+}
+.prose-fg a:hover { text-decoration-color: var(--bone); }
+
+/* Inline code */
+.code-inline {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  color: var(--bone);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+.prose-fg code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+/* Thin scrollbars inside panels */
+.fg-scroll { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }

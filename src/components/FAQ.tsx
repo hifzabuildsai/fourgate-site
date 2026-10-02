@@ -2,23 +2,19 @@ import type { ReactNode } from "react";
 
 export type FaqItem = { q: string; a: ReactNode };
 
-/** Native <details>: keyboard and screen-reader accessible with no JavaScript. */
+/** Native <details>: keyboard and screen-reader accessible without JavaScript. */
 export default function FAQ({ items }: { items: FaqItem[] }) {
   return (
-    <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
+    <div className="border-b border-line">
       {items.map((item) => (
-        <details key={item.q} className="group">
-          <summary className="flex cursor-pointer items-start justify-between gap-4 px-5 py-4 text-left font-medium text-text hover:bg-surface-2">
+        <details key={item.q} className="border-t border-line">
+          <summary className="flex cursor-pointer items-start justify-between gap-6 py-5 text-left text-lead text-bone hover:text-white">
             <span>{item.q}</span>
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 16 16"
-              className="fg-chevron mt-1 h-4 w-4 shrink-0 text-subtle"
-            >
-              <path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            <svg aria-hidden="true" viewBox="0 0 16 16" className="fg-chevron mt-1.5 h-4 w-4 shrink-0 text-muted">
+              <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="1.4" />
             </svg>
           </summary>
-          <div className="prose-fg px-5 pb-5 text-sm leading-relaxed text-muted">{item.a}</div>
+          <div className="prose-fg pb-6 text-muted">{item.a}</div>
         </details>
       ))}
     </div>

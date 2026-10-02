@@ -1,30 +1,25 @@
-/** Original Fourgate mark: an open gate (arch) with a check inside it. */
-export function GateMark({ className = "h-6 w-6" }: { className?: string }) {
+/**
+ * Fourgate mark: four vertical bars, one per gate, on a shared threshold.
+ * The fourth bar is split, the gap where a verdict is made.
+ */
+export function GateMark({ className = "h-5 w-5" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden="true" fill="none">
-      <path
-        d="M4.5 21V10.5a7.5 7.5 0 0 1 15 0V21"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path d="M2.5 21h19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <path
-        d="m8.5 14.5 2.5 2.5 4.5-5"
-        stroke="var(--accent)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg viewBox="0 0 20 20" className={className} aria-hidden="true" fill="currentColor">
+      <rect x="2" y="3" width="2.4" height="13" rx="0.6" />
+      <rect x="6.6" y="3" width="2.4" height="13" rx="0.6" />
+      <rect x="11.2" y="3" width="2.4" height="13" rx="0.6" />
+      <rect x="15.8" y="3" width="2.4" height="5.6" rx="0.6" />
+      <rect x="15.8" y="10.4" width="2.4" height="5.6" rx="0.6" />
+      <rect x="1" y="17.4" width="18" height="1.4" rx="0.5" />
     </svg>
   );
 }
 
 export default function Wordmark() {
   return (
-    <span className="inline-flex items-center gap-2 text-text">
+    <span className="inline-flex items-center gap-2 text-bone">
       <GateMark />
-      <span className="text-[1.05rem] font-semibold tracking-tight">Fourgate</span>
+      <span className="font-display text-[1.0625rem] leading-none">Fourgate</span>
     </span>
   );
 }

@@ -1,19 +1,15 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type Variant = "primary" | "secondary" | "ghost";
+type Variant = "primary" | "secondary" | "text";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors min-h-11 text-center";
+  "inline-flex min-h-11 items-center justify-center rounded-[6px] px-4 text-small font-medium text-center transition-colors";
 const variants: Record<Variant, string> = {
-  primary: "bg-text text-bg hover:bg-white",
-  secondary: "border border-border-strong bg-surface text-text hover:border-muted hover:bg-surface-2",
-  ghost: "text-accent hover:underline underline-offset-4 px-1",
+  primary: "bg-bone text-night hover:bg-white",
+  secondary: "border border-line text-bone hover:border-muted hover:bg-surface",
+  text: "min-h-0 px-0 text-bone underline decoration-bone/40 underline-offset-4 hover:decoration-bone",
 };
-
-export function isExternal(href: string) {
-  return /^(https?:|mailto:)/.test(href) || href.endsWith(".html");
-}
 
 /** Renders nothing when href is empty, so CTAs backed by unset config simply disappear. */
 export default function ButtonLink({
@@ -29,21 +25,10 @@ export default function ButtonLink({
 }) {
   if (!href) return null;
   const cls = `${base} ${variants[variant]} ${className}`;
-  if (isExternal(href)) {
-    const newTab = href.startsWith("http");
+  if (/^(https?:|mailto:)/.test(href) || href.endsWith(".html")) {
     return (
-      <a
-        href={href}
-        className={cls}
-        {...(newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-      >
+      <a href={href} className={cls}>
         {children}
-        {newTab && (
-          <>
-            <ExternalIcon />
-            <span className="sr-only">(opens in a new tab)</span>
-          </>
-        )}
       </a>
     );
   }
@@ -51,20 +36,5 @@ export default function ButtonLink({
     <Link href={href} className={cls}>
       {children}
     </Link>
-  );
-}
-
-export function ExternalIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5 shrink-0 opacity-70">
-      <path
-        d="M6 3h7v7M13 3 5.5 10.5M11 9.5V13H3V5h3.5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

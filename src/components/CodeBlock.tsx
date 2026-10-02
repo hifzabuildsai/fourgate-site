@@ -2,18 +2,20 @@
 
 import { useRef, useState } from "react";
 
-/** Code/command block with a copy button. Copies the code exactly as shown. */
+/** Command/code block with a copy button. Copies exactly the code shown. */
 export default function CodeBlock({
   code,
   label,
   prompt = false,
   className = "",
+  maxHeight,
 }: {
   code: string;
   label?: string;
-  /** Show a "$" before each line (visual only; not copied). */
+  /** Show "$" before each command line (visual only; not copied). */
   prompt?: boolean;
   className?: string;
+  maxHeight?: string;
 }) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -34,44 +36,37 @@ export default function CodeBlock({
     }
     setCopied(true);
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => setCopied(false), 1800);
+    timer.current = setTimeout(() => setCopied(false), 1600);
   }
 
   return (
-    <div className={`overflow-hidden rounded-xl border border-border bg-[#07090b] ${className}`}>
-      <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2">
-        <span className="truncate font-mono text-xs text-subtle">{label ?? "shell"}</span>
+    <div className={`overflow-hidden rounded-[10px] border border-line bg-[#0a0d12] ${className}`}>
+      <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-1.5">
+        <span className="truncate text-cap text-muted">{label ?? "Shell"}</span>
         <button
           type="button"
           onClick={copy}
-          className="inline-flex min-h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs font-medium text-muted hover:border-border-strong hover:text-text"
+          className="min-h-8 rounded-[4px] px-2 text-cap font-medium text-muted hover:bg-surface hover:text-bone"
         >
-          {copied ? (
-            <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5 text-pass">
-              <path d="m3.5 8.5 3 3 6-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          ) : (
-            <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5">
-              <rect x="5" y="5" width="8.5" height="8.5" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.4" />
-              <path d="M10.5 3.5V3A1.5 1.5 0 0 0 9 1.5H3.5A1.5 1.5 0 0 0 2 3v5.5A1.5 1.5 0 0 0 3.5 10H4" fill="none" stroke="currentColor" strokeWidth="1.4" />
-            </svg>
-          )}
-          <span>{copied ? "Copied" : "Copy"}</span>
+          {copied ? "Copied" : "Copy"}
           <span className="sr-only" aria-live="polite">
-            {copied ? "Copied to clipboard" : ""}
+            {copied ? " to clipboard" : ""}
           </span>
         </button>
       </div>
-      <pre className="overflow-x-auto p-4 font-mono text-[0.8125rem] leading-relaxed text-text">
+      <pre
+        className="fg-scroll overflow-auto p-4 font-mono text-[0.8125rem] leading-relaxed text-bone"
+        style={maxHeight ? { maxHeight } : undefined}
+      >
         <code>
           {code.split("\n").map((line, i) => (
-            <span key={i} className="block whitespace-pre-wrap break-words">
-              {prompt && line && !line.startsWith("#") && (
-                <span aria-hidden="true" className="select-none text-subtle">
+            <span key={i} className="block min-h-[1lh] whitespace-pre-wrap break-words">
+              {prompt && line && !line.startsWith("#") && !line.startsWith(" ") && (
+                <span aria-hidden="true" className="select-none text-muted">
                   ${" "}
                 </span>
               )}
-              <span className={line.startsWith("#") ? "text-subtle" : undefined}>{line}</span>
+              <span className={line.startsWith("#") ? "text-muted" : undefined}>{line}</span>
             </span>
           ))}
         </code>

@@ -1,29 +1,23 @@
 import type { ReactNode } from "react";
 
-type Tone = "note" | "honest" | "warn";
-
-const tones: Record<Tone, { label: string; cls: string }> = {
-  note: { label: "Note", cls: "border-accent/40 before:bg-accent" },
-  honest: { label: "Honest note", cls: "border-border-strong before:bg-muted" },
-  warn: { label: "Important", cls: "border-unknown/40 before:bg-unknown" },
-};
-
+/** A bordered note. "caution" marks something with real-world side effects. */
 export default function Callout({
-  tone = "note",
   title,
+  tone = "note",
   children,
 }: {
-  tone?: Tone;
-  title?: string;
+  title: string;
+  tone?: "note" | "caution";
   children: ReactNode;
 }) {
-  const t = tones[tone];
   return (
     <aside
-      className={`relative overflow-hidden rounded-xl border bg-surface p-5 pl-6 before:absolute before:inset-y-0 before:left-0 before:w-1 ${t.cls}`}
+      className={`rounded-[10px] border p-5 sm:p-6 ${
+        tone === "caution" ? "border-bone/40 bg-surface" : "border-line"
+      }`}
     >
-      <p className="mb-1.5 text-sm font-semibold text-text">{title ?? t.label}</p>
-      <div className="prose-fg text-sm leading-relaxed text-muted">{children}</div>
+      <p className="font-medium text-bone">{title}</p>
+      <div className="prose-fg mt-2 text-small text-muted">{children}</div>
     </aside>
   );
 }

@@ -1,0 +1,13 @@
+fourgate init: wrote
+  fourgate-config\readback.json
+  fourgate-config\runtime.json
+  fourgate-config\scan.json
+
+Next steps:
+  fourgate doctor --contracts fourgate-config\runtime.json --server server --log outcomes.jsonl -- python your_server.py
+  fourgate scan fourgate-config\scan.json --confirm-test-account disposable-demo --report-dir fourgate-report
+  fourgate guard --contracts fourgate-config\runtime.json --mode shadow --server server --log outcomes.jsonl -- python your_server.py
+  fourgate summary outcomes.jsonl
+
+CAUTION: scan performs real writes: use a disposable test account only.
+NOTE: READBACK_TOKEN is not set in this shell; set it before doctor, scan or guard.

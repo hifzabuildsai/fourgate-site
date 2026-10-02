@@ -11,7 +11,7 @@ export function pageMetadata({
   description: string;
   path: string;
 }): Metadata {
-  const fullTitle = path === "/" ? title : `${title} · ${SITE_NAME}`;
+  const fullTitle = path === "/" ? title : `${title} | ${SITE_NAME}`;
   return {
     title: { absolute: fullTitle },
     description,

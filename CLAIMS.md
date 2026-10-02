@@ -14,6 +14,7 @@ cannot be sourced, it does not go on the site.
 
 | Claim (as used on the site) | Where | Source |
 |---|---|---|
+| "Open source. Runs on your machine. Version 0.3.0 on PyPI." | Hero | R306, P9, R31–36 |
 | "Independent outcome verification for consequential AI-agent actions." | Hero, footer, meta | `pyproject.toml` `description`; v0.3.0 release notes (not one of the four source files; see *Other sources*) |
 | Fourgate checks whether a tool's reported success actually happened | Hero | R3 |
 | Early, pre-alpha | Home FAQ | R5 |
@@ -34,13 +35,42 @@ cannot be sourced, it does not go on the site.
 
 | Claim | Where | Source |
 |---|---|---|
-| Terminal content is the exact output of `fourgate demo --pace 0` | Home terminal, /demo | Captured run, see *Other sources*; stored verbatim in `src/content/fourgate-demo-output.txt` and split losslessly at build time (`src/content/demo.ts` fails the build otherwise) |
+| Simulator panels, verdicts, reasons and raw output are lines of the `fourgate demo --pace 0` output | Home and /demo simulator, /demo full output | Captured run, see *Other sources*; `src/content/demo.ts` verifies it against the original (only the two shortened paths may differ) and splits it losslessly at build time |
+| Only five connector/mode combinations exist (S1 broken/without, S2 broken/enforce, S3 healthy/enforce, S4 broken/shadow, S5 outage/enforce) | Simulator | The capture itself (scene headers) and R144–148 |
 | No API keys, no network; five real MCP sessions; guarded scenes through a real `fourgate guard` process; local summary page; `--pace 2` for recording | /demo | R142 |
 | Scene descriptions S1–S5 | Terminal captions | R144–148 and the captured output itself |
 | Simulated connector; a local file stands in for the system of record | /demo, home | R150 |
 | `python -m fourgate` works if `fourgate` is not on PATH | /demo | R38–39 |
 | Python 3.10–3.13, Linux or Windows | /demo | R31 |
 | Summary page has no JavaScript, makes no network requests, contains structure only | /demo | R222–227 |
+
+## Hero (illustration)
+
+| Claim | Where | Source |
+|---|---|---|
+| Gate 1 "Tool says done": the check starts after a connector reports success | Hero labels | R126 ("After a connector reports success") |
+| Gate 2 "Extract contracted fields" | Hero labels | R126 ("extracts only the minimum contract-approved fields"), P32 |
+| Gate 3 "Independent read-back" | Hero labels | R126 ("deterministic authoritative verifier"), P34–35 |
+| Gate 4 "Verdict": PASS / FAIL / UNKNOWN | Hero labels | R128–132 |
+| FAIL packets turn red at the read-back and drop; UNKNOWN packets turn amber there, stop, and never continue or turn green | Hero scene | R92 and R148 (UNKNOWN is never PASS); R132, P81–82 (fails open; the call is not blocked) |
+| Legend: PASS = read-back found the record with the contracted values; FAIL = proved missing or different; UNKNOWN = could not confirm, never reported as success | Hero legend | R16, R128–132, R92; reason texts in the demo summary page |
+| Packet ratio and motion are illustrative, not measured | Hero | Stated in README "What's real vs. illustrative" |
+
+## Interactive components
+
+| Claim | Where | Source |
+|---|---|---|
+| Wrapped command `fourgate guard --contracts … --mode shadow --server … --log outcomes.jsonl -- python your_server.py` | Wrap toggle | R177–183 |
+| Shadow first; verdicts recorded, agent sees nothing different | Wrap toggle intro | R134, P16–18 |
+| `runtime.json` is the contract file init writes | Wrap toggle note | R160 |
+| Client config file name and shape vary by client | Wrap toggle note | Labeled "Illustrative client config"; not a product claim |
+| Six commands and their one-line purposes | Workflow stepper | R61–66 |
+| init command and its printed output | Workflow stepper | R157 (command); `src/content/fourgate-init-output.txt` (captured output) |
+| doctor command and its printed output | Workflow stepper | R167 (form of the command); `src/content/fourgate-doctor-output.txt` (captured output) |
+| scan: bundled-fixture commands; expected FAIL / record_missing (exit 1), PASS on healthy (exit 0), UNKNOWN never PASS, invalid config exits 2 | Workflow stepper | R75–78 (commands), R89–92 (result) |
+| guard: command; enforce only after clean shadow traffic; exits 2 on invalid contracts; per-call faults UNKNOWN and fail open; stdout carries only MCP traffic | Workflow stepper | R177–183 (command), R185 (result) |
+| summary: command; what the page contains; no JavaScript, no network requests | Workflow stepper | R219 (command), R222–226 |
+| Data-flow node details ("Holds" / "Never contains") | /security interactive diagram | P26–35 (what runs where), P43–45 (only new traffic), P49–55 (what is stored), P62–70 (credentials), P74–83 (failure behavior) |
 
 ## How it works and integrations
 
@@ -115,6 +145,7 @@ the site.
 |---|---|
 | Tagline | `pyproject.toml` `description` at `1d7b900`; v0.3.0 GitHub release notes |
 | SHA-256 digests on the release page | GitHub Releases API for `v0.3.0`: wheel `0f5d48f9…fd3b`, sdist `faa3d644…6f5a` |
-| Demo output and `public/sample-report.html` | A run of `fourgate demo --pace 0`, fourgate 0.3.0 from PyPI, fresh venv outside `%TEMP%`, Windows 11, Python 3.14.6, 2026-10-02, exit 0. The sample report is that run's `fourgate-demo-summary.html`, byte-identical (`.gitattributes` keeps it from line-ending conversion). The text capture had a PowerShell BOM and CRLF line endings removed; nothing else changed. |
+| Demo output and `public/sample-report.html` | A run of `fourgate demo --pace 0`, fourgate 0.3.0 from PyPI, fresh venv outside `%TEMP%`, Windows 11, Python 3.14.6, 2026-10-02, exit 0. The sample report is that run's `fourgate-demo-summary.html`, byte-identical (`.gitattributes` keeps it from line-ending conversion). The text capture had a PowerShell BOM and CRLF line endings removed, and the two absolute local paths in its closing summary shortened to `./fourgate-demo/demo-outcomes.jsonl` and `./fourgate-demo/fourgate-demo-summary.html` (noted on the site as "paths shortened"). The build checks the rest against a SHA-256 of the original. |
+| `src/content/fourgate-init-output.txt`, `fourgate-doctor-output.txt` | `fourgate init` (README R157 flags) and `fourgate doctor --contracts fourgate-config/runtime.json --server server --log outcomes.jsonl -- python -m fourgate.demo.server`, fourgate 0.3.0, run in `C:g-example` with `READBACK_TOKEN` set to a dummy value, 2026-10-02, both exit 0. Unedited apart from CRLF line endings. |
 | `src/content/init-example/*.json` | `fourgate init` 0.3.0 run with the flags in R157 |
 | Pricing: Open Source free; Founding Design Partner $199/month and its inclusions; Enterprise by contact; free short evaluation | Commercial terms set by the founder for this site. These are offers, not product claims. |

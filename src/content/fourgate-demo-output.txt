@@ -47,7 +47,7 @@ which reads the system of record back after the connector reports success.
 
 Summary
   Totals (from fourgate summary): PASS 1 / FAIL 2 / UNKNOWN 1
-  Outcome log:  C:\hifzazafar\fourgate\site-demo-run\fourgate-demo\demo-outcomes.jsonl
-  Summary page: file:///C:/hifzazafar/fourgate/site-demo-run/fourgate-demo/fourgate-demo-summary.html
+  Outcome log:  ./fourgate-demo/demo-outcomes.jsonl
+  Summary page: ./fourgate-demo/fourgate-demo-summary.html
 
 Self-check: every scene behaved as narrated.

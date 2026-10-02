@@ -1,50 +1,67 @@
 import type { ReactNode } from "react";
 
 export function Container({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`mx-auto w-full max-w-6xl px-4 sm:px-6 ${className}`}>{children}</div>;
+  return <div className={`mx-auto w-full max-w-[76rem] px-4 sm:px-8 ${className}`}>{children}</div>;
 }
 
+/**
+ * Page section. "split" puts the heading in a narrow left column on wide
+ * screens (it stays put while the content scrolls); "stack" puts it above.
+ */
 export default function Section({
   id,
-  eyebrow,
   title,
   intro,
   children,
-  className = "",
+  layout = "split",
   as: Heading = "h2",
+  rule = true,
+  className = "",
 }: {
   id?: string;
-  eyebrow?: string;
   title?: ReactNode;
   intro?: ReactNode;
   children?: ReactNode;
-  className?: string;
+  layout?: "split" | "stack";
   as?: "h1" | "h2";
+  rule?: boolean;
+  className?: string;
 }) {
+  const headingId = id && title ? `${id}-title` : undefined;
+  const heading = (title || intro) && (
+    <header className={layout === "split" ? "lg:sticky lg:top-24" : "max-w-3xl"}>
+      {title && (
+        <Heading
+          id={headingId}
+          className={`font-display text-balance ${
+            Heading === "h1" ? "text-[2.25rem] leading-[1.06] sm:text-h1" : "text-[1.75rem] leading-[1.12] sm:text-h2"
+          }`}
+        >
+          {title}
+        </Heading>
+      )}
+      {intro && <div className="prose-fg mt-5 text-lead text-muted">{intro}</div>}
+    </header>
+  );
+
   return (
-    <section id={id} className={`py-16 sm:py-20 ${className}`} aria-labelledby={id && title ? `${id}-title` : undefined}>
+    <section
+      id={id}
+      aria-labelledby={headingId}
+      className={`${rule ? "border-t border-line" : ""} py-16 sm:py-24 ${className}`}
+    >
       <Container>
-        {(eyebrow || title || intro) && (
-          <header className="mb-10 max-w-3xl">
-            {eyebrow && (
-              <p className="mb-3 font-mono text-xs font-medium uppercase tracking-[0.14em] text-accent">{eyebrow}</p>
-            )}
-            {title && (
-              <Heading
-                id={id ? `${id}-title` : undefined}
-                className={
-                  Heading === "h1"
-                    ? "text-3xl font-semibold tracking-tight text-balance sm:text-5xl"
-                    : "text-2xl font-semibold tracking-tight text-balance sm:text-3xl"
-                }
-              >
-                {title}
-              </Heading>
-            )}
-            {intro && <div className="mt-4 text-base leading-relaxed text-muted sm:text-lg">{intro}</div>}
-          </header>
+        {layout === "split" ? (
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            {heading && <div className="lg:col-span-4">{heading}</div>}
+            <div className={heading ? "min-w-0 lg:col-span-8" : "min-w-0 lg:col-span-12"}>{children}</div>
+          </div>
+        ) : (
+          <>
+            {heading && <div className="mb-12">{heading}</div>}
+            {children}
+          </>
         )}
-        {children}
       </Container>
     </section>
   );

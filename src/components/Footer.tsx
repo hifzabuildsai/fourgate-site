@@ -47,7 +47,7 @@ const columns: { title: string; links: FooterLink[] }[] = [
 ];
 
 function FooterAnchor({ href, label }: FooterLink) {
-  const cls = "text-sm text-muted hover:text-text break-all";
+  const cls = "text-small text-muted hover:text-bone break-all";
   if (href.startsWith("/") && !href.endsWith(".html")) {
     return (
       <Link href={href} className={cls}>
@@ -55,30 +55,28 @@ function FooterAnchor({ href, label }: FooterLink) {
       </Link>
     );
   }
-  const newTab = href.startsWith("http");
   return (
-    <a href={href} className={cls} {...(newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+    <a href={href} className={cls}>
       {label}
-      {newTab && <span className="sr-only"> (opens in a new tab)</span>}
     </a>
   );
 }
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border bg-surface/40">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_repeat(3,1fr)]">
-        <div className="max-w-xs">
+    <footer className="border-t border-line">
+      <div className="mx-auto grid max-w-[76rem] gap-10 px-4 py-14 sm:px-8 md:grid-cols-12">
+        <div className="md:col-span-5">
           <Wordmark />
-          <p className="mt-4 text-sm leading-relaxed text-muted">
-            Independent outcome verification for consequential AI-agent actions. Open source, MIT licensed, runs on
+          <p className="mt-4 max-w-sm text-small text-muted">
+            Independent outcome verification for consequential AI-agent actions. Open source under the MIT License. Runs on
             your machine.
           </p>
         </div>
         {columns.map((col) => (
-          <div key={col.title}>
-            <h2 className="mb-3 font-mono text-xs font-medium uppercase tracking-[0.14em] text-subtle">{col.title}</h2>
-            <ul className="space-y-2.5">
+          <div key={col.title} className="md:col-span-2 md:last:col-span-3">
+            <h2 className="mb-3 text-small font-medium text-bone">{col.title}</h2>
+            <ul className="space-y-2">
               {col.links
                 .filter((l) => l.href && l.label)
                 .map((l) => (
@@ -90,10 +88,10 @@ export default function Footer() {
           </div>
         ))}
       </div>
-      <div className="border-t border-border">
-        <p className="mx-auto max-w-6xl px-4 py-5 text-xs text-subtle sm:px-6">
+      <div className="border-t border-line">
+        <p className="mx-auto max-w-[76rem] px-4 py-5 text-cap text-muted sm:px-8">
           This website sets no cookies and runs no analytics.{" "}
-          <Link href="/privacy" className="underline underline-offset-2 hover:text-text">
+          <Link href="/privacy" className="underline underline-offset-2 hover:text-bone">
             Privacy
           </Link>
         </p>
