@@ -1,12 +1,12 @@
-import ButtonLink from "@/components/ButtonLink";
 import Callout from "@/components/Callout";
-import CodeBlock from "@/components/CodeBlock";
 import ContactCtas from "@/components/ContactCtas";
 import CtaBand from "@/components/CtaBand";
 import FlowDiagram from "@/components/FlowDiagram";
 import Section from "@/components/Section";
 import StatusBadge from "@/components/StatusBadge";
+import DigestMatch from "@/components/DigestMatch";
 import Reveal from "@/components/Reveal";
+import RunTerminal, { type OsCommands } from "@/components/RunTerminal";
 import TabbedGroups from "@/components/TabbedGroups";
 import { externalProps } from "@/lib/links";
 import { pageMetadata } from "@/lib/metadata";
@@ -83,10 +83,10 @@ const pilotDiagram = ` Your agent (e.g. an MCP client)
                                             ▼
                                fourgate summary  ──►  local HTML page`;
 
-const verifyHashes = `# Linux
-sha256sum fourgate-0.3.0-py3-none-any.whl
-# Windows PowerShell
-Get-FileHash fourgate-0.3.0-py3-none-any.whl -Algorithm SHA256`;
+const hashCommands: OsCommands[] = [
+  { id: "linux", label: "Linux", lines: ["sha256sum fourgate-0.3.0-py3-none-any.whl"] },
+  { id: "windows", label: "Windows PowerShell", lines: ["Get-FileHash fourgate-0.3.0-py3-none-any.whl -Algorithm SHA256"] },
+];
 
 const link = "link";
 
@@ -248,22 +248,42 @@ export default function SecurityPage() {
         title="Audit it yourself."
         intro={<p>Fourgate is MIT licensed. Read the code, read the security notes, and check the release files against the SHA-256 digests GitHub lists on the release page.</p>}
       >
-        <div className="flex flex-wrap gap-3">
-          <ButtonLink href={GITHUB_URL} variant="secondary">
-            Source code
-          </ButtonLink>
-          <ButtonLink href={SECURITY_MD_URL} variant="secondary">
-            SECURITY.md
-          </ButtonLink>
-          <ButtonLink href={PILOT_MD_URL} variant="secondary">
-            PILOT.md
-          </ButtonLink>
-          <ButtonLink href={RELEASE_URL} variant="secondary">
-            v0.3.0 release and digests
-          </ButtonLink>
-        </div>
-        <div className="mt-6">
-          <CodeBlock code={verifyHashes} label="Compare with the digest on the release page" />
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {[
+            { href: GITHUB_URL, label: "Source code" },
+            { href: SECURITY_MD_URL, label: "SECURITY.md" },
+            { href: PILOT_MD_URL, label: "PILOT.md" },
+            { href: RELEASE_URL, label: "v0.3.0 release and digests" },
+          ]
+            .filter((l) => l.href)
+            .map((l) => (
+              <li key={l.label}>
+                <a
+                  href={l.href}
+                  {...externalProps(l.href)}
+                  className="group flex min-h-14 items-center justify-between gap-3 rounded-[12px] border border-line px-4 py-3 text-foreground transition-colors hover:border-line-strong hover:bg-surface"
+                >
+                  <span className="font-medium">{l.label}</span>
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 16 16"
+                    className="h-4 w-4 shrink-0 text-muted transition-transform duration-200 group-hover:translate-x-1 group-focus-visible:translate-x-1 motion-reduce:transition-none"
+                  >
+                    <path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </li>
+            ))}
+        </ul>
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          <div>
+            <p className="mb-2 text-cap text-muted">Compare with the digest on the release page</p>
+            <RunTerminal variants={hashCommands} copyLabel="Copy" />
+          </div>
+          <div className="lg:pt-6">
+            <DigestMatch />
+          </div>
         </div>
         <div className="mt-8">
           <Callout title="Certifications">

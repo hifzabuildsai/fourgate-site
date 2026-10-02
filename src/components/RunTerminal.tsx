@@ -45,7 +45,7 @@ function CopyIcon({ done }: { done: boolean }) {
  * three numbered commands, copy-all (without the "$" prompt) and per-line copy.
  * The commands reveal once when first scrolled into view (instant with reduced motion).
  */
-export default function RunTerminal({ variants }: { variants: OsCommands[] }) {
+export default function RunTerminal({ variants, copyLabel = "Copy all" }: { variants: OsCommands[]; copyLabel?: string }) {
   const detected = useSyncExternalStore(noop, detectOs, () => "linux" as const);
   const hydrated = useSyncExternalStore(noop, () => true, () => false);
   const [choice, setChoice] = useState<OsCommands["id"] | null>(null);
@@ -121,7 +121,7 @@ export default function RunTerminal({ variants }: { variants: OsCommands[] }) {
           }`}
         >
           <CopyIcon done={copied === "all"} />
-          {copied === "all" ? "Copied" : "Copy all"}
+          {copied === "all" ? "Copied" : copyLabel}
           <span className="sr-only" aria-live="polite">
             {copied === "all" ? " to clipboard" : ""}
           </span>
@@ -145,12 +145,14 @@ export default function RunTerminal({ variants }: { variants: OsCommands[] }) {
                 transition={reduce ? { duration: 0 } : { duration: 0.3, delay: hidden ? 0 : i * 0.18, ease: "easeOut" }}
                 className="group flex items-start gap-3 rounded-[8px] px-2 py-1.5 hover:bg-raised focus-within:bg-raised"
               >
-                <span
-                  aria-hidden="true"
-                  className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-line-strong font-mono text-[0.6875rem] text-muted"
-                >
-                  {i + 1}
-                </span>
+                {current.lines.length > 1 && (
+                  <span
+                    aria-hidden="true"
+                    className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-line-strong font-mono text-[0.6875rem] text-muted"
+                  >
+                    {i + 1}
+                  </span>
+                )}
                 <code className="min-w-0 flex-1 whitespace-pre-wrap break-all font-mono text-[0.8125rem] leading-relaxed text-foreground">
                   <span aria-hidden="true" className="select-none text-muted">
                     ${" "}

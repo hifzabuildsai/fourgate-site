@@ -117,6 +117,8 @@ cannot be sourced, it does not go on the site.
 | Enforce only adds one attributed verdict before the original response, on a confirmed FAIL | /security, FAQ | P76–78 |
 | Scan performs real writes; disposable accounts only; cannot tell whether an account is a test account | /security | S3–7 |
 | Report redaction is best effort; review before sharing; POSIX mode 0600; Windows follows directory ACL | /security | S28–35 |
+| "Audit it yourself": link cards (Source code, SECURITY.md, PILOT.md, v0.3.0 release and digests); hash commands for Linux and Windows PowerShell | /security | Same links and commands as before; digests are on the GitHub release page (see *Other sources*) |
+| Digest-match illustration ("release page" / "your download", "= match") | /security | Illustrative only, labeled "Illustration with placeholder digests"; the strings contain "placeholder" and non-hex characters, never a real digest |
 | No SOC 2 / ISO certification claimed | /security | Statement of absence; nothing in the repo claims one |
 
 ## Field evidence
