@@ -32,7 +32,7 @@ All links and contact details live in [`src/site.config.ts`](src/site.config.ts)
 `DEMO_VIDEO_URL`, `LINKEDIN_URL`, `X_URL`. Leave a value empty and the CTA or link that
 uses it is hidden. The primary call to action everywhere is "Book a 30-minute scope call"
 (`BOOKING_URL`, opens in a new tab); the secondary is email (`CONTACT_EMAIL`).
-`PAYMENT_URL` is empty on purpose: the Founding Design Partner plan is invoiced after the
+`PAYMENT_URL` is empty on purpose: the Fourgate Founding Pilot is invoiced after the
 scope call. External links open in a new tab with `rel="noopener noreferrer"`
 (`src/lib/links.ts`). `DEMO_VIDEO_URL` renders inline for a self-hosted `.mp4`/`.webm`, and as
 a plain link otherwise (no third-party embeds).
@@ -45,7 +45,7 @@ a plain link otherwise (no third-party embeds).
 | `/demo` | Verdict simulator, full demo output, run-it-yourself commands, optional video, the real sample report in a frame |
 | `/integrations` | What works today, wrap-your-server toggle, a generated configuration example, what is not supported yet |
 | `/security` | Interactive data-flow diagram, what is stored, credential isolation, read-back safety, failure semantics, audit links |
-| `/pricing` | Open Source, Founding Design Partner, Enterprise; comparison; pricing FAQ |
+| `/pricing` | Open Source, Fourgate Founding Pilot, Enterprise; comparison; pricing FAQ |
 | `/design-partner` | The pilot process, what you get, requirements and limits |
 | `/privacy` | No cookies, no analytics |
 | `/sample-report.html` | The demo's summary page, unchanged |

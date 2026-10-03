@@ -10,7 +10,7 @@ import { CONTACT_EMAIL, EMAIL_HREF, PILOT_MD_URL } from "@/site.config";
 export const metadata = pageMetadata({
   title: "Become a design partner",
   description:
-    "A Fourgate pilot in five steps: scope call, contracts, test-account scan, shadow run, review. $199/month for one workflow with founder-assisted setup.",
+    "A Fourgate pilot in five steps: scope call, contracts, test-account scan, shadow run, review. The Fourgate Founding Pilot is $300 one-time, with founder-assisted setup.",
   path: "/design-partner",
 });
 
@@ -36,13 +36,12 @@ const steps = [
 ];
 
 const youGet = [
-  "One workflow, up to three consequential state-changing tools",
   "Founder-assisted setup",
-  "Contract creation and review",
-  "Shadow-mode rollout",
-  "PASS / FAIL / UNKNOWN reports",
-  "Direct support and a weekly review",
-  "$199 a month, invoiced after the scope call, cancel anytime",
+  "Outcome contracts for up to three write tools, reviewed with you",
+  "A CI job added through a pull request you merge",
+  "Fix report with evidence: PASS / CONFIRMED_FAIL / UNKNOWN",
+  "A review call at day 30",
+  "Fourgate Founding Pilot: $300 one-time, invoiced after the scope call. Ongoing support after the pilot is optional, by agreement.",
 ];
 
 const requirements = [
