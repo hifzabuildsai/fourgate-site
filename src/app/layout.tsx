@@ -32,7 +32,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {/* Marks the page as scripted before first paint; entrance states in globals.css apply only under .js. */}
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
       </head>
-      <body className="flex min-h-dvh flex-col font-sans text-body antialiased">
+      <body suppressHydrationWarning className="flex min-h-dvh flex-col font-sans text-body antialiased">
         <ThemeProvider>
           <Nav />
           <main id="main" className="flex-1 overflow-x-clip">
