@@ -10,39 +10,34 @@ import { CONTACT_EMAIL, EMAIL_HREF, PILOT_MD_URL } from "@/site.config";
 export const metadata = pageMetadata({
   title: "Become a design partner",
   description:
-    "A Fourgate pilot in five steps: scope call, contracts, test-account scan, shadow run, review. $199/month for one workflow with founder-assisted setup.",
+    "A Fourgate pilot in five steps: scope call, contracts, test-account scan, CI job, fix report. The Fourgate Founding Pilot is $300 one-time, with founder-assisted setup.",
   path: "/design-partner",
 });
 
 const steps = [
-  { title: "Scope", meta: "30-minute call", text: "Pick 1–3 state-changing tools that matter, and the API that can confirm each write." },
-  { title: "Contracts", meta: "written with you", text: "We write the outcome contracts with you; you review and approve them." },
+  { title: "Scope", meta: "30-minute call", text: "Pick up to three state-changing write tools that matter, and the API that can confirm each write." },
+  { title: "Contracts", meta: "written with you", text: "We write the outcome contracts for those tools with you; you review and approve them." },
   {
     title: "Test-account scan",
     meta: "fourgate scan",
     text: (
       <>
-        Run against a disposable account to prove each contract: a healthy write is <StatusBadge status="PASS" size="sm" />, a
-        deliberate mismatch is <StatusBadge status="FAIL" size="sm" />.
+        Run against a test account you create to prove each contract: a healthy write is <StatusBadge status="PASS" size="sm" />,
+        a deliberate mismatch is <StatusBadge status="FAIL" size="sm" />.
       </>
     ),
   },
-  {
-    title: "Shadow run",
-    meta: "fourgate doctor, then guard",
-    text: "Check the setup with fourgate doctor using the same arguments, then wrap the server for your real agent traffic in shadow mode. Your agent receives exactly the same bytes.",
-  },
-  { title: "Review", meta: "fourgate summary", text: "fourgate summary turns outcomes.jsonl into one local page. You choose whether to share it with us." },
+  { title: "CI job", meta: "pull request you merge", text: "We add the checks to your CI through a pull request you review and merge. They run against your test account." },
+  { title: "Fix report", meta: "review call at day 30", text: "We send a fix report with evidence for anything that says success without doing it, and review it with you on a call at day 30." },
 ];
 
 const youGet = [
-  "One workflow, up to three consequential state-changing tools",
   "Founder-assisted setup",
-  "Contract creation and review",
-  "Shadow-mode rollout",
-  "PASS / FAIL / UNKNOWN reports",
-  "Direct support and a weekly review",
-  "$199 a month, invoiced after the scope call, cancel anytime",
+  "Outcome contracts for up to three write tools, reviewed with you",
+  "A CI job added through a pull request you merge",
+  "Fix report with evidence: PASS / FAIL / UNKNOWN",
+  "A review call at day 30",
+  "Fourgate Founding Pilot: $300 one-time, invoiced after the scope call. Ongoing support after the pilot is optional, by agreement.",
 ];
 
 const requirements = [
@@ -72,8 +67,8 @@ export default function DesignPartnerPage() {
         title="Prove your agent's writes land, on one workflow, with us."
         intro={
           <p>
-            A pilot is founder-assisted and starts in shadow mode, so your agent sees nothing different while we prove the
-            contracts. Everything runs on your machines.
+            A pilot is founder-assisted: we write outcome checks for up to three of your state-changing write tools, add them to
+            your CI against a test account you create, and send a fix report with evidence. Everything runs on your machines.
           </p>
         }
       >

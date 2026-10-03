@@ -8,7 +8,7 @@ export const SITE_NAME = "Fourgate";
 export const CONTACT_EMAIL = "hifzabuild.ai@gmail.com";
 /** Scheduling link for a 30-minute scope call. */
 export const BOOKING_URL = "https://cal.com/fourgate/fourgate-scope-call";
-/** Checkout link for the Founding Design Partner plan. Empty: the plan is invoiced after the scope call. */
+/** Checkout link for the Fourgate Founding Pilot. Empty: the pilot is invoiced after the scope call. */
 export const PAYMENT_URL = "";
 /** Product source repository. */
 export const GITHUB_URL = "https://github.com/hifzabuildsai/fourgate";

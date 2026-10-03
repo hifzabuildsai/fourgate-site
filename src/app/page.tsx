@@ -286,8 +286,8 @@ export default function Home() {
         <div className="grid gap-3 md:grid-cols-3">
           {[
             { name: "Open Source", price: "Free", text: "MIT licensed. All six commands. Community support on GitHub." },
-            { name: "Founding Design Partner", price: "$199 a month", text: "One workflow, founder-assisted setup, shadow-mode rollout, weekly review." },
-            { name: "Enterprise", price: "Contact us", text: "More workflows or tools than the design-partner scope." },
+            { name: "Fourgate Founding Pilot", price: "$300 one-time", text: "Founder-assisted setup, outcome checks for up to three write tools in your CI, and a fix report with evidence." },
+            { name: "Enterprise", price: "Contact us", text: "More workflows or tools than the pilot scope." },
           ].map((p, i) => (
             <SpotlightCard key={p.name} trail={i === 1} className="rounded-[14px] border border-line bg-surface p-6">
               <p className="text-small text-muted">{p.name}</p>
