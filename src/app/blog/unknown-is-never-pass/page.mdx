@@ -1,6 +1,7 @@
 import BlogPost from "@/components/blog/BlogPost";
 import { pageMetadata } from "@/lib/metadata";
 import { postBySlug } from "@/content/blog";
+import VerdictExplorer from "@/components/VerdictExplorer";
 
 export const metadata = pageMetadata({
   title: postBySlug("unknown-is-never-pass").title,
@@ -28,6 +29,12 @@ After a connector reports success, Fourgate extracts only the fields a contract 
 - A GitHub 404, by default.
 - A tool result that reports success but gives no record ID where the contract expects one. That is `UNKNOWN / success_without_record_id`.
 - A system of record that cannot be reached. The demo's fifth scene shows this: Fourgate records UNKNOWN, never PASS, and does not block the call.
+
+## Try the combinations
+
+Pick what the tool reported and what the read-back returned. The widget shows the verdict the documentation gives for that combination.
+
+<VerdictExplorer />
 
 ## Why not PASS
 

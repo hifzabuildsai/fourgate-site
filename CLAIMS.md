@@ -221,3 +221,25 @@ number. Extra abbreviations: **SC** = `specs/scan-contract-v1.md`, **OG** = `spe
 | /blog/unknown-is-never-pass | Three outcomes, UNKNOWN cases, scene 5, scan/CI/summary behavior, fail open vs startup, latency | R119–123, R139, R83, R101–102, R214, R281, S37–41, P124–128, H142–144 |
 
 Not in the v0.3.0 source, so omitted: see the "Gaps" list in the pull request description.
+
+## W3: install via PyPI and the VerdictExplorer widget
+
+Same source as W2 (tag `v0.3.0`, abbreviations as above). Widget mappings live in
+`src/content/verdict-explorer.ts`; the id in the first column is its `claim` field.
+
+| Id | Claim | Source |
+|---|---|---|
+| W3-0 | `fourgate` 0.3.0 is on PyPI; `python -m pip install fourgate` is the primary install (git tag and wheel remain as alternatives). The v0.3.0 README says "Fourgate is not on PyPI yet" (R39–40), which is out of date | PyPI project page <https://pypi.org/project/fourgate/> (checked 2026-10-03: latest and only release 0.3.0); install alternatives R33–39 |
+| W3-1 | Success with ID + every expected field matches → PASS / `postcondition_satisfied` | O346, O269 |
+| W3-2 | Record exists, a field differs → FAIL / `field_mismatch` | O347, H28–29 |
+| W3-3 | GET returned a status listed in `missing_statuses` on every attempt → FAIL / `record_missing` | O348, SC49–51 |
+| W3-4 | 404 not listed in `missing_statuses` → UNKNOWN (`readback_unconfirmed`) | SC50–53, O209–211, O349 |
+| W3-5 | 401/403 → UNKNOWN (`readback_unconfirmed`) | S38, O349, O460 |
+| W3-6 | Any other status (429/5xx) → UNKNOWN (`readback_unconfirmed`) | O349 |
+| W3-7 | 200 but an `expected_fields` path is absent → UNKNOWN / `readback_shape_invalid` | O356 |
+| W3-8 | Network failure or read-back budget exhausted → UNKNOWN / `readback_error`, `readback_timeout` | O357 |
+| W3-9 | Success without `isError` but no record ID → UNKNOWN / `success_without_record_id`, zero read-back attempts, does not prove whether a write occurred | SC75–77, O350, R21 |
+| W3-10 | `isError: true` or JSON-RPC error → UNKNOWN / `not_success_result`; Fourgate verifies results after a connector reports success | O351, O298–299, R117 |
+| W3-11 | scan exit code 0 only when every case is PASS, 1 for any FAIL or UNKNOWN; UNKNOWN never counted as PASS | SC79–80, R83 |
+| W3-12 | Under `guard`, a failing or timed-out verifier is recorded as `verifier_error` / `verifier_timeout` and the call goes through | H161–164, P126–128 |
+| Post 1 table | Five-row field record, identical wording to the home page `evidence` list (`src/app/page.tsx`) | R9–23, R266–275 |
