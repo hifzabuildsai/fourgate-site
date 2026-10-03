@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   images: { unoptimized: true },
 };
 
-const withMDX = createMDX({});
+// Plugins are named by string so they work with Turbopack.
+const withMDX = createMDX({
+  options: { remarkPlugins: ["remark-gfm"] },
+});
 
 export default withMDX(nextConfig);

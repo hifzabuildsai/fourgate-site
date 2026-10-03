@@ -1,0 +1,47 @@
+import BlogPost from "@/components/blog/BlogPost";
+import { pageMetadata } from "@/lib/metadata";
+import { postBySlug } from "@/content/blog";
+
+export const metadata = pageMetadata({
+  title: postBySlug("mcp-servers-field-record").title,
+  description: postBySlug("mcp-servers-field-record").description,
+  path: "/blog/mcp-servers-field-record",
+  noindex: true,
+});
+
+<BlogPost slug="mcp-servers-field-record">
+
+This is the field record as of 2026-10-01, stated the way the [product README](https://github.com/hifzabuildsai/fourgate#field-evidence) states it. The numbers are small.
+
+## What we tested
+
+We ran Fourgate against 4 official vendor MCP servers from 4 companies. Each ran locally over stdio against the vendor's live API. We used disposable test accounts or deliberately invalid credentials, so no real data could be changed. We do not name the vendors.
+
+## What we found
+
+| Check | Result |
+|---|---|
+| Servers where a write tool returned an API failure as a successful tool result (no `isError`) | **3 of 4**, each reproduced at least twice, reported upstream |
+| Healthy write verified by independent read-back | 1 server: PASS, with FAIL and UNKNOWN controls behaving as specified |
+| Runtime shadow calls from a real agent client | 2 of 2 PASS |
+| Read-back-proven silent success (reported done, record missing or wrong) | 0 observed so far |
+
+## Why a missing isError matters
+
+An agent reading a tool result without `isError` has no protocol-level signal that the call failed. When a write tool returns an API failure as a normal result, the agent reads it as a success.
+
+Fourgate reports these results as `UNKNOWN / success_without_record_id` rather than PASS. We could not confirm that a record exists, and the result gave us no ID to look for. We did not report them as FAIL either, because the result alone does not prove whether a write occurred.
+
+We reproduced the behavior at least twice on each of the three servers, and reported each upstream.
+
+## What this does not show
+
+The failures found so far are error-reporting bugs, which Fourgate reports as <code className="code-inline">UNKNOWN / success_without_record_id</code> rather than PASS. One hosted integration does not establish production reliability, and two shadow calls are a smoke test, not production traffic.
+
+We have not observed a naturally occurring silent success: a write reported as done whose record turned out to be missing or wrong. That count is 0, and it comes from a small sample.
+
+## Where the record lives
+
+The README's [Field evidence](https://github.com/hifzabuildsai/fourgate#field-evidence) section holds the full record, including its caveats.
+
+</BlogPost>

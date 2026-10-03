@@ -1,0 +1,97 @@
+import DocPage from "@/components/docs/DocPage";
+import { docMetadata } from "@/lib/metadata";
+
+export const metadata = docMetadata("guides/first-tool");
+
+<DocPage slug="guides/first-tool">
+
+The flow has five steps after the demo: `init` writes the configuration, `doctor` checks it without side effects, `scan` proves it against a disposable test account, `guard` wraps your server in shadow mode, and `summary` turns the log into one page.
+
+<Callout tone="caution" title="Scan performs real writes">
+
+`fourgate scan` calls the write tools named in your contract. Run it only against a disposable test account, with the exact account label confirmation. Fourgate cannot tell whether an account really is a test account. It never selects extra tools from discovery, and it never retries a timed-out write, because the write may already have happened.
+
+</Callout>
+
+## 1. Scaffold with init
+
+```bash
+fourgate init --tool create_issue --test-account disposable-demo \
+  --id-path result.structuredContent.id \
+  --readback-url 'https://api.example.com/issues/{record_id}' \
+  --expect title=title --arg title=FOURGATE-SCAN-TEST \
+  --token-env READBACK_TOKEN --missing-status 404 \
+  -- python your_server.py
+```
+
+`api.example.com` and `your_server.py` are placeholders. `init` writes three files to `./fourgate-config`:
+
+- `readback.json`: the HTTP read-back.
+- `runtime.json`: guard contracts that use `fourgate.verify_http`.
+- `scan.json`: one scan case with the same read-back.
+
+Use `--dir` to write somewhere else. `init` refuses to overwrite existing files without `--force`. It validates all three files with the same loaders that `scan`, `guard` and `doctor` use, and writes nothing if any check fails. It then prints the next steps with your paths filled in.
+
+No flag takes a secret. Credentials are named by environment variable (`--token-env`, `--username-env`), and the files contain only those names. `init` never reads their values, does not start your server, and does not contact any endpoint.
+
+## 2. Check the setup with doctor
+
+```bash
+fourgate doctor --contracts path/to/contracts.json --log outcomes.jsonl -- python your_server.py
+```
+
+`doctor` takes the same arguments as `guard`. It checks the contracts, each verifier (for `fourgate.verify_http`: its read-back config, URL rules, budget and failure reasons), that credential variables are set and withheld from the server, the outcome log location, and, when you give a server command after `--`, that the server answers `initialize` and `tools/list` and advertises every protected tool.
+
+It never sends `tools/call`, never runs a verifier, never makes a network request, and never creates or modifies a file. So it cannot confirm that the read credential is valid or read-only, or that the read-back endpoint is reachable. When it starts your server, that is only for `initialize` and `tools/list`; whatever the server does by itself at start-up is outside Fourgate's control.
+
+It exits 0 when the setup is ready for shadow mode, 1 when it is not, and 2 on a usage error.
+
+## 3. Prove the contract with scan
+
+Set the read credential in the environment variable you named, then run the scan against the disposable account:
+
+```bash
+fourgate scan path/to/scan.json \
+  --confirm-test-account disposable-demo --report-dir ./fourgate-output
+```
+
+The `--confirm-test-account` value must equal the contract's `server.test_account`. The scan validates every case before it launches the server, initializes MCP and lists tools, then calls only the contracted names.
+
+The pilot flow expects two results: a healthy write is PASS, and a deliberate mismatch is FAIL. Reports are written only when you pass `--report-dir`. They include the contracted request, the tool response and the read-back evidence for non-passing cases, after best-effort secret redaction. Review them before sharing. Exit codes are on the [exit codes](/docs/reference/exit-codes) page.
+
+## 4. Wrap the server with guard
+
+```bash
+fourgate guard \
+  --contracts path/to/contracts.json \
+  --mode shadow \
+  --server my-server \
+  --log outcomes.jsonl \
+  -- python your_server.py
+```
+
+Point your MCP client at this command instead of the original server command. The startup summary goes to stderr, so stdout carries only MCP traffic. To uninstall, point the client back at the original command.
+
+In shadow mode the agent sees exactly what it would see without Fourgate, and each protected call appends one structural line to `outcomes.jsonl`. Switch to `--mode enforce` only for human-approved contracts, after shadow traffic is clean.
+
+If you use the bundled verifier at runtime, `readback.json` is a scan contract `readback` object with a `timeout_ms` of at most 1500. List every read credential variable in `verifier.secret_env`.
+
+### Dry-run the verifier
+
+The guard records an UNKNOWN without saying why. To see the reason, run the verifier by hand from the contract directory, against a record the read credential can already fetch:
+
+```bash
+echo '{"issue_id": "<known test record>", "title": "<persisted value>"}' | python -m fourgate.verify_http readback.json
+```
+
+Expect exit 0 and a PASS. Change one expected value and expect exit 0 and `field_mismatch`. The verifier's stderr names the reason for any non-zero exit, for example `unknown (readback_unconfirmed, attempts 3, GET status 401)`.
+
+## 5. Read the results with summary
+
+```bash
+fourgate summary outcomes.jsonl --out fourgate-summary.html
+```
+
+This turns one or more `outcomes.jsonl` files into a single local HTML page: total protected calls, PASS, FAIL and UNKNOWN by tool and by day, what each reason means, and the latency Fourgate added (median and p95). The page has no JavaScript and makes no network requests. Like the log, it contains structure only: no arguments, record values, response bodies or credentials. The command also prints a one-line text summary; add `--json` for machine-readable output.
+
+</DocPage>

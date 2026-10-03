@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent as Rea
 import ThemeToggle from "./ThemeToggle";
 import Wordmark from "./Wordmark";
 import { externalProps, isExternal } from "@/lib/links";
-import { GITHUB_URL, PRIMARY_CTA, README_URL, VERSION } from "@/site.config";
+import { GITHUB_URL, PRIMARY_CTA, VERSION } from "@/site.config";
 
 type Item = { href: string; label: string; description?: string; external?: boolean };
 
@@ -21,7 +21,7 @@ const productItems: Item[] = [
 const mainItems: Item[] = [
   { href: "/security", label: "Security" },
   { href: "/pricing", label: "Pricing" },
-  ...(README_URL ? [{ href: README_URL, label: "Docs", external: true }] : []),
+  { href: "/docs", label: "Docs" },
   ...(GITHUB_URL ? [{ href: GITHUB_URL, label: "GitHub", external: true }] : []),
 ];
 
@@ -58,7 +58,7 @@ function NavLink({
     );
   }
   return (
-    <Link href={item.href} {...shared} aria-current={pathname === item.href ? "page" : undefined}>
+    <Link href={item.href} {...shared} aria-current={pathname === item.href || pathname.startsWith(`${item.href}/`) ? "page" : undefined}>
       {body}
     </Link>
   );

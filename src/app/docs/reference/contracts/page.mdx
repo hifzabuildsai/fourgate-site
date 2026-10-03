@@ -1,0 +1,104 @@
+import DocPage from "@/components/docs/DocPage";
+import { docMetadata } from "@/lib/metadata";
+
+export const metadata = docMetadata("reference/contracts");
+
+<DocPage slug="reference/contracts">
+
+Two JSON formats matter. The **runtime contract** is read by `fourgate guard` and `fourgate doctor`. The **scan contract** is read by `fourgate scan`, and its cases carry the same extraction and read-back settings. `fourgate init` writes both, plus a standalone `readback.json`.
+
+## Runtime contract
+
+Top level:
+
+| Field | Description |
+|---|---|
+| `contract_version` | `1`. |
+| `tools` | Object keyed by the exact MCP tool name. Only the tools listed here are protected. |
+
+Per tool, under `tools.<name>`:
+
+| Field | Description |
+|---|---|
+| `extract` | An allowlist of named selectors. Only these fields reach the verifier. A missing required selector makes the evaluation UNKNOWN, never FAIL. |
+| `verifier.command` | The verifier as an argument array. `{python}` selects the interpreter that runs Fourgate. |
+| `verifier.cwd` | Working directory, relative to the contract file. |
+| `verifier.timeout_ms` | Mandatory. Capped by Fourgate; the runtime cap is 2000 ms. |
+| `verifier.secret_env` | Optional. Names of environment variables only the verifier may see. `fourgate guard` removes them from the wrapped server's environment (case-insensitively on Windows). A name that is not a valid variable name rejects the contract file. |
+| `allowed_failure_reasons` | Reason codes the verifier may report with a FAIL. Any other verifier output is UNKNOWN. |
+| `recovery` | Copied into the `outcome_failed` verdict. The documented examples use `"stop"`. |
+
+### Selectors
+
+Each entry in `extract` names a source and a path:
+
+| Field | Description |
+|---|---|
+| `source` | `arguments` or `result`. |
+| `path` | A dot path, for example `result.structuredContent.issue_id` or `title`. List indexes are numbers, as in `result.content.0.text`. |
+| `parse` | Optional, for text in `result.content.0.text`: `embedded_json` or `regex`. |
+| `field` | With `embedded_json`: the field to read from the embedded JSON object. |
+| `pattern`, `group` | With `regex`: the pattern (at most 256 characters) and the capture group to return. |
+
+The text read by a text selector is limited to 8192 characters. Configure text selectors for a known test-server response; text alone never confirms delivery or persistence.
+
+```json
+{"source":"result","path":"result.content.0.text","parse":"embedded_json","field":"id"}
+```
+
+### Verifier protocol
+
+The verifier receives only the extracted JSON object on stdin and writes exactly one typed JSON object to stdout:
+
+```json
+{"status":"pass"}
+{"status":"fail","reason_code":"record_missing"}
+```
+
+A verifier may include an `evidence` object with a FAIL. It is available to the local scan report after redaction, and it never enters the runtime verdict or the outcome log.
+
+## Scan contract
+
+| Field | Description |
+|---|---|
+| `scan_version` | Exactly `1`. |
+| `server.transport` | `"stdio"`. |
+| `server.command` | The server command as an array (no shell). It runs with the contract's directory as its working directory. |
+| `server.test_account` | A non-empty label. `--confirm-test-account` must repeat it exactly. |
+| `server.protocol_version` | Optional: `2024-11-05` or `2025-11-25`. |
+| `server.call_timeout_ms` | Optional: 1–10000, default 5000. |
+| `write_tools` | Unique tool names that may be called. |
+| `cases[].tool` | A tool in `write_tools`. |
+| `cases[].arguments` | The exact test arguments. |
+| `cases[].outcome_contract.extract` | Selectors, as above. |
+| `cases[].outcome_contract.record_id_field` | Optional. The extracted field holding the created record's ID. If it is configured and the ID is absent, the verdict is `UNKNOWN / success_without_record_id` with zero read-back attempts. Scan only: at runtime a result without the ID is UNKNOWN. |
+| `cases[].outcome_contract.verifier`, `allowed_failure_reasons`, `recovery` | The command verifier protocol, as above. |
+| `cases[].readback` | Use a `readback` object instead of a command verifier. |
+
+A case is never synthesized from `tools/list`, and no malformed or edge calls are generated.
+
+## Read-back object
+
+`readback.json` is a scan contract `readback` object.
+
+| Field | Documented for | Description |
+|---|---|---|
+| `type` | both | `"http"` or `"github_issue"`. |
+| `url_template` | `http` | A static-host HTTPS URL with `{extracted_name}` placeholders in the path or query. |
+| `expected_fields` | both | Maps a dot path in the response JSON to an extracted field name. |
+| `missing_statuses` | `http` | Optional status codes that count as evidence of absence, for example `[404]`. |
+| `repository` | `github_issue` | A fixed `owner/name`. |
+| `issue_number_field` | `github_issue` | The extracted field that holds the issue number. |
+| `missing_is_fail` | `github_issue` | Default false: a 404 is UNKNOWN. |
+| `token_env` | both | Environment variable name of the read token. |
+| `auth` | `http` | `scheme` (`bearer`, `header` or `basic`) plus `header`, `prefix`, `username`, `username_env`, `token_as` or `password`. See [HTTP read-back authentication](/docs/guides/http-auth). |
+| `headers` | `http` | Fixed, non-secret headers. |
+| `attempts` | both | 1–5. |
+| `interval_ms` | both | 0–2000. |
+| `timeout_ms` | both | Total budget, 1–10000. At most 1500 for `readback.json` used under `guard`. |
+
+HTTPS only off loopback, a static host, and no redirects. The read-back sends GET requests only.
+
+For generic HTTP read-back, an `UNKNOWN / readback_unconfirmed` after an HTTP response carries `evidence.readback.method: "GET"` and the last observed `evidence.readback.status` in the JSON and HTML reports. That evidence does not include response headers, authorization, URL or body, and reporting the status does not change the verdict.
+
+</DocPage>

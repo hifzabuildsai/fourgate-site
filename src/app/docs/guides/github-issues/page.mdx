@@ -1,0 +1,81 @@
+import DocPage from "@/components/docs/DocPage";
+import { docMetadata } from "@/lib/metadata";
+
+export const metadata = docMetadata("guides/github-issues");
+
+<DocPage slug="guides/github-issues">
+
+<Callout title="A template, not a validated integration">
+
+The GitHub Issue contract in the Fourgate repository is a template. It needs a disposable repository, tokens and real end-to-end acceptance before it can run. v0.3.0 does not claim end-to-end GitHub MCP integration, and the template has not been run end to end.
+
+</Callout>
+
+## What the read-back does
+
+`readback.type` set to `github_issue` makes `fourgate scan` read the issue back through GitHub's issue GET API. You supply a fixed repository, the name of the extracted field that holds the issue number, a token variable and the fields to compare.
+
+| Field | Meaning |
+|---|---|
+| `repository` | A fixed `owner/name`. |
+| `issue_number_field` | The extracted field that holds the issue number. |
+| `token_env` | The environment variable that holds the read token. Never the token itself. |
+| `expected_fields` | Which response fields must match which extracted values. |
+| `missing_is_fail` | Defaults to false. See below. |
+| `attempts`, `interval_ms`, `timeout_ms` | Bounded retries of the GET: 1–5 attempts, 0–2000 ms apart, 1–10000 ms in total. |
+
+The read-back sends GET requests only and never retries the write.
+
+## A 404 is UNKNOWN by default
+
+A missing permission and a missing issue can look the same, so a GitHub 404 is UNKNOWN unless you opt in. Set `missing_is_fail: true` only after you have confirmed, independently, that the read-only identity can see the relevant test-account records.
+
+## The template
+
+This is the template as shipped in the repository. Every `REPLACE_WITH_...` value and the server command must be replaced for your own test server.
+
+```json
+{
+  "scan_version": 1,
+  "server": {
+    "transport": "stdio",
+    "command": ["your-mcp-server", "--test-account"],
+    "test_account": "disposable-github-repository",
+    "protocol_version": "2025-11-25",
+    "call_timeout_ms": 5000
+  },
+  "write_tools": ["create_issue"],
+  "cases": [
+    {
+      "tool": "create_issue",
+      "arguments": {
+        "owner": "REPLACE_WITH_TEST_OWNER",
+        "repo": "REPLACE_WITH_TEST_REPO",
+        "title": "FOURGATE DISPOSABLE TEST"
+      },
+      "outcome_contract": {
+        "record_id_field": "number",
+        "extract": {
+          "number": {"source": "result", "path": "result.structuredContent.number"},
+          "title": {"source": "arguments", "path": "title"}
+        }
+      },
+      "readback": {
+        "type": "github_issue",
+        "repository": "REPLACE_WITH_TEST_OWNER/REPLACE_WITH_TEST_REPO",
+        "issue_number_field": "number",
+        "token_env": "FOURGATE_GITHUB_READ_TOKEN",
+        "expected_fields": {"title": "title"},
+        "attempts": 3,
+        "interval_ms": 300,
+        "timeout_ms": 5000,
+        "missing_is_fail": false
+      }
+    }
+  ]
+}
+```
+
+Adapt it to the exact MCP server's command, tool name, argument schema and result selector before running anything. Use a separate read token from the server's write credential, and run it only against a disposable repository.
+
+</DocPage>

@@ -1,0 +1,56 @@
+import BlogPost from "@/components/blog/BlogPost";
+import { pageMetadata } from "@/lib/metadata";
+import { postBySlug } from "@/content/blog";
+
+export const metadata = pageMetadata({
+  title: postBySlug("unknown-is-never-pass").title,
+  description: postBySlug("unknown-is-never-pass").description,
+  path: "/blog/unknown-is-never-pass",
+  noindex: true,
+});
+
+<BlogPost slug="unknown-is-never-pass">
+
+Fourgate checks a write after a tool says it succeeded. The check has three possible answers, and one of them is "we could not tell". This post explains how we treat that third answer, and what it costs.
+
+## Three outcomes
+
+After a connector reports success, Fourgate extracts only the fields a contract approves and runs a deterministic verifier against the system of record. No LLM makes the decision. There are three outcomes:
+
+- **PASS.** The read-back found the record with the contracted values. The connector's response is unchanged.
+- **FAIL.** The read-back proved the record missing or different. In enforce mode, Fourgate prepends one attributed `outcome_failed` verdict to the original response. In shadow mode, the agent sees nothing different and the log records the FAIL.
+- **UNKNOWN.** Fourgate could not confirm either way. The response is unchanged.
+
+## What ends up UNKNOWN
+
+- A verifier crash, timeout, malformed output, missing selector, or a fault inside Fourgate.
+- An HTTP 401 or 403 from the read-back endpoint.
+- A GitHub 404, by default.
+- A tool result that reports success but gives no record ID where the contract expects one. That is `UNKNOWN / success_without_record_id`.
+- A system of record that cannot be reached. The demo's fifth scene shows this: Fourgate records UNKNOWN, never PASS, and does not block the call.
+
+## Why not PASS
+
+PASS is a claim that we checked and the record is there. If we cannot check, we have no basis for that claim. Reporting PASS anyway would turn "we could not look" into "it worked", which is the same mistake as a tool that says "created" when nothing was created.
+
+So UNKNOWN is never counted as PASS, and the tooling around it does not count it either. `fourgate scan` exits 1 on any FAIL or UNKNOWN. The CI template fails the job on both. The summary page counts PASS, FAIL and UNKNOWN separately.
+
+## Why not FAIL
+
+A FAIL changes what the agent sees in enforce mode, so we reserve it for a confirmed result. Take the GitHub case. A missing permission and a missing issue can look the same: both are a 404. If we called that a FAIL, we would be telling an agent that a write did not land when all we know is that we could not read it. So a GitHub 404 is UNKNOWN unless you explicitly opt in, and only after you have confirmed the read-only identity can see the relevant records. A generic HTTP 404 works the same way: it is UNKNOWN unless you list it as a missing status.
+
+## Fail open per call, fail closed at startup
+
+Any per-call problem with Fourgate itself, whether a verifier timeout, a network error or an internal error, is recorded as UNKNOWN and fails open. The call goes through untouched.
+
+Startup is the opposite. If any contract is invalid, `fourgate guard` reports the problem, exits with code 2 and does not launch the server. A bad configuration is caught before any traffic flows. A fault in the middle of a call does not stop it.
+
+## The cost
+
+Fail open has a price, and we would rather state it. A call that ends in UNKNOWN goes through untouched, so a failure we could not confirm still reaches your agent. Fourgate does not claim to catch what it cannot confirm.
+
+Latency makes this concrete. The runtime caps each verifier at 2000 ms and treats a slower check as UNKNOWN. We measured the HTTP verifier at 1.2–1.6 s per call on one Windows laptop, and the first cold call exceeded its budget. On a slow network, expect some UNKNOWN from timeouts.
+
+When you see UNKNOWN, treat it as the verdict to investigate. Run the verifier by hand with a dry run, and its stderr names the reason. The [docs](/docs/guides/first-tool#dry-run-the-verifier) show how.
+
+</BlogPost>
