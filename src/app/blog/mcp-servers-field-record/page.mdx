@@ -11,7 +11,7 @@ export const metadata = pageMetadata({
 
 <BlogPost slug="mcp-servers-field-record">
 
-This is the field record as of 2026-10-01, stated the way the [product README](https://github.com/hifzabuildsai/fourgate#field-evidence) states it. The numbers are small.
+This is the field record as of 2026-10-01, stated the way the home page and the [product README](https://github.com/hifzabuildsai/fourgate#field-evidence) state it. The numbers are small.
 
 ## What we tested
 
@@ -19,12 +19,15 @@ We ran Fourgate against 4 official vendor MCP servers from 4 companies. Each ran
 
 ## What we found
 
-| Check | Result |
+This is the field record exactly as the home page states it, as of 2026-10-01.
+
+| Result | What we observed |
 |---|---|
-| Servers where a write tool returned an API failure as a successful tool result (no `isError`) | **3 of 4**, each reproduced at least twice, reported upstream |
-| Healthy write verified by independent read-back | 1 server: PASS, with FAIL and UNKNOWN controls behaving as specified |
-| Runtime shadow calls from a real agent client | 2 of 2 PASS |
-| Read-back-proven silent success (reported done, record missing or wrong) | 0 observed so far |
+| **4** | official vendor MCP servers tested, run locally against the vendors' live APIs using disposable test accounts or deliberately invalid credentials. |
+| **3 of 4** | surfaced API failures as successful tool results without MCP isError. Each was reproduced at least twice and reported upstream. |
+| **Exercised** | Hosted authoritative read-back: a real hosted write verified PASS by an independent HTTPS read-back, with FAIL and UNKNOWN controls behaving as specified. |
+| **Exercised** | Real-agent shadow calls: a real agent client made 2 protected send calls through the runtime wrap in shadow mode against a hosted MCP server. Both recorded PASS. |
+| **0** | naturally occurring read-back-proven silent-success incidents observed so far: no write reported as done whose record turned out missing or wrong. |
 
 ## Why a missing isError matters
 
