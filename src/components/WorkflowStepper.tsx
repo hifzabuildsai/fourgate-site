@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, LayoutGroup, motion, useMotionValueEvent, useReducedMotion, useScroll } from "motion/react";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import type { WorkflowStep } from "@/content/workflow";
 import { useMediaQuery } from "@/lib/useMediaQuery";
@@ -23,59 +23,64 @@ function colorize(line: string) {
   );
 }
 
-/** Scroll distance per step while the stage is pinned (desktop, motion allowed). */
-const VH_PER_STEP = 60;
+/** Pause before a hovered step is selected, so a diagonal sweep toward the panel doesn't switch steps. */
+const HOVER_INTENT_MS = 120;
 
 /**
- * demo → init → doctor → scan → guard → summary, as an ARIA tablist.
- *
- * Desktop (lg+, motion allowed): a tall wrapper holds a sticky stage; scrolling
- * through it selects steps (about 60vh each) and fills the rail. Hover, focus,
- * click and arrow keys select immediately. The most recent input wins: scroll
- * only moves the selection again when its own step index changes, so it never
- * fights a hover. Below lg or with reduced motion: no pinning; hover, tap and
- * arrow keys select.
+ * demo → init → doctor → scan → guard → summary, as an ARIA tablist in normal
+ * page flow (two columns from lg, stacked below). Hover (mouse only, after a
+ * short intent delay), click/tap, keyboard focus and arrow keys select a step;
+ * leaving the list keeps the current one. The panel has a fixed height, so
+ * nothing shifts between steps; long text scrolls inside it with an edge fade
+ * and hands wheel scrolling back to the page at either end.
  */
 export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
   const [active, setActive] = useState(0);
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
-  const wrapper = useRef<HTMLDivElement>(null);
-  const lastScrollIndex = useRef(0);
   const uid = useId();
   const reduce = useReducedMotion();
   const wide = useMediaQuery("(min-width: 1024px)");
-  const tall = useMediaQuery("(min-height: 520px)");
-  const pinned = wide && tall && !reduce;
   const step = steps[active];
   const panel = useRef<HTMLDivElement>(null);
   const [fade, setFade] = useState(false);
+  const intent = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Pinned stage: the panel scrolls inside itself when its text is taller than the stage; fade the bottom edge while more is below.
+  // Fade the panel's bottom edge while more text is below.
   const measure = useCallback(() => {
     const el = panel.current;
     setFade(Boolean(el) && el!.scrollHeight - el!.clientHeight - el!.scrollTop > 2);
   }, []);
   useEffect(() => {
     const el = panel.current;
-    if (!el || !pinned) return;
+    if (!el) return;
+    el.scrollTop = 0;
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     if (el.firstElementChild) ro.observe(el.firstElementChild);
     measure();
     return () => ro.disconnect();
-  }, [pinned, active, measure]);
+  }, [active, measure]);
+  useEffect(() => () => {
+    if (intent.current) clearTimeout(intent.current);
+  }, []);
 
-  const { scrollYProgress } = useScroll({ target: wrapper, offset: ["start 72px", "end end"] });
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    if (!pinned) return;
-    const index = Math.min(steps.length - 1, Math.max(0, Math.floor(v * steps.length)));
-    if (index !== lastScrollIndex.current) {
-      lastScrollIndex.current = index;
-      setActive(index);
-    }
-  });
+  const pending = useRef(-1);
+  function hover(i: number) {
+    if (pending.current === i) return;
+    cancelHover();
+    pending.current = i;
+    intent.current = setTimeout(() => {
+      pending.current = -1;
+      setActive(i);
+    }, HOVER_INTENT_MS);
+  }
+  function cancelHover() {
+    pending.current = -1;
+    if (intent.current) clearTimeout(intent.current);
+  }
 
   function select(i: number) {
+    cancelHover();
     setActive(i);
   }
 
@@ -98,16 +103,12 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
   const progress = `${(active / (steps.length - 1)) * 100}%`;
   const ease = reduce ? { duration: 0 } : { duration: 0.3, ease: [0.2, 0.7, 0.2, 1] as const };
 
-  const stage = (
-    <div className={`grid gap-6 lg:grid-cols-12 ${pinned ? "h-full content-start" : ""}`}>
+  return (
+    <div className="grid gap-6 lg:grid-cols-12">
       <div className="relative min-w-0 lg:col-span-4 lg:self-start">
-        {/* Rail: on the pinned desktop stage it fills with scroll; otherwise it fills to the selected step. */}
+        {/* Rail: fills to the selected step. */}
         <span aria-hidden="true" className="absolute bottom-5 left-[1.375rem] top-5 hidden w-px bg-line lg:block">
-          {pinned ? (
-            <motion.span className="absolute inset-0 origin-top bg-foreground" style={{ scaleY: scrollYProgress }} />
-          ) : (
-            <motion.span className="absolute inset-x-0 top-0 bg-foreground" initial={false} animate={{ height: progress }} transition={ease} />
-          )}
+          <motion.span className="absolute inset-x-0 top-0 bg-foreground" initial={false} animate={{ height: progress }} transition={ease} />
         </span>
         <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-px bg-line lg:hidden">
           <motion.span className="absolute inset-y-0 left-0 bg-foreground" initial={false} animate={{ width: progress }} transition={ease} />
@@ -135,9 +136,11 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
                   tabIndex={on ? 0 : -1}
                   onClick={() => select(i)}
                   onFocus={() => select(i)}
-                  onPointerEnter={(e) => {
-                    if (e.pointerType === "mouse") select(i);
+                  onPointerMove={(e) => {
+                    // Real mouse movement only: a step sliding under a resting pointer must not override the keyboard.
+                    if (e.pointerType === "mouse" && i !== active) hover(i);
                   }}
+                  onPointerLeave={cancelHover}
                   onKeyDown={onKey}
                   className="group relative flex shrink-0 items-baseline gap-3 rounded-[10px] px-3 py-2.5 text-left lg:shrink"
                 >
@@ -174,9 +177,10 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
         id={`${uid}-panel`}
         aria-labelledby={`${uid}-tab-${step.id}`}
         ref={panel}
-        onScroll={pinned ? measure : undefined}
-        style={pinned && fade ? { maskImage: "linear-gradient(to bottom, #000 calc(100% - 2.5rem), transparent)" } : undefined}
-        className={`relative min-w-0 lg:col-span-8 ${pinned ? "fg-scroll max-h-[calc(100vh-6rem)] overflow-y-auto" : "min-h-[40rem]"}`}
+        tabIndex={0}
+        onScroll={measure}
+        style={fade ? { maskImage: "linear-gradient(to bottom, #000 calc(100% - 2.5rem), transparent)" } : undefined}
+        className="fg-scroll relative h-[34rem] min-w-0 overflow-y-auto overscroll-auto lg:col-span-8"
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
@@ -197,11 +201,8 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
                   {step.outputNote && <span className="truncate text-cap text-muted">{step.outputNote}</span>}
                 </div>
                 <pre
-                  tabIndex={0}
                   aria-label={`Output of fourgate ${step.name}`}
-                  className={`fg-scroll overflow-auto bg-code p-4 font-mono text-[0.75rem] leading-[1.7] text-foreground ${
-                    pinned ? "" : "max-h-[26rem]"
-                  }`}
+                  className="bg-code p-4 font-mono text-[0.75rem] leading-[1.7] text-foreground"
                 >
                   {step.output.split("\n").map((line, i) => (
                     <span key={i} className="block min-h-[1lh] whitespace-pre-wrap [overflow-wrap:anywhere]" style={hangStyle(line)}>
@@ -227,17 +228,6 @@ export default function WorkflowStepper({ steps }: { steps: WorkflowStep[] }) {
           </motion.div>
         </AnimatePresence>
       </div>
-    </div>
-  );
-
-  return (
-    <div
-      ref={wrapper}
-      data-pinned={pinned ? "true" : "false"}
-      className="relative"
-      style={pinned ? { height: `calc(${steps.length * VH_PER_STEP}vh + 100vh - 8rem)` } : undefined}
-    >
-      {pinned ? <div className="sticky top-[4.5rem] h-[calc(100vh-6rem)]">{stage}</div> : stage}
     </div>
   );
 }
