@@ -1,0 +1,71 @@
+import DocPage from "@/components/docs/DocPage";
+import { docMetadata } from "@/lib/metadata";
+
+export const metadata = docMetadata("quickstart");
+
+<DocPage slug="quickstart">
+
+## Install
+
+Fourgate v0.3.0 needs Python 3.10–3.13 on Linux or Windows. Install the release from its tag:
+
+```bash
+python -m pip install "git+https://github.com/hifzabuildsai/fourgate@v0.3.0"
+```
+
+The built wheel is also attached to the [v0.3.0 GitHub Release](https://github.com/hifzabuildsai/fourgate/releases/tag/v0.3.0). Install it with `python -m pip install fourgate-0.3.0-py3-none-any.whl`.
+
+Check the install:
+
+```bash
+fourgate --version
+```
+
+To install from a clean checkout of the repository instead, run `python -m pip install .` in it. The bundled fixture used further down needs the checkout.
+
+## Run the demo
+
+```bash
+fourgate demo
+```
+
+One command, no API keys, no network. It runs five real MCP sessions against a demo connector, the guarded ones through a real `fourgate guard` process, then a self-check and a local summary page at `./fourgate-demo/fourgate-demo-summary.html`. Add `--pace 2` to slow it down for screen recording.
+
+The connector is simulated: a local file stands in for the system of record. The five sessions:
+
+1. **Without Fourgate.** The broken connector returns `Created ISSUE-001`, but the system of record has 0 issues.
+2. **Enforce mode, broken connector.** The agent receives an `[FOURGATE]` `outcome_failed` verdict (`record_missing`) first, with the original `Created ISSUE-001` preserved behind it.
+3. **Enforce mode, healthy connector.** The issue exists, the response passes through unchanged, and the log records PASS.
+4. **Shadow mode, broken connector.** The agent receives exactly what it got without Fourgate. The log still records FAIL with `record_missing`.
+5. **Enforce mode, system of record unreachable.** Fourgate cannot confirm either way, records UNKNOWN (never PASS), and does not block the call.
+
+You can step through a recorded run on the [demo page](/demo) and open the [sample summary page](/sample-report.html) it wrote.
+
+## What PASS, FAIL and UNKNOWN mean
+
+| Verdict | Meaning | What the agent receives |
+|---|---|---|
+| <V s="PASS" /> | The independent read-back found the record with the contracted values. | The connector response, unchanged. |
+| <V s="FAIL" /> | The read-back proved the record missing (`record_missing`) or different (`field_mismatch`). | In shadow mode, nothing different. In enforce mode, one attributed `outcome_failed` verdict ahead of the connector's original content. |
+| <V s="UNKNOWN" /> | Fourgate could not confirm either way: a verifier crash, timeout, malformed output, missing selector, or an internal fault. | The connector response, unchanged. Fourgate fails open. |
+
+**UNKNOWN is never counted as PASS.** `fourgate scan` exits non-zero on it. See [why UNKNOWN is never PASS](/docs/concepts#why-unknown-is-never-pass).
+
+## Optional: scan the bundled fixture
+
+This needs a checkout of the repository, because the fixture lives there. `fourgate scan` calls the write tools named in a contract, so it must only ever run against a disposable test account. Here the target is a local demo server, and the account label is `disposable-demo`.
+
+```bash
+export FOURGATE_DEMO_STORE="$(mktemp -d)/issues.json"
+export FOURGATE_DEMO_MODE=broken
+fourgate scan fixtures/contracts/scan_demo.json \
+  --confirm-test-account disposable-demo --report-dir ./fourgate-output
+```
+
+The expected result is `FAIL / record_missing` with exit code 1, and a `fourgate-report.json` plus a self-contained `fourgate-report.html` in `./fourgate-output`. Set `FOURGATE_DEMO_MODE=healthy` and rerun with a fresh store path to see PASS and exit code 0. PowerShell syntax is on the [Windows notes](/docs/guides/windows) page.
+
+## Next
+
+[Protect your first tool](/docs/guides/first-tool) walks the same flow against your own MCP server: `init`, `doctor`, `scan`, `guard`, `summary`.
+
+</DocPage>

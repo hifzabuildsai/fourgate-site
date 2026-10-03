@@ -1,0 +1,42 @@
+import DocPage from "@/components/docs/DocPage";
+import { docMetadata } from "@/lib/metadata";
+
+export const metadata = docMetadata("reference/exit-codes");
+
+<DocPage slug="reference/exit-codes">
+
+## fourgate scan
+
+| Code | Meaning |
+|---|---|
+| `0` | Every case is PASS. |
+| `1` | Any FAIL or UNKNOWN. UNKNOWN is never counted as PASS. |
+| `2` | Invalid configuration. The operator guide also lists a server command that could not be launched, and the engineering handoff lists report I/O errors. |
+
+The CI template relies on this: any non-zero exit fails the job. With the bundled fixture, `FOURGATE_DEMO_MODE=broken` exits 1 and `healthy` exits 0.
+
+## fourgate doctor
+
+| Code | Meaning |
+|---|---|
+| `0` | The setup is ready for shadow mode. |
+| `1` | The setup is not ready. |
+| `2` | Usage error. |
+
+## fourgate guard
+
+| Code | Meaning |
+|---|---|
+| `2` | One or more contracts are invalid at startup. The server is not started. |
+
+Per-call faults do not change the exit code. They are recorded as UNKNOWN and fail open. The v0.3.0 documentation does not state other exit codes for `guard`.
+
+## python -m fourgate.verify_http
+
+A confirmed result prints `{"status":"pass"}` or `{"status":"fail","reason_code":"..."}`. Any uncertainty prints nothing and exits non-zero, which the runtime records as UNKNOWN (`verifier_error`). During a dry run, a confirmed PASS and a confirmed `field_mismatch` both exit 0.
+
+## Other commands
+
+The v0.3.0 documentation does not state exit codes for `fourgate init`, `fourgate demo` or `fourgate summary`, so this page does not either.
+
+</DocPage>

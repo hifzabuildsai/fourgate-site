@@ -1,0 +1,55 @@
+import DocPage from "@/components/docs/DocPage";
+import { docMetadata } from "@/lib/metadata";
+
+export const metadata = docMetadata("guides/http-auth");
+
+<DocPage slug="guides/http-auth">
+
+HTTP read-back sends a GET request to the endpoint in `readback.url_template`. By default it carries the read token as `Authorization: Bearer`. The `readback.auth` object selects a different style. The token itself always comes from the environment variable named in `token_env`, never from the JSON file.
+
+## Choose the scheme
+
+Match `readback.auth` to what the vendor's API documentation shows:
+
+| Vendor docs show | `readback.auth` |
+|---|---|
+| `Authorization: Bearer <key>` | Leave it out, or `{"scheme": "bearer"}` |
+| `X-Api-Key: <key>` (any custom header) | `{"scheme": "header", "header": "X-Api-Key"}` |
+| `Authorization: Token <key>` (another prefix) | `{"scheme": "header", "header": "Authorization", "prefix": "Token "}` |
+| Basic auth, key as password, fixed user | `{"scheme": "basic", "username": "api"}` |
+| Basic auth, key as password, account user | `{"scheme": "basic", "username_env": "FOURGATE_READBACK_USER"}` |
+| Basic auth, key as username | `{"scheme": "basic", "token_as": "username"}` (add `"password": "X"` if the docs use a filler) |
+
+An illustrative read-back object that combines the fields above. The host and path are placeholders.
+
+```json
+{
+  "type": "http",
+  "url_template": "https://api.example.com/items/{record_id}",
+  "token_env": "READBACK_TOKEN",
+  "auth": {"scheme": "header", "header": "X-Api-Key"},
+  "headers": {"Api-Version": "2024-01-01"},
+  "expected_fields": {"subject": "title"},
+  "timeout_ms": 1500
+}
+```
+
+`expected_fields` maps a dot-separated path in the GET response JSON to an extracted field name. List indexes are numbers, for example `data.0.name`.
+
+## Static headers
+
+If the API needs fixed, non-secret headers such as an API version, put them in `readback.headers`. Header names that look like credentials (`Authorization`, `*-Key`, `*Token*`, `Cookie` and similar) are rejected there, and so are transport header names. A token can only come from an environment variable.
+
+## Keep the credential away from the server
+
+List every read credential variable in `verifier.secret_env`: `token_env`, and `auth.username_env` if you use it. `fourgate guard` removes those variables from the wrapped server's environment while the verifier still receives them. Use separate variable names for the server's write credential and Fourgate's read credential, and a least-privilege read token where the provider permits it.
+
+## Rules that apply to every scheme
+
+- The host must be fixed and HTTPS. Only the path or query can use `{extracted_name}` placeholders. Plain HTTP is allowed only on loopback.
+- Redirects are rejected, so a token cannot follow one to another host.
+- An HTTP 401 or 403 is UNKNOWN, not FAIL. It usually means the read key is wrong, expired, lacks scope, or `readback.auth` does not match the vendor's style.
+- A 404 stays UNKNOWN unless you add it to `missing_statuses`. Add it only after confirming the read-back key can fetch a record you created by hand.
+- When the verifier runs under `guard`, `timeout_ms` must be at most 1500.
+
+</DocPage>

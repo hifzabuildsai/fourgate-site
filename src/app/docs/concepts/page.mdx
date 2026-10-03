@@ -1,0 +1,109 @@
+import DocPage from "@/components/docs/DocPage";
+import { docMetadata } from "@/lib/metadata";
+
+export const metadata = docMetadata("concepts");
+
+<DocPage slug="concepts">
+
+## Outcome contracts
+
+Fourgate protects only the tools a contract file names. A tool with no contract gets no verification and no verdict.
+
+A contract entry for a tool states four things:
+
+- **What to extract.** A named allowlist of fields, each selected from the call's `arguments` or its `result` by a dot path. Only these fields leave the intercepted call.
+- **How to verify.** A verifier command. It receives the extracted JSON object on stdin and prints exactly one typed JSON object: `{"status":"pass"}` or `{"status":"fail","reason_code":"..."}`.
+- **Which failures it may report.** `allowed_failure_reasons` lists the approved reason codes. A verifier answer with any other reason is UNKNOWN, never FAIL.
+- **A time budget.** `timeout_ms` is mandatory and capped by Fourgate. The runtime caps each verifier at 2000 ms.
+
+```json
+{
+  "contract_version": 1,
+  "tools": {
+    "create_issue": {
+      "extract": {
+        "issue_id": {"source": "result", "path": "result.structuredContent.issue_id"},
+        "title": {"source": "arguments", "path": "title"}
+      },
+      "verifier": {
+        "command": ["{python}", "-m", "fourgate.verify_http", "readback.json"],
+        "cwd": ".",
+        "timeout_ms": 2000,
+        "secret_env": ["READBACK_TOKEN"]
+      },
+      "allowed_failure_reasons": ["field_mismatch"],
+      "recovery": "stop"
+    }
+  }
+}
+```
+
+Contract files are trusted operator configuration. An LLM may draft one, but a person must approve it before runtime use. In v0.3.0 contracts are hand-authored; generating them is not implemented. Every field is listed in the [contract reference](/docs/reference/contracts).
+
+## Read-back verification
+
+After a connector reports success, Fourgate does not take the report at its word. It extracts the contract-approved fields and asks the system of record whether the write happened.
+
+The bundled verifier, `fourgate.verify_http`, does this with a bounded HTTP GET to the endpoint you configure. It runs the same read-back as `fourgate scan`. It never writes, deletes, or retries a write.
+
+- **PASS** needs a matching authoritative response.
+- **FAIL** needs a confirmed mismatch, or a missing-record status that you explicitly approved as evidence of absence.
+- **UNKNOWN** is everything else.
+
+The verifier uses a separate, read-only credential that you create. When you list its variable name in `verifier.secret_env`, `fourgate guard` removes it from the wrapped MCP server's environment, so the server under test cannot see or use it. The decision is deterministic: no LLM makes the PASS/FAIL call.
+
+Fourgate matches each result to its call by JSON-RPC id, so interleaved calls never bind to the wrong arguments.
+
+## Shadow and enforce mode
+
+| | Shadow (the default) | Enforce |
+|---|---|---|
+| Verifier runs | Yes | Yes |
+| What is recorded | Structural verdict metadata | Structural verdict metadata |
+| PASS | Response unchanged | Response unchanged |
+| UNKNOWN | Response unchanged | Response unchanged |
+| FAIL | Response unchanged | One `outcome_failed` verdict is prepended to the original content |
+
+In shadow mode your agent receives exactly the same bytes it would receive without Fourgate. In enforce mode the only change is on a confirmed FAIL: Fourgate adds one verdict with four top-level keys (`kind`, `tool`, `evidence`, `recovery`) and keeps the connector's original content behind it. The evidence is structural only: no argument values, record IDs, customer data or credentials.
+
+```json
+{
+  "kind": "outcome_failed",
+  "tool": "demo/create_issue",
+  "evidence": {
+    "reason_code": "record_missing",
+    "checked_fields": ["issue_id", "title"]
+  },
+  "recovery": "stop"
+}
+```
+
+Switch to `--mode enforce` only for contracts a person has approved, and only after shadow traffic is clean.
+
+## Invalid contracts stop startup; per-call faults fail open
+
+Fourgate fails in two different directions, on purpose.
+
+**At startup it fails closed.** `fourgate guard` validates the contracts first. If any is invalid, it reports the problem, exits with code 2 and does not launch the server.
+
+**Per call it fails open.** A verifier timeout, crash, non-zero exit, malformed output, unapproved reason code, selector failure, network error or internal Fourgate error never creates an `outcome_failed` verdict and never blocks the original result. The call goes through untouched and is recorded as UNKNOWN. An outer safety guard bounds even an internal hang.
+
+The split follows from what each failure means. A broken configuration is something you can fix before any traffic flows. A fault in the middle of an agent's call is not a reason to stop the agent.
+
+## Why UNKNOWN is never PASS
+
+UNKNOWN means Fourgate could not confirm the outcome either way. Reporting it as PASS would turn "we could not check" into "it worked", which is the exact mistake Fourgate exists to catch.
+
+Cases the documentation treats as UNKNOWN:
+
+- A verifier crash, timeout, malformed output, missing selector or internal fault.
+- An HTTP 401 or 403 from the read-back endpoint.
+- A GitHub 404, by default, because missing access and a missing record can look alike. Treating it as FAIL is an explicit opt-in, and only after you confirm the read-only identity can see the relevant records.
+- A generic HTTP 404 unless you listed it in `missing_statuses`.
+- A tool result that reports success but has no record ID where the contract expects one: `UNKNOWN / success_without_record_id`. This does not prove whether a write occurred.
+
+UNKNOWN is also never treated as success downstream. `fourgate scan` exits 1 on it, and the [CI template](/docs/guides/ci) fails the job on any FAIL or UNKNOWN. The summary page counts PASS, FAIL and UNKNOWN separately.
+
+Fail-open is the cost. Because an UNKNOWN call goes through untouched, a failure Fourgate could not confirm still reaches your agent. Fourgate does not claim to catch what it cannot confirm.
+
+</DocPage>

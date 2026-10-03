@@ -1,0 +1,33 @@
+import DocPage from "@/components/docs/DocPage";
+import { docMetadata } from "@/lib/metadata";
+
+export const metadata = docMetadata("");
+
+<DocPage slug="">
+
+Fourgate catches MCP tools that say "success" when nothing actually happened. It is early, pre-alpha software. These pages describe **v0.3.0** and nothing newer.
+
+After a connector reports success, Fourgate extracts only the fields a contract approves, runs a deterministic verifier against the system of record, and records one of three outcomes: <V s="PASS" />, <V s="FAIL" /> or <V s="UNKNOWN" />. No LLM makes that decision.
+
+## Where to start
+
+- [Quickstart](/docs/quickstart): install, run `fourgate demo`, and read the three verdicts.
+- [Concepts](/docs/concepts): outcome contracts, read-back verification, shadow and enforce mode, failure behavior, and why UNKNOWN is never PASS.
+- [Protect your first tool](/docs/guides/first-tool): `init`, `doctor`, `scan`, `guard`, `summary`, in that order.
+- [Reference](/docs/reference/commands): commands and flags, contract JSON, the outcome log, and exit codes.
+- [Security summary](/docs/security): what runs where, what is stored, and what leaves your machine.
+
+## What v0.3.0 covers
+
+- Command-configured local stdio MCP servers only. Remote (HTTP) MCP servers are not supported yet.
+- Contracts are written by hand and approved by a person. Generating them is not implemented.
+- The bundled verifier, `fourgate.verify_http`, is a generic HTTP GET read-back. There are no database adapters.
+- There is no dashboard, alerting product, gateway, retry engine or automatic compensation.
+
+<Callout title="How these docs are sourced">
+
+Every product claim here comes from the product repository at tag `v0.3.0`: its README, SECURITY.md and PILOT.md, plus the specs and guides those files link to. Each page lists its sources at the bottom. Where the v0.3.0 documentation does not cover a topic, these pages leave it out rather than guess.
+
+</Callout>
+
+</DocPage>

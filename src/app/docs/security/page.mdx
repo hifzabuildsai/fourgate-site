@@ -1,0 +1,47 @@
+import DocPage from "@/components/docs/DocPage";
+import { docMetadata } from "@/lib/metadata";
+import { PILOT_MD_URL, SECURITY_MD_URL } from "@/site.config";
+
+export const metadata = docMetadata("security");
+
+<DocPage slug="security">
+
+This is a summary. The full treatment is on the [security page](/security), which includes the data-flow diagram and every file Fourgate writes, and in the product repository's <a href={SECURITY_MD_URL}>SECURITY.md</a> and <a href={PILOT_MD_URL}>PILOT.md</a>.
+
+## What runs where
+
+- Fourgate runs entirely on your machines: a laptop, a server or your CI. There is no Fourgate cloud service, account, database, telemetry or Fourgate-hosted endpoint, and nothing is uploaded.
+- `fourgate guard` is a local process between your agent and your MCP server. It forwards the call unchanged and extracts only the contracted fields.
+- The only new network traffic Fourgate adds is the verifier's GET request to the read-back endpoint you configure. It never writes, deletes or retries a write.
+- Your MCP server keeps making its own outbound requests. So "nothing leaves the machine" is true only for a fully local setup such as the demo, not once HTTP read-back is configured.
+
+## What is stored
+
+| File | Contains | Never contains |
+|---|---|---|
+| Runtime contract | Tool names, fields to extract, the verifier command, environment variable names | Credentials, customer data |
+| Read-back config | The GET URL template, expected fields, status rules, the environment variable name of the read token | The token itself |
+| Outcome log | Per protected call: time, server label, tool, mode, PASS, FAIL or UNKNOWN, reason code, names of checked fields, time added | Arguments, field values, record IDs, response bodies, credentials |
+| Summary page | Counts and charts built from the outcome log | The same exclusions; no JavaScript, no network requests |
+| Scan reports | Only with `--report-dir`: the contracted request, tool response and read-back evidence for non-passing cases | Redaction is best effort. Review before sharing |
+
+## Credentials
+
+- Fourgate never stores credentials. You set them as environment variables; contracts, logs and the summary page contain only the variable names.
+- The MCP server keeps its own write credential. The verifier uses a separate, read-only credential that you create. Listing it in `verifier.secret_env` removes it from the server's environment.
+- Use a least-privilege read token where the provider permits it. Never put a credential in a contract file or chat, and do not commit generated reports, tokens or customer data.
+- A local command verifier inherits the operator's environment, so only trusted verifier commands belong in contracts.
+
+## Read-back safety
+
+HTTP read-back rejects dynamic hosts, non-HTTPS URLs outside loopback, and redirects. A 401 or 403 is UNKNOWN. A GitHub 404 is UNKNOWN by default.
+
+## Scan executes writes
+
+`fourgate scan` calls the contracted write tools. Run it only against disposable test accounts. Reports redact named secret fields, recognized token patterns and secret-looking environment values before output, but an arbitrary secret in an unmarked text field may remain. On POSIX, files are created with mode 0600.
+
+## Failure behavior
+
+An invalid contract stops startup. Per-call faults are UNKNOWN and fail open. Shadow mode leaves the agent's bytes unchanged. See [Concepts](/docs/concepts#invalid-contracts-stop-startup-per-call-faults-fail-open).
+
+</DocPage>

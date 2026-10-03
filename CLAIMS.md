@@ -157,3 +157,67 @@ the site.
 | `src/content/fourgate-init-output.txt`, `fourgate-doctor-output.txt` | `fourgate init` (README R157 flags) and `fourgate doctor --contracts fourgate-config/runtime.json --server server --log outcomes.jsonl -- python -m fourgate.demo.server`, fourgate 0.3.0, run in `C:g-example` with `READBACK_TOKEN` set to a dummy value, 2026-10-02, both exit 0. Unedited apart from CRLF line endings. |
 | `src/content/init-example/*.json` | `fourgate init` 0.3.0 run with the flags in R157 |
 | Pricing: Open Source free; Fourgate Founding Pilot $300 one-time and its inclusions (founder-assisted setup, outcome contracts for up to three write tools, CI job via a pull request you merge, PASS / FAIL / UNKNOWN fix report with evidence, day-30 review call), invoiced after the scope call (no online checkout); nothing renews automatically; ongoing support optional, by agreement; Enterprise by contact; free short evaluation | Commercial terms set by the founder for this site (home teaser, /pricing card, comparison, FAQ "What happens after the pilot?", /design-partner "What you get"). These are offers, not product claims. The CI job rests on the CI template (R105–122; fails on FAIL or UNKNOWN, not yet run against a hosted connector); checks run against a test account you create (S3–7). No refund, subscription or ongoing-support terms are offered. |
+
+## W2: docs and blog (product repository tag v0.3.0)
+
+Sources for this section are files in [hifzabuildsai/fourgate](https://github.com/hifzabuildsai/fourgate)
+at tag `v0.3.0` (commit `f8a03f9`). **Line numbers here refer to that tag**, not to the
+`1d7b900` commit used by the sections above, so the same README line can have a different
+number. Extra abbreviations: **SC** = `specs/scan-contract-v1.md`, **OG** = `specs/outcome-guard-mvp.md`,
+**H** = `HANDOFF.md`, **O** = `OPERATOR.md`, **CI** = `examples/ci/fourgate-scan.yml`,
+**GH** = `fixtures/contracts/scan_github_issue.example.json`.
+
+| Page | Claim | Source |
+|---|---|---|
+| /docs | Catches MCP tools that say success when nothing happened; pre-alpha; v0.3.0 | R3, R5 |
+| /docs | Local stdio only; hand-authored contracts; `verify_http` generic GET, no database adapters; no dashboard, alerting, gateway, retry, compensation | R279–283, P144–145 |
+| /docs/quickstart | Python 3.10–3.13, Linux or Windows; git install from tag; wheel on the release; `fourgate --version`; `pip install .` from checkout | R31–47 |
+| /docs/quickstart | `fourgate demo`: no keys, no network, five real MCP sessions, guarded through real `fourgate guard`, self-check, summary at `./fourgate-demo/fourgate-demo-summary.html`; `--pace 2`; the five scenes; simulated connector | R133–141 |
+| /docs/quickstart | Fixture scan commands; expected `FAIL / record_missing`, exit 1; healthy exit 0; reports written | R62–86 |
+| /docs/quickstart, /docs/concepts | PASS unchanged; FAIL prepends `outcome_failed` in enforce; UNKNOWN (crash, timeout, malformed output, missing selector, internal fault) fails open, unchanged; UNKNOWN never PASS | R119–123, R83, R139 |
+| /docs/concepts | Only contracted tools protected; extract allowlist; verifier stdin/stdout protocol; `allowed_failure_reasons`; mandatory capped `timeout_ms` (cap 2000 ms) | OG26, OG49–55, OG103–107, OG121 |
+| /docs/concepts | Contract example JSON | R185–205 |
+| /docs/concepts | LLM may draft contracts, a human must approve; generation not implemented | OG56, R279 |
+| /docs/concepts | Deterministic read-back, no LLM; `verify_http` is the scan's bounded GET; GET only, never writes, deletes or retries a write | R117, R178–181, P88–90 |
+| /docs/concepts | PASS needs matching authoritative response; FAIL = confirmed mismatch or operator-approved missing status; other uncertainty UNKNOWN | H26–30 |
+| /docs/concepts | Separate read-only credential; `secret_env` removed from server env | P105–115, R181–183, OG57 |
+| /docs/concepts | Correlation by JSON-RPC id | OG61–63, OG135 |
+| /docs/concepts | Shadow default, unchanged bytes; enforce changes only on confirmed FAIL; four-key verdict; example; structural evidence only; enforce after clean shadow traffic | R125, P61–63, OG65–97, OG113, R176 |
+| /docs/concepts | Invalid contracts: guard exits 2, server not launched; per-call faults UNKNOWN, fail open; outer guard bounds an internal hang | R176, P124–128, OG115, OG134 |
+| /docs/concepts | UNKNOWN cases: 401/403; GitHub 404 by default (missing access and missing record look alike); generic 404 only if `missing_statuses`; `success_without_record_id` does not prove whether a write occurred | S37–41, SC51–58, SC74–77 |
+| /docs/concepts | scan exits 1 on UNKNOWN; CI fails on FAIL or UNKNOWN; summary counts PASS/FAIL/UNKNOWN | R83, R101–102, R214 |
+| /docs/guides/first-tool | scan performs real writes, disposable accounts, label confirmation, no extra tools, no retry of a timed-out write | S3–7, R88, SC1–6 |
+| /docs/guides/first-tool | init command, three files, `--dir`, `--force`, validation, next steps, no secrets, never reads values, never starts server or contacts endpoint | R148–153 |
+| /docs/guides/first-tool | doctor command, checks, exit 0/1/2, never sends tools/call or makes requests, limits | R158–164 |
+| /docs/guides/first-tool | scan validates before launching, lists tools, calls only contracted names; reports only with `--report-dir`; healthy PASS / deliberate mismatch FAIL | SC71–73, S28–32, P135–136 |
+| /docs/guides/first-tool | guard command; stderr summary; point client at the wrapper / back at original | R168–176, H145, P102–103 |
+| /docs/guides/first-tool | `readback.json` `timeout_ms` ≤ 1500; list read credentials in `secret_env` | R220–225 |
+| /docs/guides/first-tool | Verifier dry run and stderr example | H134–144 |
+| /docs/guides/first-tool | summary command and contents; `--json` | R210–218 |
+| /docs/guides/http-auth | Bearer default; header, prefix and Basic variants (table) | R220–225, O183–202 |
+| /docs/guides/http-auth | Static non-secret `headers`; credential-looking and transport names rejected; `expected_fields` dot paths; 404 stays UNKNOWN unless `missing_statuses` | S16–18, O204–211, O213–228 |
+| /docs/guides/http-auth | HTTPS off loopback only, static host, no redirects, 401/403 UNKNOWN; least-privilege read token | S37–38, SC48–62, S43 |
+| /docs/guides/github-issues | Template needs disposable repo, tokens, e2e acceptance; not validated e2e | R93–94, SC8–11, SC82–84, H180 |
+| /docs/guides/github-issues | `github_issue` fields, attempts/interval/timeout ranges, GET only; 404 UNKNOWN, `missing_is_fail` | SC54–62 |
+| /docs/guides/github-issues | Template JSON | GH 1–39 |
+| /docs/guides/ci | What the workflow does; edit points; two secrets; real writes; private repo; own CI against demo fixture; not run against a hosted connector | R98–113 |
+| /docs/guides/ci | Workflow text; triggers, concurrency, exit codes, advice against `pull_request` | CI 1–100 |
+| /docs/guides/windows | Windows and Linux, Python 3.10–3.13; PowerShell fixture scan | R31, R72–78, P152 |
+| /docs/guides/windows | Operator guide is PowerShell 5.1; credential prompt, `setx` warning, redaction by variable name | O1–6, O107–137 |
+| /docs/guides/windows | BOM error and .NET save; blocked scripts/executables on the author's machine | O230–247, O454, O44–54 |
+| /docs/guides/windows | POSIX 0600, Windows ACL; case-insensitive `secret_env` on Windows; 1.2–1.6 s measured on one Windows laptop | S33–35, OG57, R281, H185–187 |
+| /docs/reference/commands | Command list and purposes | R49–58 |
+| /docs/reference/commands | Flags: `--pace 2` (R133); init flags (R148–153); doctor (R158–164); scan (R68–70, S28–29, SC3–6); guard (R168–176); summary (R210–218); `verify_http` (R178–180, H98–106); legacy `wrap.py` flags (H149, OG65–66) | as listed |
+| /docs/reference/contracts | Runtime contract fields, selectors, verifier protocol, `evidence` on FAIL | OG28–57, SC30–44, O174–179, H91–94, H120–133 |
+| /docs/reference/contracts | Scan contract fields and ranges | SC13–29, SC71–80 |
+| /docs/reference/contracts | Read-back object fields and ranges; `readback_unconfirmed` evidence | SC46–69, O195–208, R220–225 |
+| /docs/reference/outcome-log | Log contents and exclusions; one line per call; `status`, `reason_code`, `gate_ms` | P98, H157–167 |
+| /docs/reference/outcome-log | `outcome_failed` four keys and example | OG83–97, OG113 |
+| /docs/reference/outcome-log | Reason codes and meanings | O344–358, H159–164, R21, SC75–77 |
+| /docs/reference/exit-codes | scan 0/1/2 (+ launch failure, report I/O); doctor 0/1/2; guard 2; verify_http | SC79–80, R80–86, O321–323, H58–60, R161, R176, H103–106, H139–141 |
+| /docs/security | Runs on your machines; no telemetry; GET only; nothing-leaves caveat; what is stored; credentials; read-back safety; scan writes; redaction; 0600 | P54–63, P88–115, S1–45 |
+| /blog/mcp-servers-field-record | 4 vendor servers from 4 companies, local stdio, live APIs, disposable accounts or invalid credentials; results table; no `isError` signal; `UNKNOWN / success_without_record_id`; vendors not named; 0 read-back-proven silent success | R9–23, R266–275 |
+| /blog/mcp-servers-field-record | Honest-limits paragraph | Verbatim copy of the home-page evidence paragraph (`src/app/page.tsx`) |
+| /blog/unknown-is-never-pass | Three outcomes, UNKNOWN cases, scene 5, scan/CI/summary behavior, fail open vs startup, latency | R119–123, R139, R83, R101–102, R214, R281, S37–41, P124–128, H142–144 |
+
+Not in the v0.3.0 source, so omitted: see the "Gaps" list in the pull request description.

@@ -1,0 +1,74 @@
+import DocPage from "@/components/docs/DocPage";
+import { docMetadata } from "@/lib/metadata";
+
+export const metadata = docMetadata("guides/windows");
+
+<DocPage slug="guides/windows">
+
+Fourgate v0.3.0 supports Windows and Linux, on Python 3.10–3.13. The repository's operator guide is written for Windows PowerShell 5.1. This page collects what the v0.3.0 documentation says about Windows. Anything it does not cover is left out.
+
+## Scan the bundled fixture in PowerShell
+
+The same fixture scan as the [Quickstart](/docs/quickstart#optional-scan-the-bundled-fixture), with PowerShell syntax:
+
+```powershell
+$env:FOURGATE_DEMO_STORE = "$env:TEMP\fourgate-demo-issues.json"
+$env:FOURGATE_DEMO_MODE = "broken"
+fourgate scan fixtures/contracts/scan_demo.json --confirm-test-account disposable-demo --report-dir ./fourgate-output
+```
+
+The expected result is `FAIL / record_missing` with exit code 1. Set `FOURGATE_DEMO_MODE` to `healthy` and use a fresh store path to see PASS and exit code 0.
+
+## Set credentials without echoing them
+
+Set a key in the current PowerShell window only. This prompt does not echo the value:
+
+```powershell
+$s = Read-Host "Read-back key" -AsSecureString
+$env:FOURGATE_READBACK_TOKEN = [System.Net.NetworkCredential]::new("", $s).Password
+Remove-Variable s
+```
+
+Check that it is set by printing True or False, never the value:
+
+```powershell
+[bool]$env:FOURGATE_READBACK_TOKEN
+```
+
+The operator guide warns against two habits. Never use `setx` or the System Properties dialog, because they save the key permanently to the registry and every future program inherits it. Never type `$env:NAME` on its own, because it prints the key. When you are done, remove the variable with `Remove-Item Env:FOURGATE_READBACK_TOKEN`, or close the window.
+
+Report redaction replaces the values of environment variables whose name contains `token`, `secret`, `password`, `api_key` or `apikey`, `authorization`, `cookie` or `credential`. A variable whose name contains none of these is not redacted automatically.
+
+## Save contract files without a BOM
+
+PowerShell 5.1's `Out-File` and `Set-Content -Encoding utf8` add a byte order mark, which makes a contract invalid. The error reads `scan configuration error: Unexpected UTF-8 BOM`. Save with .NET instead, using a full path:
+
+```powershell
+$json = @'
+{
+  "scan_version": 1,
+  ...paste the whole edited contract here...
+}
+'@
+[IO.File]::WriteAllText("C:\path\to\contract.json", $json)
+```
+
+The closing `'@` must start at column 0. Notepad also works if it saves as "UTF-8", not "UTF-8 with BOM".
+
+## When PowerShell blocks scripts or executables
+
+The operator guide was written on a machine where PowerShell blocks `.ps1` scripts and Application Control blocks some `.exe` launchers. There it calls the virtual environment's interpreter directly instead of `fourgate.exe`, for example `.venv\Scripts\python.exe -m fourgate scan ...`. If your machine has the same restrictions, the same approach applies. If it does not, ignore this.
+
+## File permissions
+
+On POSIX, files are created with mode 0600. On Windows, account-level file permissions depend on the directory ACL, so check the permissions of the directory you write Fourgate's files into.
+
+## Environment variables and `secret_env`
+
+On Windows, the names in `verifier.secret_env` are matched case-insensitively when `fourgate guard` removes them from the wrapped server's environment.
+
+## Latency
+
+Measured on one Windows laptop, the HTTP verifier took 1.2–1.6 s per call (Python start, TLS and the GET), and the first cold call exceeded the 1.5 s read-back budget. The runtime caps each check at 2000 ms, so headroom is small on slow networks. A check that runs out of time is UNKNOWN and fails open.
+
+</DocPage>

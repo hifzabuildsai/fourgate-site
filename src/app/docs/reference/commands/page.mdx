@@ -1,0 +1,131 @@
+import DocPage from "@/components/docs/DocPage";
+import { docMetadata } from "@/lib/metadata";
+
+export const metadata = docMetadata("reference/commands");
+
+<DocPage slug="reference/commands">
+
+This page lists the commands and the flags that the v0.3.0 documentation describes. A flag that appears only in an example, with no explanation, is listed as such rather than guessed at. Exit codes are on [their own page](/docs/reference/exit-codes).
+
+| Command | Purpose |
+|---|---|
+| `fourgate demo` | See it work: local, simulated, no keys, no network. |
+| `fourgate init` | Write scan, runtime and read-back configs for one write tool. |
+| `fourgate doctor` | Check the setup without side effects. |
+| `fourgate scan` | Run contracted writes against a disposable test account. |
+| `fourgate guard` | Wrap the server at runtime (shadow first, then enforce). |
+| `fourgate summary` | Turn `outcomes.jsonl` into a local HTML page. |
+
+`fourgate --version` prints the installed version.
+
+## fourgate demo
+
+```bash
+fourgate demo
+```
+
+| Flag | Description |
+|---|---|
+| `--pace 2` | Slows the demo down for screen recording. |
+
+Writes a local summary page to `./fourgate-demo/fourgate-demo-summary.html`.
+
+## fourgate init
+
+```bash
+fourgate init --tool create_issue --test-account disposable-demo \
+  --id-path result.structuredContent.id \
+  --readback-url 'https://api.example.com/issues/{record_id}' \
+  --expect title=title --arg title=FOURGATE-SCAN-TEST \
+  --token-env READBACK_TOKEN --missing-status 404 \
+  -- python your_server.py
+```
+
+| Flag | Description |
+|---|---|
+| `--dir` | Output directory. The default is `./fourgate-config`. |
+| `--force` | Overwrite existing files. Without it, `init` refuses to overwrite. |
+| `--token-env` | Names the environment variable that holds the read credential. |
+| `--username-env` | Names a credential environment variable, like `--token-env`. The files contain only the name. |
+| `-- <server command>` | The server command, after `--`. |
+
+The README example also uses `--tool`, `--test-account`, `--id-path`, `--readback-url`, `--expect`, `--arg` and `--missing-status`, and does not describe them individually.
+
+`init` writes `readback.json`, `runtime.json` and `scan.json`, validates all three with the loaders that `scan`, `guard` and `doctor` use, and writes nothing if any check fails. No flag takes a secret. It never reads credential values, does not start the server and does not contact any endpoint.
+
+## fourgate doctor
+
+```bash
+fourgate doctor --contracts path/to/contracts.json --log outcomes.jsonl -- python your_server.py
+```
+
+Takes the same arguments as `guard`. It checks the contracts, each verifier, that credential variables are set and withheld from the server, the outcome log location, and, when a server command follows `--`, that the server answers `initialize` and `tools/list` and advertises every protected tool.
+
+It never sends `tools/call`, never runs a verifier, never makes a network request, and never creates or modifies a file.
+
+## fourgate scan
+
+```bash
+fourgate scan fixtures/contracts/scan_demo.json \
+  --confirm-test-account disposable-demo --report-dir ./fourgate-output
+```
+
+| Argument | Description |
+|---|---|
+| Contract path | The scan contract JSON file. |
+| `--confirm-test-account` | Required. Must repeat the contract's `server.test_account` label exactly. It is an operator safety gate, not a sandbox. |
+| `--report-dir` | Writes `fourgate-report.json` and `fourgate-report.html` into this directory. Reports are written only when it is set. |
+
+## fourgate guard
+
+```bash
+fourgate guard \
+  --contracts path/to/contracts.json \
+  --mode shadow \
+  --server my-server \
+  --log outcomes.jsonl \
+  -- python your_server.py
+```
+
+| Flag | Description |
+|---|---|
+| `--contracts` | The runtime contract file. It is validated at startup. |
+| `--mode` | `shadow` (the default) or `enforce`. Use `enforce` only for human-approved contracts after shadow traffic is clean. |
+| `--log` | The outcome log path. |
+| `--server` | Shown in the README example as `my-server`. The README does not describe it individually. |
+| `-- <server command>` | The server command, after `--`. |
+
+The startup summary goes to stderr, so stdout carries only MCP traffic.
+
+## fourgate summary
+
+```bash
+fourgate summary outcomes.jsonl --out fourgate-summary.html
+```
+
+| Argument | Description |
+|---|---|
+| `outcomes.jsonl` | One or more outcome logs, combined into a single page. |
+| `--out` | The HTML file to write. |
+| `--json` | Print machine-readable output instead of the one-line text summary. |
+
+## python -m fourgate.verify_http
+
+```bash
+python -m fourgate.verify_http readback.json
+```
+
+A runtime verifier command. It reads the extracted fields from stdin and runs the same bounded GET as `fourgate scan`, using the read-back config in the file. A confirmed result prints `{"status":"pass"}` or `{"status":"fail","reason_code":"field_mismatch"}` (or `record_missing`) with structural evidence. Any uncertainty prints nothing and exits non-zero, which the runtime records as UNKNOWN (`verifier_error`).
+
+## Legacy runtime wrapper
+
+`python wrap/wrap.py` with its existing flags remains supported for existing setups. The flags that the documentation shows:
+
+| Flag | Description |
+|---|---|
+| `--outcome-contracts` | The runtime contract file. |
+| `--outcome-mode` | `shadow` (the default) or `enforce`. |
+| `--outcome-log` | The outcome log path. |
+| `--server-label` | Takes a label, as in `--server-label <label>`. The outcome log records a server label. |
+
+</DocPage>

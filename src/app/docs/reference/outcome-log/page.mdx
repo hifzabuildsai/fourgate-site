@@ -1,0 +1,79 @@
+import DocPage from "@/components/docs/DocPage";
+import { docMetadata } from "@/lib/metadata";
+
+export const metadata = docMetadata("reference/outcome-log");
+
+<DocPage slug="reference/outcome-log">
+
+## The outcome log
+
+`outcomes.jsonl` lives at a path you choose. In runtime use, each protected call appends one structural line. The log is for structure only. It never contains arguments, field values, record IDs, response bodies or credentials.
+
+What each line records:
+
+| Item | Notes |
+|---|---|
+| Time | When the call was checked. |
+| Server label | The label you gave the wrapped server. |
+| Tool name | The protected tool. |
+| Mode | Shadow or enforce. |
+| `status` | The verdict, written as `pass`, `fail` or `unknown`. |
+| `reason_code` | The reason, for example `postcondition_satisfied`. |
+| Checked field names | The names of the extracted fields, never their values. |
+| `gate_ms` | The time Fourgate added to the call. |
+
+The v0.3.0 documentation names three of these keys: `status`, `reason_code` and `gate_ms`. It describes the others without giving their JSON key names, so this page does too.
+
+`fourgate summary` renders one or more of these logs as a single local page. See [Protect your first tool](/docs/guides/first-tool#5-read-the-results-with-summary).
+
+## The outcome_failed verdict
+
+In enforce mode, a confirmed FAIL prepends one verdict to the connector's original content. It has exactly four top-level keys:
+
+| Key | Description |
+|---|---|
+| `kind` | `outcome_failed`. |
+| `tool` | The fully qualified tool, for example `demo/create_issue`. |
+| `evidence` | Structural facts only, such as `reason_code` and `checked_fields`. |
+| `recovery` | Taken from the approved contract. |
+
+The original `content`, `structuredContent` and other useful result fields stay behind the verdict.
+
+## Reason codes
+
+Verdicts appear as a status and a reason code, written `STATUS / reason_code`. These are the codes the v0.3.0 documentation lists.
+
+### PASS
+
+| Reason code | Meaning |
+|---|---|
+| `postcondition_satisfied` | The independent GET found the record and every `expected_fields` value matched. |
+
+### FAIL
+
+| Reason code | Meaning |
+|---|---|
+| `record_missing` | The GET returned a status you listed in `missing_statuses` on every attempt. |
+| `field_mismatch` | The record exists, but a field differs. The scan report's `mismatched_fields` shows expected and observed values. |
+
+### UNKNOWN
+
+| Reason code | Meaning |
+|---|---|
+| `success_without_record_id` | The tool result had no `isError`, but the ID selector found no ID. No read-back was attempted. |
+| `not_success_result` | The tool result had `isError: true`, or a JSON-RPC error. |
+| `readback_unconfirmed` | The GET returned another status. `evidence.readback.status` holds the number. |
+| `readback_shape_invalid` | The GET returned 200, but an `expected_fields` path is absent. |
+| `readback_error`, `readback_timeout` | A network failure, or the read-back time budget ran out. |
+| `required_field_missing` | An extract selector other than the ID found nothing. |
+| `credential_missing` | `token_env` is not set. No write was sent. |
+| `tool_not_discovered` | The server's tool list does not contain that name. No write was sent. |
+| `RuntimeError` | With tool `null`: the server failed to start, initialize or list tools. |
+| `TimeoutError` | The call exceeded `call_timeout_ms` and the scan stopped. The write may have happened. |
+| `verifier_error` | At runtime, a verifier error. For `fourgate.verify_http`, any uncertainty (401/403, an unconfigured status, a timeout, a missing credential, invalid config or input) prints nothing, exits non-zero and is recorded as this. A dry run shows the cause. |
+| `verifier_timeout` | At runtime, the 2000 ms budget was exceeded. |
+| `verifier_malformed` | At runtime, the verifier answered with a reason code that is not allowed. |
+
+An UNKNOWN is never a FAIL and never a PASS. After a timed-out write, check the account by hand before any rerun.
+
+</DocPage>
