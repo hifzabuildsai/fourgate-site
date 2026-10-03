@@ -64,7 +64,7 @@ export default function DesignPartnerPage() {
         as="h1"
         layout="stack"
         rule={false}
-        title="Prove your agent's writes land, on one workflow, with us."
+        title="Prove your agent's writes land, on up to three write tools, with us."
         intro={
           <p>
             A pilot is founder-assisted: we write outcome checks for up to three of your state-changing write tools, add them to
@@ -133,7 +133,7 @@ export default function DesignPartnerPage() {
         </div>
       </Section>
 
-      <CtaBand title="Ready when you are." text={<p>Bring one workflow and the API that can confirm its writes.</p>}>
+      <CtaBand title="Ready when you are." text={<p>Bring up to three write tools and the API that can confirm their writes.</p>}>
         <Ctas />
       </CtaBand>
     </>
