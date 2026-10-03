@@ -1,0 +1,37 @@
+fourgate doctor 0.3.0
+  contracts: C:\fg-example\fourgate-config\runtime.json
+  server label: server
+  mode: shadow
+  target: python (+2 args)
+
+Contract
+  [ OK ] contracts valid; protected tools: create_issue
+
+Verifier: create_issue
+  [ OK ] bundled HTTP verifier; read-back config readback.json is valid (type http)
+  [ OK ] HTTPS read-back to a static host
+  [ OK ] redirects are never followed (built in)
+  [ OK ] read-back budget 1500 ms (3 attempt(s), 250 ms apart) fits the 2000 ms verifier timeout
+  [ OK ] record_missing handling matches allowed_failure_reasons
+
+Credentials
+  [ OK ] READBACK_TOKEN is set
+  [ OK ] create_issue: READBACK_TOKEN is withheld from the MCP server
+  [INFO] Fourgate cannot verify the read credential is read-only or valid (doctor makes no network requests)
+  [INFO] the verifier process inherits the full environment, including the server's own credentials
+
+MCP server
+  [ OK ] handshake: initialize and tools/list answered
+  [ OK ] create_issue is advertised by the server
+
+Mode and log
+  [ OK ] shadow: responses are never modified
+  [ OK ] outcome log C:\fg-example\outcomes.jsonl can be created (directory is writable)
+
+Write safety
+  [ OK ] Fourgate never re-sends a tools/call (no automatic write retries)
+  [ OK ] create_issue: read-back retries are GET only (attempts: 3)
+
+Fourgate sent no tools/call, ran no verifier, made no network request and wrote no file.
+The server was started only for initialize and tools/list, then stopped. Anything the server does on its own at start-up is outside Fourgate's control.
+Verdict: READY FOR SHADOW (0 warning(s))

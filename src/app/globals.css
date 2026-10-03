@@ -1,63 +1,281 @@
 @import "tailwindcss";
 
+/* next-themes toggles the `dark` class on <html>; default follows the system. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  Fourgate tokens (W1.2). Geist-style grayscale in two themes.
+  Verdict colors carry verdict meaning only: PASS, FAIL, UNKNOWN. Each has a
+  per-theme shade, checked for WCAG AA (>= 4.9:1) on background and surface.
+  The blue accent is for links and focus only.
+*/
 :root {
-  --color-bg: #0a0b0d;
-  --color-surface: #111318;
-  --color-surface-2: #171a20;
-  --color-border: #22262e;
-  --color-border-soft: #1a1d24;
-  --color-text: #e9e7e2;
-  --color-muted: #7d8590;
-  --color-muted-2: #565c66;
-  --color-gold: #d9a441;
-  --color-gold-dim: #7a5f2c;
-  --color-pass: #4ade80;
-  --color-fail: #f2545b;
-  --color-warn: #f2a93b;
+  --background: #ffffff;
+  --surface: #fafafa;
+  --raised: #f2f2f2;
+  --code: #f7f7f7;
+  --line: #eaeaea;
+  --line-strong: #d4d4d4;
+  --foreground: #171717;
+  --muted: #666666;
+  --accent: #0062d1;
+  --pass: #0f7a3d;
+  --fail: #cb2a2f;
+  --unknown: #9a5700;
+  color-scheme: light;
+}
+
+.dark {
+  --background: #000000;
+  --surface: #0a0a0a;
+  --raised: #161616;
+  --code: #0a0a0a;
+  --line: #262626;
+  --line-strong: #3d3d3d;
+  --foreground: #ededed;
+  --muted: #a1a1a1;
+  --accent: #52a8ff;
+  --pass: #3fcf7f;
+  --fail: #ff6166;
+  --unknown: #f5a524;
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-bg: var(--color-bg);
-  --color-surface: var(--color-surface);
-  --color-surface-2: var(--color-surface-2);
-  --color-border: var(--color-border);
-  --color-border-soft: var(--color-border-soft);
-  --color-text: var(--color-text);
-  --color-muted: var(--color-muted);
-  --color-muted-2: var(--color-muted-2);
-  --color-gold: var(--color-gold);
-  --color-gold-dim: var(--color-gold-dim);
-  --color-pass: var(--color-pass);
-  --color-fail: var(--color-fail);
-  --color-warn: var(--color-warn);
-  --font-mono: var(--font-jetbrains-mono);
-  --font-sans: var(--font-inter);
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-code: var(--code);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-pass: var(--pass);
+  --color-fail: var(--fail);
+  --color-unknown: var(--unknown);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Type scale after the classic sequence in The Elements of Typographic Style. */
+  --text-cap: 0.75rem;
+  --text-cap--line-height: 1.4;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.6;
+  --text-body: 1rem;
+  --text-body--line-height: 1.65;
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.6;
+  --text-h4: 1.3125rem;
+  --text-h4--line-height: 1.3;
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.25;
+  --text-h2: 2rem;
+  --text-h2--line-height: 1.15;
+  --text-h1: 2.75rem;
+  --text-h1--line-height: 1.08;
+}
+
+html {
+  /* Equals the sticky header (3.5rem). Any larger and Next treats a page whose first section sits just below the header as off-screen, and scrolls past it after navigating to it. */
+  scroll-padding-top: 3.5rem;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-text);
+  background: var(--background);
+  color: var(--foreground);
 }
 
-@keyframes drift-a {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(60px, 40px) scale(1.12); }
+/* Headings: Geist, tight tracking. */
+.font-display {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.035em;
 }
-@keyframes drift-b {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-50px, 60px) scale(0.9); }
-}
-@keyframes blink {
-  50% { opacity: 0; }
-}
-.animate-drift-a { animation: drift-a 22s ease-in-out infinite; }
-.animate-drift-b { animation: drift-b 26s ease-in-out infinite; }
-.animate-drift-a-rev { animation: drift-a 30s ease-in-out infinite reverse; }
-.animate-blink { animation: blink 1s step-end infinite; }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-drift-a, .animate-drift-b, .animate-drift-a-rev, .animate-blink {
-    animation: none !important;
+/* Terminal output and code read exactly as printed: no ligatures. */
+pre, code, kbd, samp, .font-mono {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+/* Focus rings are for keyboard navigation only: a mouse or touch click leaves no box. */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+a, button, summary, [role="tab"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+/* Text links */
+.link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  text-underline-offset: 4px;
+}
+.link:hover { text-decoration-color: var(--accent); }
+
+/* Long-form text */
+.prose-fg { max-width: 68ch; }
+.prose-fg p + p { margin-top: 0.875rem; }
+.prose-fg a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  text-underline-offset: 3px;
+}
+.prose-fg a:hover { text-decoration-color: var(--accent); }
+
+/* Inline code */
+.code-inline,
+.prose-fg code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  color: var(--foreground);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+/* Thin scrollbars inside panels */
+.fg-scroll { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+
+/* ---------- Interaction primitives (all user-triggered) ---------- */
+
+/* Button light sweep on hover/focus */
+.fg-sweep { position: relative; overflow: hidden; isolation: isolate; }
+.fg-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--background) 22%, transparent) 50%, transparent 70%);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fg-sweep:hover::after,
+  .fg-sweep:focus-visible::after {
+    transform: translateX(120%);
+    transition: transform 650ms ease;
   }
 }
 
+/* Cursor-following spotlight on a card border (vars set by SpotlightCard) */
+.fg-spot { position: relative; }
+.fg-spot::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--foreground) 55%, transparent), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+.fg-spot:hover::before,
+.fg-spot:focus-within::before { opacity: 1; }
+
+/* Featured plan: a slow border trail, only while hovered */
+@property --fg-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.fg-trail { position: relative; }
+.fg-trail::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--fg-angle), transparent 0deg, var(--foreground) 40deg, transparent 90deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+}
+.fg-trail:hover::after,
+.fg-trail:focus-within::after { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .fg-trail:hover::after,
+  .fg-trail:focus-within::after { animation: fg-spin 4s linear infinite; }
+}
+@keyframes fg-spin { to { --fg-angle: 360deg; } }
+
+/* Flowing dashes on highlighted diagram edges (hover/focus only) */
+.fg-flow { stroke-dasharray: 6 6; }
+@media (prefers-reduced-motion: no-preference) {
+  .fg-flow { animation: fg-dash 700ms linear infinite; }
+}
+@keyframes fg-dash { to { stroke-dashoffset: -12; } }
+
+/* Theme toggle sun/moon morph */
+.fg-theme-icon .sun-core { transition: r 300ms ease; }
+.fg-theme-icon .sun-rays { transition: opacity 250ms ease, transform 300ms ease; transform-origin: 12px 12px; }
+.fg-theme-icon .moon-cut { transition: cx 300ms ease, cy 300ms ease; }
+.dark .fg-theme-icon .sun-core { r: 8px; }
+.dark .fg-theme-icon .sun-rays { opacity: 0; transform: rotate(45deg) scale(0.6); }
+.dark .fg-theme-icon .moon-cut { cx: 17px; cy: 7px; }
+@media (prefers-reduced-motion: reduce) {
+  .fg-theme-icon * { transition: none !important; }
+}
+
+/* Gate icon: a dot travels on hover/focus of the row (VerdictRow) */
+.fg-gate-dot { transform: translateX(0); }
+@media (prefers-reduced-motion: no-preference) {
+  .group:hover .fg-gate-dot[data-kind="pass"],
+  .group:focus-visible .fg-gate-dot[data-kind="pass"] { animation: fg-dot-pass 900ms ease forwards; }
+  .group:hover .fg-gate-dot[data-kind="fail"],
+  .group:focus-visible .fg-gate-dot[data-kind="fail"] { animation: fg-dot-fail 900ms ease forwards; }
+  .group:hover .fg-gate-dot[data-kind="unknown"],
+  .group:focus-visible .fg-gate-dot[data-kind="unknown"] { animation: fg-dot-unknown 900ms ease forwards; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .group:hover .fg-gate-dot[data-kind="pass"], .group:focus-visible .fg-gate-dot[data-kind="pass"] { transform: translateX(34px); }
+  .group:hover .fg-gate-dot[data-kind="fail"], .group:focus-visible .fg-gate-dot[data-kind="fail"] { transform: translate(21px, 8px); }
+  .group:hover .fg-gate-dot[data-kind="unknown"], .group:focus-visible .fg-gate-dot[data-kind="unknown"] { transform: translateX(21px); }
+}
+@keyframes fg-dot-pass { to { transform: translateX(34px); } }
+@keyframes fg-dot-fail { 60% { transform: translate(21px, 0); } to { transform: translate(21px, 8px); opacity: 0.9; } }
+@keyframes fg-dot-unknown { 70% { transform: translateX(21px); } to { transform: translateX(21px); opacity: 0.45; } }
+
+/* Entrance (Reveal, evidence rows): hidden only once the head script has marked <html class="js">. */
+.js .fg-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) var(--rv-delay, 0s), transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) var(--rv-delay, 0s);
+}
+.js .fg-reveal[data-in] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .js .fg-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

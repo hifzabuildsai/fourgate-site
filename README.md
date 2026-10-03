@@ -1,9 +1,14 @@
-# Fourgate — landing site
+# Fourgate website
 
-Next.js 15 (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion.
+The public site for [Fourgate](https://github.com/hifzabuildsai/fourgate): independent
+outcome verification for consequential AI-agent actions.
 
-The marketing/demo site for [Fourgate](https://github.com/hifzabuildsai/fourgate), the MCP
-connector preflight checker.
+Next.js 16 (App Router, static export) + TypeScript + Tailwind CSS v4, Geist Sans and
+Geist Mono, light and dark themes (`next-themes`, default: system). The hero uses three.js
+through React Three Fiber; user-triggered interactions use `motion`. MDX is configured for
+future docs and posts. No backend, no API routes, no forms that submit, no analytics, no
+cookies, and no third-party fonts or scripts at runtime (fonts are self-hosted by
+`next/font` at build time).
 
 ## Run locally
 
@@ -12,42 +17,138 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
-## Deploy
-
-Push this to its own GitHub repo, then import it at [vercel.com/new](https://vercel.com/new) —
-Vercel detects Next.js automatically, no config needed. Or from the CLI:
+Open http://localhost:3000.
 
 ```bash
-npm i -g vercel
-vercel
+npm run build       # static export to ./out
+npm run lint
+npm run check:hero  # headless check of the hero's packet rules
 ```
+
+## Configure
+
+All links and contact details live in [`src/site.config.ts`](src/site.config.ts):
+`CONTACT_EMAIL`, `BOOKING_URL`, `PAYMENT_URL`, `GITHUB_URL`, `PYPI_URL`,
+`DEMO_VIDEO_URL`, `LINKEDIN_URL`, `X_URL`. Leave a value empty and the CTA or link that
+uses it is hidden. The primary call to action everywhere is "Book a 30-minute scope call"
+(`BOOKING_URL`, opens in a new tab); the secondary is email (`CONTACT_EMAIL`).
+`PAYMENT_URL` is empty on purpose: the Founding Design Partner plan is invoiced after the
+scope call. External links open in a new tab with `rel="noopener noreferrer"`
+(`src/lib/links.ts`). `DEMO_VIDEO_URL` renders inline for a self-hosted `.mp4`/`.webm`, and as
+a plain link otherwise (no third-party embeds).
+
+## Pages
+
+| Route | Content |
+|---|---|
+| `/` | Four-gates hero, problem, verdict simulator, data flow, wrap-your-server toggle, workflow stepper, why, field evidence, pricing, FAQ |
+| `/demo` | Verdict simulator, full demo output, run-it-yourself commands, optional video, the real sample report in a frame |
+| `/integrations` | What works today, wrap-your-server toggle, a generated configuration example, what is not supported yet |
+| `/security` | Interactive data-flow diagram, what is stored, credential isolation, read-back safety, failure semantics, audit links |
+| `/pricing` | Open Source, Founding Design Partner, Enterprise; comparison; pricing FAQ |
+| `/design-partner` | The pilot process, what you get, requirements and limits |
+| `/privacy` | No cookies, no analytics |
+| `/sample-report.html` | The demo's summary page, unchanged |
 
 ## What's real vs. illustrative
 
-- The **terminal report** in the hero replays the *actual* captured output of running
-  `checker/preflight.py` against the two fixture servers in the main
-  [fourgate repo](https://github.com/hifzabuildsai/fourgate) — not fabricated.
-- The **scrolling ledger** and the **comparison table** are labeled honestly in the UI: the
-  ledger cycles through real check *types*, not live usage data (there is no usage data yet),
-  and the comparison table reflects the actual research done on MCP Inspector and MCPTrust.
-- No "backed by" badge, no fake metrics. Don't add either until they're true.
+- **Verdict simulator, workflow "demo" step, `/demo` output**: the output of
+  `fourgate demo --pace 0` from fourgate 0.3.0 installed from PyPI into a fresh virtual
+  environment (Windows 11, Python 3.14.6, 2026-10-02, exit 0), stored in
+  `src/content/fourgate-demo-output.txt`. One edit was made, and the site says so
+  ("paths shortened"): the two absolute local paths in the closing summary became
+  `./fourgate-demo/...`. `src/content/demo.ts` fails the build unless (a) those two lines
+  are exactly the shortened ones, (b) every other byte hashes to the SHA-256 of the
+  original run, and (c) the scene split re-joins losslessly. Every panel in the simulator
+  is a line from that file. Only the five recorded connector/mode combinations can be
+  selected; the rest are disabled as "not part of the recorded demo". The demo itself is
+  simulated: a simulated connector, and a local file as the system of record.
+- **Workflow stepper**: `init` and `doctor` show exact output captured with fourgate
+  0.3.0 (`src/content/fourgate-init-output.txt`, `fourgate-doctor-output.txt`), run in a
+  neutral folder `C:\fg-example`. doctor ran against the files init wrote, with the
+  bundled demo server standing in and `READBACK_TOKEN` set to a dummy value. `scan`,
+  `guard` and `summary` have no captured output on the site: they show the README's
+  commands and the README's own description of the result, labeled as such.
+- **Sample report (`public/sample-report.html`)**: the demo run's
+  `fourgate-demo-summary.html`, byte-identical (`.gitattributes` disables line-ending
+  conversion). Its numbers are demo numbers, not customer traffic.
+- **Configuration example (`/integrations`)**: generated by `fourgate init` with the
+  README's example flags. `api.example.com` and `your_server.py` are placeholders.
+- **Wrap-your-server toggle**: an illustrative MCP client entry. The wrapped command uses
+  the exact `fourgate guard` flags from the README; the file name and shape depend on
+  the client.
+- **Hero scene (four gates)**: an illustration of the verdict rules, not data. Packets
+  are tool calls. UNKNOWN (amber) happens at gate 1 (the tool returned an error,
+  `not_success_result`) and gate 2 (a contracted field or record ID is missing), where the
+  call drops, and at gate 3 (read-back unreachable), where it stops and fades. FAIL (red)
+  happens only at gate 3 (record missing or different). Only PASS (green) ever crosses
+  gate 4; `src/components/hero/simulation.ts` enforces this on every step (it throws in
+  development). The mix (60% PASS, 20% FAIL, 20% UNKNOWN) is a fixed illustrative
+  sequence, not measured. `npm run check:hero` runs the real simulation for 10 simulated
+  minutes and asserts the gate rules, the mix, and that all three outcomes (with 2 to 3
+  red packets) are on screen in every frame.
+- **Field evidence (home)**: copied from the product README's results table and field
+  evidence section (as of 2026-10-01), with its caveats. Vendors are not named.
+- **Diagrams**: drawn from the data-flow diagram in the product's `PILOT.md`; the
+  original ASCII version is shown on `/security`. The node details on `/security` are
+  PILOT.md's "What is stored" and "Credentials" text.
+- **Pricing**: commercial terms set by the founder. These are offers, not product claims.
+- No logos, testimonials, customer counts, certifications, metrics or "backed by" badges.
+  Don't add any until they are true and sourced.
+
+Every product claim is mapped to its source file and line in [`CLAIMS.md`](CLAIMS.md).
 
 ## Structure
 
 ```
 src/
-  app/
-    layout.tsx      fonts + metadata
-    page.tsx         assembles all sections
-    globals.css      design tokens (Tailwind v4 @theme)
+  site.config.ts           links and contact details (empty = hidden)
+  mdx-components.tsx       required by @next/mdx
+  app/                     one folder per route; sitemap.ts, robots.ts, icon.svg
   components/
-    BackgroundMesh.tsx   drifting blobs + grid
-    Nav.tsx
-    Hero.tsx             terminal replay + scroll parallax
-    Ledger.tsx           scrolling check ticker
-    Gates.tsx            four invariants, staggered reveal
-    Compare.tsx          honest comparison table
-    WhyCtaFooter.tsx      why / CTA / footer
+    hero/                  HeroScene (picks 3D or static), GateScene (R3F), StaticGates (SVG)
+    VerdictSimulator.tsx   connector x mode, driven by the demo capture
+    WrapToggle.tsx         before/after MCP client entry
+    WorkflowStepper.tsx    demo -> init -> doctor -> scan -> guard -> summary
+    FlowDiagram.tsx        data flow; interactive on /security
+    Nav, Footer, Section, StatusBadge, CodeBlock, Callout, ComparisonTable, FAQ, CtaBand, ...
+  content/                 demo/init/doctor captures, generated config examples, parsers
+  lib/                     metadata helper, media-query hooks
+public/
+  sample-report.html       demo summary page (unchanged)
+  opengraph-image.png      social preview image
 ```
+
+## Design rules
+
+- Themes: light and dark, Geist-style grayscale (`src/app/globals.css`). Default follows
+  the system; the nav toggle remembers the visitor's choice (`fourgate-theme` in
+  localStorage) and next-themes applies it before first paint.
+  Dark: background `#000`, surface `#0a0a0a`, text `#ededed`, muted `#a1a1a1`, lines
+  `#262626`/`#3d3d3d`. Light: background `#fff`, surface `#fafafa`, text `#171717`, muted
+  `#666`, lines `#eaeaea`/`#d4d4d4`. Blue (`#0062d1` / `#52a8ff`) is for links and focus only.
+- Verdict colors carry verdict meaning only, with a per-theme shade checked for WCAG AA
+  (at least 4.9:1 on background and surface): PASS `#0f7a3d` / `#3fcf7f`, FAIL `#cb2a2f` /
+  `#ff6166`, UNKNOWN `#9a5700` / `#f5a524` (light / dark).
+- Type: Geist Sans everywhere, Geist Mono for terminals and code (ligatures off, so output
+  reads exactly as printed). Both self-hosted by `next/font`.
+- Interactions are user-triggered (hover, focus, click) and keyboard focus triggers the
+  same states as hover: sliding nav highlight, animated dropdown, magnetic buttons with a
+  light sweep, copy button morph, verdict rows with a gate icon whose dot runs on hover,
+  diagram nodes that light their edges and show what they store, cursor spotlight cards
+  (max 3° tilt), a border trail on the featured plan, the simulator's sliding pill, the
+  stepper's progress rail, a height-animated FAQ and one-time count-ups. The only idle
+  animation is the hero scene. Everything respects `prefers-reduced-motion`.
+- Hero performance: three.js loads via `next/dynamic` with `ssr: false`, only once the
+  scene is on screen and the browser is idle; device pixel ratio is capped at 1.5 (1 on
+  phones, no antialiasing), and rendering pauses when the hero is off screen or the tab is
+  hidden. Reduced motion or no WebGL: a static SVG with the same rules.
+- Must work at 375px without horizontal page scroll, with keyboard-accessible menus,
+  tabs, radio groups, toggles and diagram nodes, and AA contrast in both themes.
+
+## Note for Windows builds
+
+Next 16.3.1's static export writes segment-prefetch files into nested folders on Windows
+(`demo/__next.demo/__PAGE__.txt` instead of `demo/__next.demo.__PAGE__.txt`), so link
+prefetches 404 when `out/` built on Windows is served as-is. Pages themselves still load.
+Vercel builds on Linux and is not affected.
