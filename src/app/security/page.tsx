@@ -151,6 +151,105 @@ export default function SecurityPage() {
       </Section>
 
       <Section
+        id="authentication"
+        layout="stack"
+        title="Authentication is local credential routing—not a Fourgate login."
+        intro={
+          <p>
+            Fourgate has no user accounts, sessions, API keys or hosted authentication service. Authentication happens only
+            between software you run and the APIs you already use. The website is a static export and does not receive,
+            exchange or store those credentials.
+          </p>
+        }
+      >
+        <div className="grid gap-4 lg:grid-cols-3">
+          {[
+            {
+              title: "Write path",
+              text: "Your MCP server authenticates to the target API with its existing write credential. Fourgate forwards the tools/call unchanged and does not copy that credential into a contract.",
+              code: "fourgate/scan.py",
+            },
+            {
+              title: "Verification path",
+              text: "The local verifier independently authenticates an HTTPS GET with a separate, least-privilege read credential. Its value is resolved from the named environment variable only when the check runs.",
+              code: "fourgate/readback.py",
+            },
+            {
+              title: "Isolation boundary",
+              text: "Names listed in verifier.secret_env are removed from the wrapped MCP server environment. The verifier remains local and receives the operator environment, so verifier commands must be trusted.",
+              code: "wrap/wrap.py",
+            },
+          ].map((item) => (
+            <article key={item.title} className="rounded-[14px] border border-line p-5">
+              <h3 className="font-medium text-foreground">{item.title}</h3>
+              <p className="mt-2 text-small text-muted">{item.text}</p>
+              <a
+                href={`${GITHUB_URL}/blob/main/${item.code}`}
+                {...externalProps(`${GITHUB_URL}/blob/main/${item.code}`)}
+                className="link mt-4 inline-block font-mono text-cap"
+              >
+                {item.code}
+              </a>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1fr]">
+          <article className="rounded-[14px] border border-line p-5 sm:p-6">
+            <h3 className="text-title font-medium text-foreground">Request flow</h3>
+            <ol className="mt-5 space-y-4">
+              {[
+                "The agent sends tools/call to fourgate guard over local stdio.",
+                "Guard records the request ID and contracted arguments, then forwards the call to the MCP server.",
+                "The MCP server uses its own write credential to call the system of record and returns its MCP result.",
+                "Guard extracts only contract-approved fields and starts the local verifier.",
+                "The verifier reads the separate credential from its environment and sends a bounded GET to the configured static host.",
+                "The authoritative response becomes PASS, FAIL or UNKNOWN; only a confirmed FAIL changes the agent-visible result in enforce mode.",
+              ].map((step, index) => (
+                <li key={step} className="grid grid-cols-[1.75rem_1fr] gap-3 text-small text-muted">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full border border-line-strong font-mono text-cap text-foreground">
+                    {index + 1}
+                  </span>
+                  <span className="pt-1">{step}</span>
+                </li>
+              ))}
+            </ol>
+          </article>
+
+          <article className="rounded-[14px] border border-line p-5 sm:p-6">
+            <h3 className="text-title font-medium text-foreground">How the read token is sent</h3>
+            <p className="mt-2 text-small text-muted">
+              Config stores an environment-variable name, never the token value. Bearer is the default; a custom header or
+              Basic auth can be selected explicitly.
+            </p>
+            <pre className="fg-scroll mt-4 overflow-x-auto rounded-[10px] border border-line bg-surface p-4 font-mono text-[0.75rem] leading-relaxed text-foreground">{`{
+  "type": "http",
+  "url_template": "https://api.example.com/issues/{record_id}",
+  "token_env": "READBACK_TOKEN",
+  "auth": { "scheme": "bearer" }
+}`}</pre>
+            <ul className="mt-4 space-y-2 text-small text-muted">
+              <li><code className="code-inline">bearer</code> sends <code className="code-inline">Authorization: Bearer …</code>.</li>
+              <li><code className="code-inline">header</code> sends the token in one configured header, with an optional prefix.</li>
+              <li><code className="code-inline">basic</code> supports an environment-supplied username and uses the token as password, or the inverse.</li>
+              <li>No token is sent when <code className="code-inline">token_env</code> is omitted.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div className="mt-6 max-w-3xl">
+          <Callout tone="caution" title="Credential and authentication failures stay uncertain">
+            <p>
+              A missing credential, HTTP 401/403, timeout, network error or malformed response is{" "}
+              <StatusBadge status="UNKNOWN" size="sm" />—never PASS. Fourgate does not refresh, mint or exchange tokens. It
+              rejects dynamic hosts and redirects, and accepts remote read-back only over HTTPS, which keeps an env-supplied
+              token bound to the reviewed endpoint.
+            </p>
+          </Callout>
+        </div>
+      </Section>
+
+      <Section
         id="stored"
         layout="stack"
         title="Every file Fourgate writes, and what it never contains."
