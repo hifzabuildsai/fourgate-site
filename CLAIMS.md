@@ -102,6 +102,13 @@ cannot be sourced, it does not go on the site.
 | Runs entirely on your machines (laptop, server, CI); no Fourgate cloud, account, database or telemetry | /security, Why, FAQ | P9–10, S27–28 |
 | "No sub-processors and nothing for us to leak" | /security | Derived from P9–10 and S27–28 (nothing is sent to or stored by Fourgate) |
 | Never stores credentials; env vars set by you; files contain variable names only | /security, design partner | P11–13, P67–70 |
+| Fourgate has no user accounts, sessions, API keys or hosted authentication service; the site is a static export with no backend | /security authentication | P9–10; S27–28; website `README.md` introduction |
+| Write authentication remains the MCP server's existing credential; Fourgate forwards `tools/call` unchanged | /security authentication | P29–31, P62; `wrap/wrap.py` request pump |
+| Read authentication uses a separate least-privilege credential, resolved from an env var at check time | /security authentication | P63–70, S43; `fourgate/readback.py` `evaluate_extracted()` |
+| Read auth supports Bearer (default), custom header with optional prefix, Basic auth, or no token | /security authentication | R229–234, P101–103; `fourgate/readback.py` `_validate_auth()` and `_request_headers()` |
+| `secret_env` is removed from the wrapped server environment; verifier inherits the operator environment | /security authentication | R187–192, S19–22; `wrap/wrap.py` `_server_env()` |
+| Authentication failures (missing credential, 401/403) are UNKNOWN, never PASS; Fourgate does not mint, refresh or exchange tokens | /security authentication | S38; `fourgate/readback.py` `evaluate_extracted()`; absence of any token-issuance path in the product code |
+| Dynamic hosts and redirects are rejected; remote read-back requires HTTPS | /security authentication | S37–38; `fourgate/readback.py` `_validate_template()` and `_NoRedirect` |
 | Nothing is sent to Fourgate; summary page is built to be shareable; you choose whether to share | /security, design partner | P14–15, P94–95 |
 | Only new network traffic is the verifier's GET to the configured endpoint; never writes, deletes or retries a write | /security, FAQ | P43–45, S3–7 |
 | "Nothing leaves the machine" is true only for a fully local setup, not with HTTP read-back; the MCP server makes its own requests | /security | S23–25 |
