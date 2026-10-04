@@ -308,8 +308,8 @@ export default function Home() {
       </Section>
 
       <CtaBand
-        title="Check one workflow, in shadow mode, with us."
-        text={<p>Pick 1–3 state-changing tools that matter. We write the contracts with you; your agent sees nothing different.</p>}
+        title="Check up to three write tools, in your CI, with us."
+        text={<p>Pick 1–3 state-changing tools that matter. We write the checks with you, run them in your CI against a test account you create, and send a fix report with evidence.</p>}
       >
         <ContactCtas />
       </CtaBand>
