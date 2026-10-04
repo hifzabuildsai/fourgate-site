@@ -3,6 +3,8 @@
 The public site for [Fourgate](https://github.com/hifzabuildsai/fourgate): independent
 outcome verification for consequential AI-agent actions.
 
+Fourgate catches MCP tools that say 'success' when nothing actually happened.
+
 Next.js 16 (App Router, static export) + TypeScript + Tailwind CSS v4, Geist Sans and
 Geist Mono, light and dark themes (`next-themes`, default: system). The hero uses three.js
 through React Three Fiber; user-triggered interactions use `motion`. MDX is configured for
