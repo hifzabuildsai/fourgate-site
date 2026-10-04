@@ -46,7 +46,7 @@ a plain link otherwise (no third-party embeds).
 | `/` | Four-gates hero, problem, verdict simulator, data flow, wrap-your-server toggle, workflow stepper, why, field evidence, pricing, FAQ |
 | `/demo` | Verdict simulator, full demo output, run-it-yourself commands, optional video, the real sample report in a frame |
 | `/integrations` | What works today, wrap-your-server toggle, a generated configuration example, what is not supported yet |
-| `/security` | Interactive data-flow diagram, what is stored, credential isolation, read-back safety, failure semantics, audit links |
+| `/security` | Interactive data-flow diagram, authentication components and request flow, credential/token isolation, what is stored, read-back safety, failure semantics, audit links |
 | `/pricing` | Open Source, Fourgate Founding Pilot, Enterprise; comparison; pricing FAQ |
 | `/design-partner` | The pilot process, what you get, requirements and limits |
 | `/privacy` | No cookies, no analytics |
