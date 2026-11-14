@@ -41,7 +41,7 @@ const youGet = [
 ];
 
 const requirements = [
-  "MCP servers launched as local stdio processes. Remote (HTTP) MCP servers are not supported yet.",
+  "Limited beta 0.4.0b1: local command-configured stdio only. Customer CI, Desktop UI, and production reliability are unvalidated. No remote MCP transport, no hosted endpoint, and no telemetry.",
   "Read-back is an HTTPS GET to an API that can return the written record, authenticated with a Bearer token, a custom header (e.g. X-Api-Key), Basic auth, or no auth.",
   "Each check is capped at 2000 ms. On a Windows laptop the HTTP verifier measured 1.2–1.6 s per call, so add this latency to protected calls.",
   "Contracts are written by hand and reviewed by a human.",

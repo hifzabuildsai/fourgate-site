@@ -22,12 +22,12 @@ const shells: OsCommands[] = [
   {
     id: "linux",
     label: "Linux (bash)",
-    lines: ["python3 -m venv fourgate-env", "fourgate-env/bin/python -m pip install fourgate", "fourgate-env/bin/fourgate demo"],
+    lines: ["python3 -m venv fourgate-env", 'fourgate-env/bin/python -m pip install --pre "fourgate==0.4.0b1"', "fourgate-env/bin/fourgate demo"],
   },
   {
     id: "windows",
     label: "Windows PowerShell",
-    lines: ["python -m venv fourgate-env", "fourgate-env\\Scripts\\python -m pip install fourgate", "fourgate-env\\Scripts\\fourgate demo"],
+    lines: ["python -m venv fourgate-env", 'fourgate-env\\Scripts\\python -m pip install --pre "fourgate==0.4.0b1"', "fourgate-env\\Scripts\\fourgate demo"],
   },
 ];
 
@@ -61,8 +61,10 @@ export default function DemoPage() {
         intro={
           <p>
             Everything on this page comes from one run of <code className="code-inline">{demoCapture.command}</code> with
-            fourgate {demoCapture.version}, installed from PyPI into a fresh virtual environment. The output is split into its
-            five scenes and otherwise unchanged, except that two local paths at the end were shortened.
+            limited beta fourgate {demoCapture.version}, installed from PyPI with{" "}
+            <code className="code-inline">python -m pip install --pre &quot;fourgate==0.4.0b1&quot;</code> into a fresh virtual
+            environment. The output is split into its five scenes and otherwise unchanged, except that two local paths at the
+            end were shortened.
           </p>
         }
       >
@@ -72,7 +74,8 @@ export default function DemoPage() {
               The demo uses a <strong className="text-foreground">simulated connector</strong>, and a{" "}
               <strong className="text-foreground">local file stands in for the system of record</strong>. It needs no API keys and
               makes no network requests. Each scene is a real MCP session, and scenes S2–S5 run through a real{" "}
-              <code>fourgate guard</code> process.
+              <code>fourgate guard</code> process. The package is local stdio only: no remote transport, no hosted endpoint, and
+              no telemetry.
             </p>
           </Callout>
         </div>

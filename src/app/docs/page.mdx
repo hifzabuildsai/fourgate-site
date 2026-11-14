@@ -5,7 +5,7 @@ export const metadata = docMetadata("");
 
 <DocPage slug="">
 
-Fourgate catches MCP tools that say "success" when nothing actually happened. It is early, pre-alpha software. These pages describe **v0.3.0** and nothing newer.
+Fourgate catches MCP tools that say "success" when nothing actually happened. **0.4.0b1 is a limited beta.** Supported paths are local command-configured stdio. Customer CI, the Desktop UI, and production reliability are unvalidated. There is no remote MCP transport, no hosted endpoint, and no telemetry. Shadow is the default; enforce acts only on a confirmed FAIL.
 
 After a connector reports success, Fourgate extracts only the fields a contract approves, runs a deterministic verifier against the system of record, and records one of three outcomes: <V s="PASS" />, <V s="FAIL" /> or <V s="UNKNOWN" />. No LLM makes that decision.
 
@@ -17,16 +17,18 @@ After a connector reports success, Fourgate extracts only the fields a contract 
 - [Reference](/docs/reference/commands): commands and flags, contract JSON, the outcome log, and exit codes.
 - [Security summary](/docs/security): what runs where, what is stored, and what leaves your machine.
 
-## What v0.3.0 covers
+## What 0.4.0b1 covers
 
-- Command-configured local stdio MCP servers only. Remote (HTTP) MCP servers are not supported yet.
+- Command-configured local stdio MCP servers only. Remote MCP transport is not supported.
+- Independent read-back returns PASS, FAIL, or UNKNOWN. No LLM decides the verdict.
 - Contracts are written by hand and approved by a person. Generating them is not implemented.
 - The bundled verifier, `fourgate.verify_http`, is a generic HTTP GET read-back. There are no database adapters.
-- There is no dashboard, alerting product, gateway, retry engine or automatic compensation.
+- There is no hosted control plane, dashboard, alerting product, gateway, retry engine, or automatic compensation.
+- Customer CI, Desktop UI execution, and production reliability are unvalidated.
 
 <Callout title="How these docs are sourced">
 
-Every product claim here comes from the product repository at tag `v0.3.0`: its README, SECURITY.md and PILOT.md, plus the specs and guides those files link to. Each page lists its sources at the bottom. Where the v0.3.0 documentation does not cover a topic, these pages leave it out rather than guess.
+Install commands and the status above match limited beta 0.4.0b1 on PyPI and the product README. Command and contract pages were transcribed from tag `v0.3.0`. The 0.4.0b1 release notes say runtime behavior is unchanged apart from the package version. Each page lists its sources at the bottom; those links still open tag `v0.3.0`. Where that documentation does not cover a topic, these pages leave it out rather than guess.
 
 </Callout>
 

@@ -11,7 +11,7 @@ import RunTerminal, { type OsCommands } from "@/components/RunTerminal";
 import TabbedGroups from "@/components/TabbedGroups";
 import { externalProps } from "@/lib/links";
 import { pageMetadata } from "@/lib/metadata";
-import { GITHUB_URL, PILOT_MD_URL, RELEASE_URL, SECURITY_MD_URL } from "@/site.config";
+import { GITHUB_URL, PILOT_MD_URL, RELEASE_URL, SECURITY_MD_URL, VERSION } from "@/site.config";
 
 export const metadata = pageMetadata({
   title: "Security and data flow",
@@ -85,8 +85,8 @@ const pilotDiagram = ` Your agent (e.g. an MCP client)
                                fourgate summary  ──►  local HTML page`;
 
 const hashCommands: OsCommands[] = [
-  { id: "linux", label: "Linux", lines: ["sha256sum fourgate-0.3.0-py3-none-any.whl"] },
-  { id: "windows", label: "Windows PowerShell", lines: ["Get-FileHash fourgate-0.3.0-py3-none-any.whl -Algorithm SHA256"] },
+  { id: "linux", label: "Linux", lines: [`sha256sum fourgate-${VERSION}-py3-none-any.whl`] },
+  { id: "windows", label: "Windows PowerShell", lines: [`Get-FileHash fourgate-${VERSION}-py3-none-any.whl -Algorithm SHA256`] },
 ];
 
 const link = "link";
@@ -102,8 +102,10 @@ export default function SecurityPage() {
         title="No Fourgate cloud, no database, no telemetry."
         intro={
           <p>
-            So there are no sub-processors and nothing for us to leak. Fourgate runs entirely on your machines (a laptop, a
-            server, or your CI) and nothing is sent to Fourgate. This page is written for whoever reviews Fourgate for security.
+            So there are no sub-processors and nothing for us to leak. Limited beta {VERSION} runs on your machines (a laptop,
+            a server, or CI you operate) and nothing is sent to Fourgate. Supported use is local command-configured stdio.
+            Customer CI, the Desktop UI, and production reliability are unvalidated. There is no remote MCP transport and no
+            hosted control plane. This page is written for whoever reviews Fourgate for security.
             It follows{" "}
             <a href={PILOT_MD_URL} {...externalProps(PILOT_MD_URL)} className={link}>
               PILOT.md
@@ -353,7 +355,7 @@ export default function SecurityPage() {
             { href: GITHUB_URL, label: "Source code" },
             { href: SECURITY_MD_URL, label: "SECURITY.md" },
             { href: PILOT_MD_URL, label: "PILOT.md" },
-            { href: RELEASE_URL, label: "v0.3.0 release and digests" },
+            { href: RELEASE_URL, label: `v${VERSION} release and digests` },
           ]
             .filter((l) => l.href)
             .map((l) => (

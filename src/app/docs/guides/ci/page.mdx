@@ -5,7 +5,7 @@ export const metadata = docMetadata("guides/ci");
 
 <DocPage slug="guides/ci">
 
-The repository ships a copy-paste GitHub Actions workflow for your own repository. It installs Fourgate from a release tag, runs `fourgate scan` on manual dispatch, uploads the JSON and HTML reports as a workflow artifact, and fails the job on any FAIL or UNKNOWN, because both give a non-zero exit.
+The repository ships a copy-paste GitHub Actions workflow for your own repository. It installs Fourgate from a release tag, runs `fourgate scan` on manual dispatch, uploads the JSON and HTML reports as a workflow artifact, and fails the job on any FAIL or UNKNOWN, because both give a non-zero exit. Customer CI is unvalidated. This template is not a production-reliability claim, and there is no hosted control plane.
 
 <Callout tone="caution" title="Every run performs real writes">
 
@@ -74,8 +74,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      # EDIT: Fourgate release tag to install.
-      FOURGATE_REF: v0.3.0
+      # EDIT: reviewed Fourgate release tag to install. This tag is a pre-release.
+      FOURGATE_REF: v0.4.0b1
       # EDIT: path to your scan contract in this repository.
       FOURGATE_CONTRACT: fourgate/scan-contract.json
       # EDIT: must equal server.test_account in the contract. Fourgate refuses
@@ -136,7 +136,7 @@ jobs:
 
 ## What has and has not been run
 
-Fourgate's own CI runs the template's steps against the bundled demo fixture: the broken fixture exits 1 and the healthy one exits 0. The template has not yet been run against a hosted connector.
+Fourgate's own CI runs the template's steps against the bundled demo fixture: the broken fixture exits 1 and the healthy one exits 0. Customer CI validation remains pending.
 
 Exit codes are 0 when every case is PASS, 1 for any FAIL or UNKNOWN, and 2 for invalid configuration. Any non-zero exit fails the job.
 

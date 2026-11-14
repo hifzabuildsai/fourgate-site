@@ -29,7 +29,7 @@ The CI template relies on this: any non-zero exit fails the job. With the bundle
 |---|---|
 | `2` | One or more contracts are invalid at startup. The server is not started. |
 
-Per-call faults do not change the exit code. They are recorded as UNKNOWN and fail open. The v0.3.0 documentation does not state other exit codes for `guard`.
+Per-call faults do not change the exit code. They are recorded as UNKNOWN and fail open. The limited beta documentation does not state other exit codes for `guard`.
 
 ## python -m fourgate.verify_http
 
@@ -37,6 +37,6 @@ A confirmed result prints `{"status":"pass"}` or `{"status":"fail","reason_code"
 
 ## Other commands
 
-The v0.3.0 documentation does not state exit codes for `fourgate init`, `fourgate demo` or `fourgate summary`, so this page does not either.
+The limited beta documentation does not state exit codes for `fourgate init`, `fourgate demo` or `fourgate summary`, so this page does not either.
 
 </DocPage>

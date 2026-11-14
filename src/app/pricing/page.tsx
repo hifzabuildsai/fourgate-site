@@ -102,7 +102,8 @@ const faq: FaqItem[] = [
     q: "What do you need from us?",
     a: (
       <ul className="list-disc space-y-1 pl-5">
-        <li>An MCP server launched as a local stdio process.</li>
+        <li>An MCP server launched as a local stdio process. Remote transport is not supported.</li>
+        <li>Limited beta 0.4.0b1. Customer CI, Desktop UI, and production reliability are unvalidated. There is no hosted endpoint and no telemetry.</li>
         <li>For each protected tool, an API that can return the written record over HTTPS GET.</li>
         <li>A separate, read-only credential for that API, which you create and keep.</li>
         <li>A disposable test account for the contract scan.</li>

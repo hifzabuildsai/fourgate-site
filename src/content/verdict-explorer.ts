@@ -1,5 +1,6 @@
 // Inputs and mappings for the VerdictExplorer widget on the "Why UNKNOWN is never PASS" post.
-// Every row is a documented mapping from the fourgate v0.3.0 sources; `claim` is its id in CLAIMS.md (section W3).
+// Every row is a documented mapping; `claim` is its id in CLAIMS.md (section W3).
+// Rows were not expanded for limited beta 0.4.0b1. The 0.4.0b1 release notes say runtime behavior is unchanged apart from the package version.
 // A combination that is not documented is not offered.
 
 export type Verdict = "PASS" | "FAIL" | "UNKNOWN";

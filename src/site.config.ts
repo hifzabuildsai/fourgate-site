@@ -21,13 +21,15 @@ export const X_URL = "";
 
 // Derived links into the product repository.
 export const RELEASES_URL = `${GITHUB_URL}/releases`;
-export const RELEASE_URL = `${GITHUB_URL}/releases/tag/v0.3.0`;
+export const VERSION = "0.4.0b1";
+export const RELEASE_URL = `${GITHUB_URL}/releases/tag/v${VERSION}`;
 export const README_URL = `${GITHUB_URL}#readme`;
 export const SECURITY_MD_URL = `${GITHUB_URL}/blob/main/SECURITY.md`;
 export const PILOT_MD_URL = `${GITHUB_URL}/blob/main/PILOT.md`;
 export const ISSUES_URL = `${GITHUB_URL}/issues`;
 
-export const VERSION = "0.3.0";
+/** Working PyPI install for the current limited beta. */
+export const INSTALL_COMMAND = 'python -m pip install --pre "fourgate==0.4.0b1"';
 
 // Calls to action. Primary: book the scope call; secondary: email.
 export const PRIMARY_CTA = { href: BOOKING_URL || "/design-partner", label: "Book a 30-minute scope call" };

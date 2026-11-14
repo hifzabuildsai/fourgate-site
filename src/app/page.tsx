@@ -17,7 +17,7 @@ import { demo, demoCapture } from "@/content/demo";
 import { workflow } from "@/content/workflow";
 import { pageMetadata } from "@/lib/metadata";
 import { externalProps } from "@/lib/links";
-import { GITHUB_URL, PRIMARY_CTA, PYPI_URL, VERSION } from "@/site.config";
+import { GITHUB_URL, INSTALL_COMMAND, PRIMARY_CTA, PYPI_URL, VERSION } from "@/site.config";
 
 export const metadata = pageMetadata({
   title: "Fourgate: did your agent's action actually happen?",
@@ -121,8 +121,10 @@ const faq: FaqItem[] = [
     q: "Is it production-ready?",
     a: (
       <p>
-        Not yet. Fourgate is early, pre-alpha. It covers local stdio MCP servers only, contracts are written by hand, and the
-        field evidence is small. That is why we start with a shadow-mode design partnership on a single workflow.
+        Not yet. Fourgate {VERSION} is a limited beta. Supported paths are local command-configured stdio only.
+        Customer CI, the Desktop UI, and production reliability are unvalidated. There is no remote MCP transport,
+        no hosted endpoint, and no telemetry. Contracts are written by hand, and the field evidence is small. That is
+        why we start with a shadow-mode design partnership on a single workflow.
       </p>
     ),
   },
@@ -140,7 +142,7 @@ export default function Home() {
         <Container className="pointer-events-none relative z-10 pb-8 pt-12 sm:pt-16 xl:py-20">
           <div className="pointer-events-auto max-w-[44rem]">
             <p className="text-small text-muted">
-              Open source. Runs on your machine.{" "}
+              Open source. Limited beta. Local stdio only.{" "}
               <a href={PYPI_URL} {...externalProps(PYPI_URL)} className="link">
                 Version {VERSION} on PyPI.
               </a>
@@ -153,7 +155,11 @@ export default function Home() {
             </p>
 
             <div className="mt-9 max-w-[30rem]">
-              <CodeBlock code="pip install fourgate && fourgate demo" label="Run the demo locally. No API keys, no network." prompt />
+              <CodeBlock
+                code={`${INSTALL_COMMAND}\nfourgate demo`}
+                label="Install the limited beta, then run the demo locally. No API keys, no network, no hosted endpoint."
+                prompt
+              />
             </div>
             <div className="mt-3 flex flex-col gap-3 sm:flex-row">
               <ButtonLink href="/demo" variant="secondary">
