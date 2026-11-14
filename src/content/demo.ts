@@ -3,16 +3,17 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 // fourgate-demo-output.txt is the stdout of `fourgate demo --pace 0`
-// (fourgate 0.3.0 from PyPI, fresh venv). Exactly one edit was made: the two
-// absolute local paths in the closing summary were shortened to ./fourgate-demo/...
-// The check below proves every other byte is unchanged from the original run,
-// and the scene split is lossless. Server-only: read at build time.
+// (fourgate 0.4.0b1 from PyPI, `python -m pip install --pre "fourgate==0.4.0b1"`,
+// fresh venv, Linux, Python 3.12.3, 2026-11-14, exit 0). Exactly one edit was
+// made: the two absolute local paths in the closing summary were shortened to
+// ./fourgate-demo/... The check below proves every other byte is unchanged from
+// that run, and the scene split is lossless. Server-only: read at build time.
 
 export const demoCapture = {
   command: "fourgate demo --pace 0",
-  version: "0.3.0",
-  date: "2026-10-02",
-  platform: "Windows 11, Python 3.14.6",
+  version: "0.4.0b1",
+  date: "2026-11-14",
+  platform: "Linux, Python 3.12.3",
 };
 
 /** SHA-256 of the original capture with the two path lines removed. */

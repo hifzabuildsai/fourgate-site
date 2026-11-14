@@ -110,9 +110,9 @@ function SourceVisual() {
     <div aria-hidden="true" className="space-y-1 font-mono text-[0.6875rem] leading-relaxed text-muted">
       <p>
         <span className="rounded-[4px] border border-line-strong px-1.5 py-px text-foreground">MIT</span>{" "}
-        <span className="rounded-[4px] border border-line-strong px-1.5 py-px">v0.3.0</span>
+        <span className="rounded-[4px] border border-line-strong px-1.5 py-px">v0.4.0b1</span>
       </p>
-      <p className="truncate">sha256:0f5d48f9ea93…99efefd3b</p>
+      <p className="truncate">sha256:88701ebd9873…e9668abdf</p>
     </div>
   );
 }

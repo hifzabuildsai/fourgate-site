@@ -10,15 +10,29 @@ Abbreviations: **R** = `README.md`, **P** = `PILOT.md`, **S** = `SECURITY.md`,
 If a source line changes, update the site copy and this file together. If a claim
 cannot be sourced, it does not go on the site.
 
+## Current package (checked 2026-11-14)
+
+Public version, install, and release-file claims follow limited beta **0.4.0b1**:
+
+- Product README on `main`: status is limited beta; install is `python -m pip install --pre "fourgate==0.4.0b1"`; local command-configured stdio only; customer CI, Desktop UI, and production reliability unvalidated; no hosted endpoint, no telemetry, no remote MCP transport. Shadow is the default; enforce only on a confirmed FAIL.
+- GitHub pre-release `v0.4.0b1` assets: wheel `fourgate-0.4.0b1-py3-none-any.whl` SHA-256 `88701ebd9873d38d3852f21704102c8ec99e02e8ec5c467c08a0856e9668abdf`; sdist `fourgate-0.4.0b1.tar.gz` SHA-256 `052da25a37a0fb41a683b151a95be404edb9c2bbce4c2d1ac72ef7256240c931`.
+- The 0.4.0b1 release notes say runtime behavior is unchanged apart from the package version.
+
+Demo stdout was re-run that day (`fourgate demo --pace 0`, fourgate 0.4.0b1 from PyPI, Linux, Python 3.12.3, exit 0). Scene text matched the stored capture except the two local path lines, which stay shortened to `./fourgate-demo/...`. `public/sample-report.html` is that run's summary page (the only content change from the previous report is the generated timestamp, now 2026-11-14).
+
+`fourgate init` with the same example flags produced JSON identical to `src/content/init-example/*.json`. The workflow stepper's init and doctor transcripts were replaced with that 0.4.0b1 run (doctor handshake line now includes protocol `2024-11-05`). The init flag hover map was derived on 0.3.0 and was not re-derived.
+
+Line numbers below still refer to commit `1d7b900` unless a row says otherwise. Doc source links still open tag `v0.3.0`.
+
 ## Positioning
 
 | Claim (as used on the site) | Where | Source |
 |---|---|---|
-| "Open source. Runs on your machine. Version 0.3.0 on PyPI." | Hero | R306, P9, R31–36 |
+| "Open source. Limited beta. Local stdio only. Version 0.4.0b1 on PyPI." | Hero | Current product README status and install sections (see *Current package*); R306, P9 |
 | "Independent outcome verification for consequential AI-agent actions." | Hero, footer, meta | `pyproject.toml` `description`; v0.3.0 release notes (not one of the four source files; see *Other sources*) |
 | Fourgate checks whether a tool's reported success actually happened | Hero | R3 |
-| Early, pre-alpha | Home FAQ | R5 |
-| v0.3.0 is on PyPI; `pip install fourgate` | Hero badge, demo | R31–36, R41–49 |
+| Limited beta 0.4.0b1; local stdio only; customer CI, Desktop UI, and production reliability unvalidated; no remote transport, hosted endpoint, or telemetry | Home FAQ, hero, docs index, design partner, pricing, integrations, security | Current product README status and limitations (see *Current package*) |
+| `python -m pip install --pre "fourgate==0.4.0b1"` is the primary install | Hero, /demo, quickstart | Current product README install section (see *Current package*) |
 | Open source, MIT License | Hero badge, Why, pricing, footer | R306; `LICENSE` |
 
 ## Problem and verdicts
@@ -70,7 +84,7 @@ cannot be sourced, it does not go on the site.
 | scan: bundled-fixture commands; expected FAIL / record_missing (exit 1), PASS on healthy (exit 0), UNKNOWN never PASS, invalid config exits 2 | Workflow stepper | R75–78 (commands), R89–92 (result) |
 | guard: command; enforce only after clean shadow traffic; exits 2 on invalid contracts; per-call faults UNKNOWN and fail open; stdout carries only MCP traffic | Workflow stepper | R177–183 (command), R185 (result) |
 | summary: command; what the page contains; no JavaScript, no network requests | Workflow stepper | R219 (command), R222–226 |
-| Bento visuals (decorative, aria-hidden): "tool call" timing out at "2000 ms" into "? UNKNOWN", a struck "PASS" marked "never"; laptop/server/CI with a struck cloud; the `python your_server.py` -> `fourgate guard … -- python your_server.py` diff; "verifier" "GET" and a returned record; two identical byte rows "= same bytes"; "MIT", "v0.3.0" and the wheel digest `sha256:0f5d48f9ea93…99efefd3b` | Home "Built to be checked, not trusted." | R290 (2000 ms cap), R92/R148 (never PASS); P9 (laptop, server, CI; no cloud); R177–183 (guard wraps the command); R229–234, P101–103 (GET read-back); P16–18 (same bytes); R306 (MIT); v0.3.0 release asset digest (see *Other sources*) |
+| Bento visuals (decorative, aria-hidden): "tool call" timing out at "2000 ms" into "? UNKNOWN", a struck "PASS" marked "never"; laptop/server/CI with a struck cloud; the `python your_server.py` -> `fourgate guard … -- python your_server.py` diff; "verifier" "GET" and a returned record; two identical byte rows "= same bytes"; "MIT", "v0.4.0b1" and the wheel digest `sha256:88701ebd9873…e9668abdf` | Home "Built to be checked, not trusted." | R290 (2000 ms cap), R92/R148 (never PASS); P9 (laptop, server, CI; no cloud); R177–183 (guard wraps the command); R229–234, P101–103 (GET read-back); P16–18 (same bytes); R306 (MIT); v0.4.0b1 release asset digest (see *Current package*) |
 | Data-flow node details ("Holds" / "Never contains") | /security interactive diagram | P26–35 (what runs where), P43–45 (only new traffic), P49–55 (what is stored), P62–70 (credentials), P74–83 (failure behavior) |
 
 ## How it works and integrations
@@ -91,7 +105,7 @@ cannot be sourced, it does not go on the site.
 | Not supported yet: remote MCP transport, database adapters, contract generation, dashboard/alerting/gateway/retry/compensation | /integrations | R288–292 |
 | Flow above the integration cards: agent -> fourgate guard -> MCP server -> system of record, "independent read-only GET, back to fourgate guard" | /integrations "Works with any system…" | P20–41 (what runs where; verifier GET with a separate read-only credential) |
 | Type chips (Runtime, Read-back, Verifier, CI) and "Template" on GitHub Issues read-back and the CI template only | /integrations cards | Classification of the existing card text; "Template" restates R102–103 (GitHub contract is a template) and R120–122 (CI template not yet run against a hosted connector) |
-| Which `fourgate init` flag produced which JSON key (hover highlights) | /integrations "One write tool, one read-back, two small files." | Derived, not authored: `scripts/derive-init-flagmap.py` ran the real `fourgate init` 0.3.0 with the R157 flags, then once per changed flag, and diffed the three files by JSON path; result in `src/content/init-example/flagmap.ts` |
+| Which `fourgate init` flag produced which JSON key (hover highlights) | /integrations "One write tool, one read-back, two small files." | Derived, not authored: `scripts/derive-init-flagmap.py` ran `fourgate init` 0.3.0 with the R157 flags, then once per changed flag, and diffed the three files by JSON path (`src/content/init-example/flagmap.ts`). The stored JSON was re-checked with 0.4.0b1 and matched; the hover map was not re-derived. |
 | `fourgate-config/scan.json` (third tab) | /integrations | The same `fourgate init` run as the other two files (captured in `C:g-example`), unedited; the build fails if the displayed JSON differs from any file |
 | Configuration example files | /integrations | Generated by `fourgate init` with the flags from R157, see *Other sources*; labeled on the page as an example, not a tested integration |
 
@@ -124,7 +138,7 @@ cannot be sourced, it does not go on the site.
 | Enforce only adds one attributed verdict before the original response, on a confirmed FAIL | /security, FAQ | P76–78 |
 | Scan performs real writes; disposable accounts only; cannot tell whether an account is a test account | /security | S3–7 |
 | Report redaction is best effort; review before sharing; POSIX mode 0600; Windows follows directory ACL | /security | S28–35 |
-| "Audit it yourself": link cards (Source code, SECURITY.md, PILOT.md, v0.3.0 release and digests); hash commands for Linux and Windows PowerShell | /security | Same links and commands as before; digests are on the GitHub release page (see *Other sources*) |
+| "Audit it yourself": link cards (Source code, SECURITY.md, PILOT.md, v0.4.0b1 release and digests); hash commands for `fourgate-0.4.0b1-py3-none-any.whl` | /security | Digests are on the v0.4.0b1 GitHub pre-release (see *Current package*) |
 | Digest-match illustration ("release page" / "your download", "= match") | /security | Illustrative only, labeled "Illustration with placeholder digests"; the strings contain "placeholder" and non-hex characters, never a real digest |
 | No SOC 2 / ISO certification claimed | /security | Statement of absence; nothing in the repo claims one |
 
@@ -159,11 +173,11 @@ the site.
 | Item | Source |
 |---|---|
 | Tagline | `pyproject.toml` `description` at `1d7b900`; v0.3.0 GitHub release notes |
-| SHA-256 digests on the release page | GitHub Releases API for `v0.3.0`: wheel `0f5d48f9…fd3b`, sdist `faa3d644…6f5a` |
-| Demo output and `public/sample-report.html` | A run of `fourgate demo --pace 0`, fourgate 0.3.0 from PyPI, fresh venv outside `%TEMP%`, Windows 11, Python 3.14.6, 2026-10-02, exit 0. The sample report is that run's `fourgate-demo-summary.html`, byte-identical (`.gitattributes` keeps it from line-ending conversion). The text capture had a PowerShell BOM and CRLF line endings removed, and the two absolute local paths in its closing summary shortened to `./fourgate-demo/demo-outcomes.jsonl` and `./fourgate-demo/fourgate-demo-summary.html` (noted on the site as "paths shortened"). The build checks the rest against a SHA-256 of the original. |
-| `src/content/fourgate-init-output.txt`, `fourgate-doctor-output.txt` | `fourgate init` (README R157 flags) and `fourgate doctor --contracts fourgate-config/runtime.json --server server --log outcomes.jsonl -- python -m fourgate.demo.server`, fourgate 0.3.0, run in `C:g-example` with `READBACK_TOKEN` set to a dummy value, 2026-10-02, both exit 0. Unedited apart from CRLF line endings. |
-| `src/content/init-example/*.json` | `fourgate init` 0.3.0 run with the flags in R157 |
-| Pricing: Open Source free; Fourgate Founding Pilot $300 one-time and its inclusions (founder-assisted setup, outcome contracts for up to three write tools, CI job via a pull request you merge, PASS / FAIL / UNKNOWN fix report with evidence, day-30 review call), invoiced after the scope call (no online checkout); nothing renews automatically; ongoing support optional, by agreement; Enterprise by contact; free short evaluation | Commercial terms set by the founder for this site (home teaser, /pricing card, comparison, FAQ "What happens after the pilot?", /design-partner "What you get"). These are offers, not product claims. The CI job rests on the CI template (R105–122; fails on FAIL or UNKNOWN, not yet run against a hosted connector); checks run against a test account you create (S3–7). No refund, subscription or ongoing-support terms are offered. |
+| SHA-256 digests on the release page | GitHub Releases API for `v0.4.0b1`: wheel `88701ebd…abdf`, sdist `052da25a…c931` (see *Current package*) |
+| Demo output and `public/sample-report.html` | A run of `fourgate demo --pace 0`, fourgate 0.4.0b1 from PyPI, Linux, Python 3.12.3, 2026-11-14, exit 0. The sample report is that run's `fourgate-demo-summary.html`. The text capture shortens the two absolute local paths in its closing summary to `./fourgate-demo/demo-outcomes.jsonl` and `./fourgate-demo/fourgate-demo-summary.html` (noted on the site as "paths shortened"). The build checks the rest against a SHA-256 of that run. |
+| `src/content/fourgate-init-output.txt`, `fourgate-doctor-output.txt` | `fourgate init` (same example flags) and `fourgate doctor --contracts fourgate-config/runtime.json --server server --log outcomes.jsonl -- python -m fourgate.demo.server`, fourgate 0.4.0b1, run in `/tmp/fg-example` on Linux with `READBACK_TOKEN` unset for init and set to a dummy value for doctor, 2026-11-14, both exit 0. Doctor's handshake line includes protocol `2024-11-05`. |
+| `src/content/init-example/*.json` | `fourgate init` 0.4.0b1 with the same flags reproduced these files byte for byte (originally captured from 0.3.0) |
+| Pricing: Open Source free; Fourgate Founding Pilot $300 one-time and its inclusions (founder-assisted setup, outcome contracts for up to three write tools, CI job via a pull request you merge, PASS / FAIL / UNKNOWN fix report with evidence, day-30 review call), invoiced after the scope call (no online checkout); nothing renews automatically; ongoing support optional, by agreement; Enterprise by contact; free short evaluation | Commercial terms set by the founder for this site (home teaser, /pricing card, comparison, FAQ "What happens after the pilot?", /design-partner "What you get"). These are offers, not product claims. The CI job rests on the CI template (fails on FAIL or UNKNOWN). Customer CI validation remains pending. Checks run against a test account you create (S3–7). No refund, subscription or ongoing-support terms are offered. |
 
 ## W2: docs and blog (product repository tag v0.3.0)
 
@@ -176,9 +190,9 @@ number. Extra abbreviations: **SC** = `specs/scan-contract-v1.md`, **OG** = `spe
 
 | Page | Claim | Source |
 |---|---|---|
-| /docs | Catches MCP tools that say success when nothing happened; pre-alpha; v0.3.0 | R3, R5 |
+| /docs | Catches MCP tools that say success when nothing happened; limited beta 0.4.0b1; local stdio only; customer CI, Desktop UI, and production reliability unvalidated; no remote transport or hosted control plane | Current product README (see *Current package*); R3 |
 | /docs | Local stdio only; hand-authored contracts; `verify_http` generic GET, no database adapters; no dashboard, alerting, gateway, retry, compensation | R279–283, P144–145 |
-| /docs/quickstart | Python 3.10–3.13, Linux or Windows; git install from tag; wheel on the release; `fourgate --version`; `pip install .` from checkout | R31–47 |
+| /docs/quickstart | Python 3.10–3.13, Linux or Windows; primary install `python -m pip install --pre "fourgate==0.4.0b1"`; git tag `v0.4.0b1` and the pre-release wheel as alternatives; `fourgate --version`; `pip install .` from checkout | Current product README install section (see *Current package*) |
 | /docs/quickstart | `fourgate demo`: no keys, no network, five real MCP sessions, guarded through real `fourgate guard`, self-check, summary at `./fourgate-demo/fourgate-demo-summary.html`; `--pace 2`; the five scenes; simulated connector | R133–141 |
 | /docs/quickstart | Fixture scan commands; expected `FAIL / record_missing`, exit 1; healthy exit 0; reports written | R62–86 |
 | /docs/quickstart, /docs/concepts | PASS unchanged; FAIL prepends `outcome_failed` in enforce; UNKNOWN (crash, timeout, malformed output, missing selector, internal fault) fails open, unchanged; UNKNOWN never PASS | R119–123, R83, R139 |
@@ -204,10 +218,10 @@ number. Extra abbreviations: **SC** = `specs/scan-contract-v1.md`, **OG** = `spe
 | /docs/guides/http-auth | Bearer default; header, prefix and Basic variants (table) | R220–225, O183–202 |
 | /docs/guides/http-auth | Static non-secret `headers`; credential-looking and transport names rejected; `expected_fields` dot paths; 404 stays UNKNOWN unless `missing_statuses` | S16–18, O204–211, O213–228 |
 | /docs/guides/http-auth | HTTPS off loopback only, static host, no redirects, 401/403 UNKNOWN; least-privilege read token | S37–38, SC48–62, S43 |
-| /docs/guides/github-issues | Template needs disposable repo, tokens, e2e acceptance; not validated e2e | R93–94, SC8–11, SC82–84, H180 |
+| /docs/guides/github-issues | Template needs a disposable repo and separate credentials; not a customer-CI or hosted-control-plane claim | Current product README GitHub contract limits; SC8–11, SC82–84 |
 | /docs/guides/github-issues | `github_issue` fields, attempts/interval/timeout ranges, GET only; 404 UNKNOWN, `missing_is_fail` | SC54–62 |
 | /docs/guides/github-issues | Template JSON | GH 1–39 |
-| /docs/guides/ci | What the workflow does; edit points; two secrets; real writes; private repo; own CI against demo fixture; not run against a hosted connector | R98–113 |
+| /docs/guides/ci | What the workflow does; edit points; two secrets; real writes; private repo; own CI against the demo fixture; customer CI unvalidated; `FOURGATE_REF` is `v0.4.0b1` | Current product `examples/ci/fourgate-scan.yml` and README CI limits |
 | /docs/guides/ci | Workflow text; triggers, concurrency, exit codes, advice against `pull_request` | CI 1–100 |
 | /docs/guides/windows | Windows and Linux, Python 3.10–3.13; PowerShell fixture scan | R31, R72–78, P152 |
 | /docs/guides/windows | Operator guide is PowerShell 5.1; credential prompt, `setx` warning, redaction by variable name | O1–6, O107–137 |
@@ -236,7 +250,7 @@ Same source as W2 (tag `v0.3.0`, abbreviations as above). Widget mappings live i
 
 | Id | Claim | Source |
 |---|---|---|
-| W3-0 | `fourgate` 0.3.0 is on PyPI; `python -m pip install fourgate` is the primary install (git tag and wheel remain as alternatives). The v0.3.0 README says "Fourgate is not on PyPI yet" (R39–40), which is out of date | PyPI project page <https://pypi.org/project/fourgate/> (checked 2026-10-03: latest and only release 0.3.0); install alternatives R33–39 |
+| W3-0 | `fourgate` 0.4.0b1 is the current limited beta on PyPI; `python -m pip install --pre "fourgate==0.4.0b1"` is the primary install (git tag and wheel remain as alternatives). Stable 0.3.0 remains installable without `--pre` | Current product README install section and the v0.4.0b1 pre-release (checked 2026-11-14) |
 | W3-1 | Success with ID + every expected field matches → PASS / `postcondition_satisfied` | O346, O269 |
 | W3-2 | Record exists, a field differs → FAIL / `field_mismatch` | O347, H28–29 |
 | W3-3 | GET returned a status listed in `missing_statuses` on every attempt → FAIL / `record_missing` | O348, SC49–51 |

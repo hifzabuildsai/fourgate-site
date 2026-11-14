@@ -1,6 +1,10 @@
 import { GITHUB_URL } from "@/site.config";
 
-/** Product release the docs describe. Every product claim is sourced from this tag; see CLAIMS.md. */
+/**
+ * Tag used for line-level source links. Command pages were transcribed from this tag.
+ * The shipping package is limited beta 0.4.0b1; see CLAIMS.md. The 0.4.0b1 release
+ * notes say runtime behavior is unchanged apart from the package version.
+ */
 export const DOCS_TAG = "v0.3.0";
 
 export type DocSource = {
@@ -24,14 +28,14 @@ export const docs: DocEntry[] = [
     slug: "",
     group: "Start",
     title: "Fourgate documentation",
-    description: "Install Fourgate, run the demo, and protect your first MCP write tool. Written from the v0.3.0 release.",
+    description: "Install limited beta 0.4.0b1, run the demo, and protect your first MCP write tool. Local stdio only.",
     sources: [{ file: "README.md" }],
   },
   {
     slug: "quickstart",
     group: "Start",
     title: "Quickstart",
-    description: "Install Fourgate v0.3.0, run fourgate demo, and read PASS, FAIL and UNKNOWN.",
+    description: "Install limited beta fourgate 0.4.0b1, run fourgate demo, and read PASS, FAIL and UNKNOWN.",
     sources: [
       { file: "README.md", lines: "31-58" },
       { file: "README.md", lines: "127-143" },
@@ -97,7 +101,7 @@ export const docs: DocEntry[] = [
     slug: "guides/windows",
     group: "Guides",
     title: "Windows notes",
-    description: "What the v0.3.0 documentation says about Windows: PowerShell syntax, credentials, file permissions and measured latency.",
+    description: "Windows notes for limited beta 0.4.0b1: PowerShell syntax, credentials, file permissions and measured latency.",
     sources: [
       { file: "README.md", lines: "31" },
       { file: "README.md", lines: "72-78" },
@@ -109,7 +113,7 @@ export const docs: DocEntry[] = [
     slug: "reference/commands",
     group: "Reference",
     title: "Commands and flags",
-    description: "Each command and the flags the v0.3.0 documentation describes.",
+    description: "Each command and the flags the limited beta documentation describes.",
     sources: [
       { file: "README.md", lines: "49-58" },
       { file: "README.md", lines: "145-218" },
@@ -142,7 +146,7 @@ export const docs: DocEntry[] = [
     slug: "reference/exit-codes",
     group: "Reference",
     title: "Exit codes",
-    description: "The exit codes the v0.3.0 documentation states, per command.",
+    description: "The exit codes the limited beta documentation states, per command.",
     sources: [
       { file: "README.md", lines: "80-86" },
       { file: "README.md", lines: "161" },

@@ -5,7 +5,7 @@ export const metadata = docMetadata("guides/first-tool");
 
 <DocPage slug="guides/first-tool">
 
-Install Fourgate first with `python -m pip install fourgate`. The [Quickstart](/docs/quickstart#install) lists the git and wheel alternatives.
+Install Fourgate first with `python -m pip install --pre "fourgate==0.4.0b1"`. The [Quickstart](/docs/quickstart#install) lists the git and wheel alternatives. This is limited beta 0.4.0b1: local stdio only, with no remote transport and no hosted control plane.
 
 The flow has five steps after the demo: `init` writes the configuration, `doctor` checks it without side effects, `scan` proves it against a disposable test account, `guard` wraps your server in shadow mode, and `summary` turns the log into one page.
 

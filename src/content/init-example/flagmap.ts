@@ -1,5 +1,7 @@
 // Which `fourgate init` flag produces which JSON keys, per generated file.
-// Derived by scripts/derive-init-flagmap.py: the real `fourgate init` 0.3.0 was run
+// Derived by scripts/derive-init-flagmap.py on fourgate 0.3.0 and not re-derived for 0.4.0b1.
+// The stored init JSON was re-checked with `fourgate init` 0.4.0b1 (same flags) and matched.
+// Original derivation: the real `fourgate init` 0.3.0 was run
 // with the README flags, then with one flag changed at a time, and the three files
 // were diffed by JSON path. Paths use "/" separators; array items are indexed.
 

@@ -63,7 +63,7 @@ const borderFor = { PASS: "border-pass/60", FAIL: "border-fail/60", UNKNOWN: "bo
 
 /**
  * Pick what the tool reported and what the read-back returned; see the verdict the
- * v0.3.0 documentation gives for that combination. Only documented combinations are offered.
+ * limited-beta documentation gives for that combination. Only documented combinations are offered.
  */
 export default function VerdictExplorer() {
   const uid = useId();

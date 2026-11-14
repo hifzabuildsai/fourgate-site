@@ -2,9 +2,9 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { demo } from "./demo";
 
-// The six-step product flow. Every "output" is a real capture from fourgate
-// 0.3.0; steps without a capture show the README's command and the README's
-// own description of the result, labeled as such. Server-only.
+// The six-step product flow. Captured output is from fourgate 0.4.0b1.
+// Steps without a capture show the README's command and the README's own
+// description of the result, labeled as such. Server-only.
 
 const read = (name: string) => readFileSync(path.join(process.cwd(), "src/content", name), "utf8").replace(/\n$/, "");
 
@@ -29,7 +29,7 @@ export const workflow: WorkflowStep[] = [
     purpose: "See it work: local, simulated, no keys, no network.",
     command: "fourgate demo --pace 0",
     output: demo.raw,
-    outputNote: "Captured 2026-10-02. Paths shortened.",
+    outputNote: "Captured 2026-11-14 with fourgate 0.4.0b1. Paths shortened.",
   },
   {
     id: "init",
@@ -47,7 +47,7 @@ export const workflow: WorkflowStep[] = [
   -- python your_server.py`,
     commandNote: "The example from the README. api.example.com and your_server.py are placeholders.",
     output: read("fourgate-init-output.txt"),
-    outputNote: "Captured on Windows, so paths use backslashes.",
+    outputNote: "Captured with fourgate 0.4.0b1 on Linux. READBACK_TOKEN was not set.",
   },
   {
     id: "doctor",
@@ -61,7 +61,7 @@ export const workflow: WorkflowStep[] = [
     commandNote:
       "Run against the files init wrote, with the bundled demo server standing in for yours and READBACK_TOKEN set to a dummy value.",
     output: read("fourgate-doctor-output.txt"),
-    outputNote: "Captured in C:\\fg-example on Windows.",
+    outputNote: "Captured with fourgate 0.4.0b1 in /tmp/fg-example. READBACK_TOKEN was a dummy value. Exit 0.",
   },
   {
     id: "scan",
